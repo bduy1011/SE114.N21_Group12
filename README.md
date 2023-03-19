@@ -1,13 +1,26 @@
-# SE114.N21 - NHẬP MÔN DỨNG DỤNG DI ĐỘNG
+# SE104.N23 - NHẬP MÔN ỨNG DỤNG DI ĐỘNG
 
-Đề tài:
+## Đề tài: 
 
-Thành viên:
-1. Nguyễn Trương Bảo Duy - 21522006
-2. Huỳnh Tiến Phát - 21520388
-3. Trần Tiên Phát - 21522449
-4. Đỗ Minh Trí - 20520827
+## Mô tả:
 
-Mô tả:
+### Thành viên
 
-Tính năng:
+|STT|Họ và tên          |MSSV       |
+|:-:|:------------------|:---------:|
+| 1	|[Nguyễn Trương Bảo Duy](mailto:21522006@gm.uit.edu.vn)	| 21522006	|
+| 2	|[Huỳnh Tiến Phát](mailto:21520388@gm.uit.edu.vn)	| 21520388	| 
+| 3	|[Trần Tiến Phát](mailto:21522449@gm.uit.edu.vn)	| 21522449	|
+| 4	|[Đỗ Minh Trí](mailto:20520827@gm.uit.edu.vn)	| 20520827	| 
+
+**Giáo viên hướng dẫn:** Nguyễn Tấn Toàn
+
+### Công cụ:
+
+- **IDE:** 
+- **Ngôn ngữ lập trình:** Java
+- **Framework & Library:** 
+- **Design Pattern:** 
+- **Database**: 
+
+### Tính năng:
