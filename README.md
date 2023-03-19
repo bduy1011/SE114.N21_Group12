@@ -1,6 +1,6 @@
 # SE104.N23 - NHẬP MÔN ỨNG DỤNG DI ĐỘNG
 
-## Đề tài: 
+## Đề tài: ỨNG DỤNG QUẢN LÝ CHI TIÊU
 
 ## Mô tả:
 
