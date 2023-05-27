@@ -39,6 +39,7 @@
                     android:textAlignment="center"
                     />
                 <TextView
+                    android:id="@+id/total_amount"
                     android:textStyle="bold"
                     android:textColor="@color/black"
                     android:textSize="30sp"
@@ -93,6 +94,7 @@
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/white"/>
                             <TextView
+                                android:id="@+id/total_income"
                                 android:textStyle="bold"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -142,6 +144,7 @@
                                 android:textColor="@color/white"/>
 
                             <TextView
+                                android:id="@+id/total_expense"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="3500"
@@ -189,12 +192,14 @@
             </androidx.cardview.widget.CardView>
             </RelativeLayout>
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/itemsRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </LinearLayout>
 
     </LinearLayout>
     <androidx.cardview.widget.CardView
+        android:id="@+id/new_Btn"
         android:layout_margin="16dp"
         android:backgroundTint="@color/btn_color"
         android:layout_width="70dp"
