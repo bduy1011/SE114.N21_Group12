@@ -20,6 +20,4 @@ public abstract class ExpenseDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-
-
 }
