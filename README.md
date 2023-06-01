@@ -11,7 +11,6 @@
 | 1	|[Nguyễn Trương Bảo Duy](mailto:21522006@gm.uit.edu.vn)	| 21522006	|
 | 2	|[Huỳnh Tiến Phát](mailto:21520388@gm.uit.edu.vn)	| 21520388	| 
 | 3	|[Trần Tiến Phát](mailto:21522449@gm.uit.edu.vn)	| 21522449	|
-| 4	|[Đỗ Minh Trí](mailto:20520827@gm.uit.edu.vn)	| 20520827	| 
 
 **Giáo viên hướng dẫn:** Nguyễn Tấn Toàn
 
