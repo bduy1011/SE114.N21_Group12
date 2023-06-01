@@ -17,9 +17,11 @@ import java.util.List;
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHolder>{
     private Context context;
     private List<ExpenseTable> expenseTableList;
-    ExpenseAdapter(Context context){
+    private ClickEvent clickEvent;
+    ExpenseAdapter(Context context, ClickEvent clickEvent){
         this.context = context;
         expenseTableList = new ArrayList<>();
+        this.clickEvent = clickEvent;
     }
     @NonNull
     @Override
@@ -40,6 +42,19 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHo
         else{
             holder.status.setText("Expense");
         }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickEvent.OnClick(position);
+            }
+        });
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                clickEvent.OnLongPress(position);
+                return false;
+            }
+        });
     }
     @Override
     public int getItemCount() {
@@ -48,6 +63,26 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHo
 
     public void add(ExpenseTable expenseTable) {
         expenseTableList.add(expenseTable);
+        notifyDataSetChanged();
+    }
+
+    public int getId(int pos) {
+        return expenseTableList.get(pos).getId();
+    }
+    public boolean isIncome(int pos) {
+        return expenseTableList.get(pos).isIncome();
+    }
+    public String paymentType(int pos) {
+        return expenseTableList.get(pos).getPaymentType();
+    }
+    public String desc(int pos) {
+        return expenseTableList.get(pos).getDescription();
+    }
+    public int Amount(int pos) {
+        return expenseTableList.get(pos).getAmount();
+    }
+    public void delete(int pos){
+        expenseTableList.remove(pos);
         notifyDataSetChanged();
     }
 

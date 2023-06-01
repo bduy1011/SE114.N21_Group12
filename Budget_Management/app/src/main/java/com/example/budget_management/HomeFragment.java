@@ -1,6 +1,8 @@
 package com.example.budget_management;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -25,7 +27,7 @@ import java.util.List;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements ClickEvent{
 
     FragmentHomeBinding binding;
     // TODO: Rename parameter arguments, choose names that match
@@ -89,7 +91,7 @@ public class HomeFragment extends Fragment {
         super.onResume();
         expenseDatabase= ExpenseDatabase.getInstance(getContext());
         expenseDao = expenseDatabase.getDao();
-        expenseAdapter = new ExpenseAdapter(getContext());
+        expenseAdapter = new ExpenseAdapter(getContext(), this);
         binding.itemsRecycler.setAdapter(expenseAdapter);
         binding.itemsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -111,4 +113,41 @@ public class HomeFragment extends Fragment {
 
     }
 
+    @Override
+    public void OnClick(int pos) {
+        Intent intent = new Intent(getActivity(),AddActivity.class);
+        intent.putExtra("update",true);
+        intent.putExtra("id", expenseAdapter.getId(pos));
+        intent.putExtra("amount", expenseAdapter.Amount(pos));
+        intent.putExtra("type", expenseAdapter.paymentType(pos));
+        intent.putExtra("description", expenseAdapter.desc(pos));
+        intent.putExtra("isIncome", expenseAdapter.isIncome(pos));
+        startActivity(intent);
+
+
+
+    }
+
+    @Override
+    public void OnLongPress(int pos) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Delete")
+                .setMessage("Do you want to delete it?")
+                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        int id = expenseAdapter.getId(pos);
+                        expenseDao.delete(id);
+                        expenseAdapter.delete(pos);
+
+                    }
+                })
+                .setNegativeButton("no", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+        builder.show();
+    }
 }

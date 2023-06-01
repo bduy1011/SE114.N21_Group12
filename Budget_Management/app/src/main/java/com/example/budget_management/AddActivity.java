@@ -17,6 +17,24 @@ public class AddActivity extends AppCompatActivity {
         activityAddBinding = ActivityAddBinding.inflate(getLayoutInflater());
         setContentView(activityAddBinding.getRoot());
 
+        boolean update = getIntent().getBooleanExtra("update", false);
+        int id = getIntent().getIntExtra("id", -1);
+        int amount = getIntent().getIntExtra("amount", -1);
+        String paymentType = getIntent().getStringExtra("type");
+        String description = getIntent().getStringExtra("description");
+        boolean isIncome  = getIntent().getBooleanExtra("isIncome", false);
+        if(update){
+            activityAddBinding.addText.setText("Update");
+            activityAddBinding.amount.setText(amount+"");
+            activityAddBinding.paymentType.setText(paymentType);
+            activityAddBinding.description.setText(description);
+            if(isIncome){
+                activityAddBinding.incomeRadio.setChecked(true);
+            }else{
+                activityAddBinding.expenseRadio.setChecked(true);
+            }
+
+        }
         activityAddBinding.addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,8 +52,14 @@ public class AddActivity extends AppCompatActivity {
 
                 ExpenseDatabase expenseDatabase = ExpenseDatabase.getInstance(view.getContext());
                 ExpenseDao expenseDao = expenseDatabase.getDao();
+                if(!update){
+                    expenseDao.insertExpense(expenseTable);
+                }
+                else{
+                    expenseTable.setId(id);
+                    expenseDao.updateExpense(expenseTable);
 
-                expenseDao.insertExpense(expenseTable);
+                }
                 finish();
 
             }
