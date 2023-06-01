@@ -31,7 +31,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder,int position) {
         ExpenseTable expenseTable = expenseTableList.get(position);
         holder.amount.setText(expenseTable.getAmount() + " Vnd");
         holder.description.setText("" + expenseTable.getDescription());
