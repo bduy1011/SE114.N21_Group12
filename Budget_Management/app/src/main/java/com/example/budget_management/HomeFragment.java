@@ -40,7 +40,7 @@ public class HomeFragment extends Fragment {
     ExpenseAdapter expenseAdapter;
     ExpenseDatabase expenseDatabase;
     ExpenseDao expenseDao;
-
+    int income = 0, expense = 0;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -96,8 +96,18 @@ public class HomeFragment extends Fragment {
         List<ExpenseTable> expenseTables = expenseDao.getAll();
 
         for(int i = 0; i < expenseTables.size(); i++){
+            if(expenseTables.get(i).isIncome()){
+                income = income + expenseTables.get(i).getAmount();
+            }
+            else {
+                expense = expense + expenseTables.get(i).getAmount();
+            }
             expenseAdapter.add(expenseTables.get(i));
         }
+        binding.totalIncome.setText(income+"");
+        binding.totalExpense.setText(expense+"");
+        int balance = income - expense;
+        binding.totalAmount.setText(balance+"");
 
     }
 

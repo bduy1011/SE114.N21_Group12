@@ -73,7 +73,6 @@
                             android:textColor="@color/white"
                             android:hint="Amount"
                             android:textStyle="bold"/>
-
                     </LinearLayout>
 
                 </LinearLayout>
@@ -102,6 +101,22 @@
                 android:background="@drawable/stroke"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"/>
+            <RadioGroup
+                android:id="@+id/radioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:id="@+id/incomeRadio"
+                    android:text="Income"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/expenseRadio"
+                    android:text="Expense"
+                    android:checked="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </RadioGroup>
         </LinearLayout>
     </LinearLayout>
 

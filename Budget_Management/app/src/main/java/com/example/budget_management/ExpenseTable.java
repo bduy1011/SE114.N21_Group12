@@ -10,16 +10,17 @@ public class ExpenseTable {
     private int amount;
     private String paymentType;
     private String description;
+    private boolean isIncome;
 
     public ExpenseTable() {
-
     }
 
-    public ExpenseTable(int id, int amount, String paymentType, String description) {
+    public ExpenseTable(int id, int amount, String paymentType, String description, boolean isIncome) {
         this.id = id;
         this.amount = amount;
         this.paymentType = paymentType;
         this.description = description;
+        this.isIncome = isIncome;
     }
 
     public int getId() {
@@ -52,5 +53,13 @@ public class ExpenseTable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isIncome() {
+        return isIncome;
+    }
+
+    public void setIncome(boolean income) {
+        isIncome = income;
     }
 }

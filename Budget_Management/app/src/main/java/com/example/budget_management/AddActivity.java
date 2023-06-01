@@ -5,30 +5,32 @@ import androidx.cardview.widget.CardView;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
-public class AddActivity extends AppCompatActivity {
+import com.example.budget_management.databinding.ActivityAddBinding;
 
+public class AddActivity extends AppCompatActivity {
+    ActivityAddBinding activityAddBinding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add);
+        activityAddBinding = ActivityAddBinding.inflate(getLayoutInflater());
+        setContentView(activityAddBinding.getRoot());
 
-        CardView addBtn = findViewById(R.id.add_btn);
-
-        addBtn.setOnClickListener(new View.OnClickListener() {
+        activityAddBinding.addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText amount = findViewById(R.id.amount);
-                EditText type = findViewById(R.id.paymentType);
-                EditText description = findViewById(R.id.description);
+                String amount = activityAddBinding.amount.getText().toString();
+                String type = activityAddBinding.paymentType.getText().toString();
+                String description = activityAddBinding.description.getText().toString();
+                boolean isIncome = activityAddBinding.incomeRadio.isChecked();
 
                 ExpenseTable expenseTable = new ExpenseTable();
 
-                expenseTable.setAmount(Integer.parseInt(amount.getText().toString()));
-                expenseTable.setPaymentType(type.getText().toString());
-                expenseTable.setDescription(description.getText().toString());
+                expenseTable.setAmount(Integer.parseInt(amount));
+                expenseTable.setPaymentType(type);
+                expenseTable.setDescription(description);
+                expenseTable.setIncome(isIncome);
 
                 ExpenseDatabase expenseDatabase = ExpenseDatabase.getInstance(view.getContext());
                 ExpenseDao expenseDao = expenseDatabase.getDao();

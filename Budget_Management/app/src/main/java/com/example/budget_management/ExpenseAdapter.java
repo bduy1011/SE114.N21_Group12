@@ -31,9 +31,15 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHo
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ExpenseTable expenseTable = expenseTableList.get(position);
-        holder.amount.setText("" + expenseTable.getAmount());
+        holder.amount.setText(expenseTable.getAmount() + " Vnd");
         holder.description.setText("" + expenseTable.getDescription());
         holder.paymentType.setText("" + expenseTable.getPaymentType());
+        if(expenseTable.isIncome()){
+            holder.status.setText("Income");
+        }
+        else{
+            holder.status.setText("Expense");
+        }
     }
     @Override
     public int getItemCount() {
@@ -47,9 +53,10 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.MyViewHo
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
-        TextView amount, paymentType, description;
+        TextView status, amount, paymentType, description;
         public MyViewHolder(@NotNull View itemView){
             super(itemView);
+            status = itemView.findViewById(R.id.isIncome);
             amount = itemView.findViewById(R.id.amount_text);
             paymentType = itemView.findViewById(R.id.payment_type_text);
             description = itemView.findViewById(R.id.description_text);
