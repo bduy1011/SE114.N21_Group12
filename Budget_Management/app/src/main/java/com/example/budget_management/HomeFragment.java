@@ -89,6 +89,9 @@ public class HomeFragment extends Fragment implements ClickEvent{
     @Override
     public void onResume() {
         super.onResume();
+        LoadItem();
+    }
+    public void LoadItem(){
         expenseDatabase= ExpenseDatabase.getInstance(getContext());
         expenseDao = expenseDatabase.getDao();
         expenseAdapter = new ExpenseAdapter(getContext(), this);
@@ -110,7 +113,8 @@ public class HomeFragment extends Fragment implements ClickEvent{
         binding.totalExpense.setText(expense+"");
         int balance = income - expense;
         binding.totalAmount.setText(balance+"");
-
+        income = 0;
+        expense = 0;
     }
 
     @Override
@@ -136,7 +140,7 @@ public class HomeFragment extends Fragment implements ClickEvent{
                         int id = expenseAdapter.getId(pos);
                         expenseDao.delete(id);
                         expenseAdapter.delete(pos);
-
+                        LoadItem();
                     }
                 })
                 .setNegativeButton("no", new DialogInterface.OnClickListener() {

@@ -58,7 +58,6 @@ public class AddActivity extends AppCompatActivity {
                 else{
                     expenseTable.setId(id);
                     expenseDao.updateExpense(expenseTable);
-
                 }
                 finish();
 

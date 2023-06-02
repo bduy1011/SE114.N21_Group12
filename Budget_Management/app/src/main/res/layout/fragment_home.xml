@@ -201,20 +201,26 @@
         </LinearLayout>
 
     </LinearLayout>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/new_Btn"
-        android:layout_margin="16dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="64dp"
         android:backgroundTint="@color/btn_color"
-        android:layout_width="70dp"
-        app:cardCornerRadius="35dp"
-        android:layout_height="70dp">
+        app:cardCornerRadius="35dp">
+
         <ImageView
-            android:tint="@color/white"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="center"
             android:src="@drawable/add_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
+            android:tint="@color/white" />
     </androidx.cardview.widget.CardView>
 </RelativeLayout>
