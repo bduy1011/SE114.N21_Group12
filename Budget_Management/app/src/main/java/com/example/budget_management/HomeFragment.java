@@ -115,7 +115,14 @@ public class HomeFragment extends Fragment implements ClickEvent{
 
     @Override
     public void OnClick(int pos) {
-
+        Intent intent = new Intent(getActivity(),AddActivity.class);
+        intent.putExtra("update",true);
+        intent.putExtra("id", expenseAdapter.getId(pos));
+        intent.putExtra("amount", expenseAdapter.Amount(pos));
+        intent.putExtra("type", expenseAdapter.paymentType(pos));
+        intent.putExtra("description", expenseAdapter.desc(pos));
+        intent.putExtra("isIncome", expenseAdapter.isIncome(pos));
+        startActivity(intent);
     }
 
     @Override
