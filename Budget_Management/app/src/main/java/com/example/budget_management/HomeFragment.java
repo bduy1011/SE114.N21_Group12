@@ -113,6 +113,36 @@ public class HomeFragment extends Fragment {
         });
         return myview;
     }
+    //Floating button animation
+    private void ftAnimation(){
+        if(isOpen){
+            fab_income_btn.startAnimation(FadeClose);
+            fab_expense_btn.startAnimation(FadeClose);
+            fab_income_btn.setClickable(false);
+            fab_expense_btn.setClickable(false);
+
+            fab_income_txt.startAnimation(FadeClose);
+            fab_expense_txt.startAnimation(FadeClose);
+            fab_income_txt.setClickable(false);
+            fab_expense_txt.setClickable(false);
+            isOpen=false;
+
+        }
+        else
+        {
+            fab_income_btn.startAnimation(FadOpen);
+            fab_expense_btn.startAnimation(FadOpen);
+            fab_income_btn.setClickable(true);
+            fab_expense_btn.setClickable(true);
+
+            fab_income_txt.startAnimation(FadOpen);
+            fab_expense_txt.startAnimation(FadOpen);
+            fab_income_txt.setClickable(true);
+            fab_expense_txt.setClickable(true);
+            isOpen=true;
+        }
+    }
+
     private void addData()
     {
         //Fab Button income
@@ -125,14 +155,13 @@ public class HomeFragment extends Fragment {
         //Fab button expense
         fab_expense_btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-
+            public void onClick(View view) {
+                expenseDataInsert();
             }
         });
     }
-    public void incomeDataInsert()
-    {
-        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+    public void incomeDataInsert() {
+        AlertDialog.Builder mydialog =new AlertDialog.Builder(getActivity());
         LayoutInflater inflater=LayoutInflater.from(getActivity());
         View myviewm=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
         mydialog.setView(myviewm);
@@ -169,17 +198,67 @@ public class HomeFragment extends Fragment {
                 Data data=new Data(ourammontint,type,note,id,mDate);
                 mIncomeDatabase.child(id).setValue(data);
                 Toast.makeText(getActivity(),"DATA ADDED",Toast.LENGTH_SHORT).show();
+
+                ftAnimation();
                 dialog.dismiss();
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
+                ftAnimation();
                 dialog.dismiss();
             }
         });
 
     }
+    public void expenseDataInsert(){
+        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater=LayoutInflater.from(getActivity());
+        View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
+        mydialog.setView(myview);
+
+        final AlertDialog dialog=mydialog.create();
+
+        EditText ammount=myview.findViewById(R.id.ammount_edt);
+        EditText type=myview.findViewById(R.id.type_edt);
+        EditText note=myview.findViewById(R.id.note_edt);
+        Button btnSave=myview.findViewById(R.id.btnSave);
+        Button btnCancel=myview.findViewById(R.id.btnCancel);
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tmAmmount=ammount.getText().toString().trim();
+                String tmtype=ammount.getText().toString().trim();
+                String tmnote=ammount.getText().toString().trim();
+
+                if(TextUtils.isEmpty(tmAmmount)){
+                    ammount.setError("Required field");
+                    return;
+                }
+                if (TextUtils.isEmpty(tmtype)){
+                    type.setError("Required field");
+                    return;
+                }
+                if (TextUtils.isEmpty(tmnote)){
+                    note.setError("Required field");
+                    return;
+                }
+
+                ftAnimation();
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ftAnimation();
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
 
 
 }

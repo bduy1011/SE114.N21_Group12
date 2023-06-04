@@ -11,129 +11,146 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="82dp"
                 android:orientation="horizontal">
-                <RelativeLayout
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="1"
+                    android:gravity="center">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="AMOUNT:"/>
+                        android:text="AMOUNT:" />
 
-                </RelativeLayout>
-                <RelativeLayout
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="2">
 
                     <EditText
                         android:id="@+id/ammount_edt"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="50dp"/>
 
-                </RelativeLayout>
+                </LinearLayout>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <RelativeLayout
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="1"
+                    android:gravity="center">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TYPE:"/>
+                        android:text="TYPE:" />
 
-                </RelativeLayout>
-                <RelativeLayout
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="2">
 
                     <EditText
                         android:id="@+id/type_edt"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="50dp" />
 
-                </RelativeLayout>
+                </LinearLayout>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="79dp"
                 android:orientation="horizontal">
-                <RelativeLayout
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="1"
+                    android:gravity="center">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="NOTE:"/>
+                        android:text="NOTE:" />
 
-                </RelativeLayout>
-                <RelativeLayout
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="2"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="2">
 
                     <EditText
                         android:id="@+id/note_edt"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="50dp" />
 
-                </RelativeLayout>
+                </LinearLayout>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="108dp"
                 android:orientation="horizontal">
-                <RelativeLayout
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="1"
+                    android:gravity="center">
+
                     <Button
+                        android:id="@+id/btnCancel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="CANCEL"
-                        android:textColor="@color/white"
                         android:textAppearance="?android:textAppearanceMedium"
-                        android:id="@+id/btnCancel"/>
+                        android:textColor="@color/white" />
 
 
-                </RelativeLayout>
-                <RelativeLayout
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content">
+                    android:layout_weight="1"
+                    android:gravity="center">
+
                     <Button
+                        android:id="@+id/btnSave"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="SAVE"
-                        android:textColor="@color/white"
                         android:textAppearance="?android:textAppearanceMedium"
-                        android:id="@+id/btnSave"/>
+                        android:textColor="@color/white" />
 
 
-                </RelativeLayout>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
