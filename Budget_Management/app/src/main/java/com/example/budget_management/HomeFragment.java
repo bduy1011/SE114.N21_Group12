@@ -11,35 +11,36 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Database;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.budget_management.Model.Data;
 import com.example.budget_management.databinding.ActivityMainBinding;
 import com.example.budget_management.databinding.FragmentHomeBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
+public class HomeFragment extends Fragment {
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class HomeFragment extends Fragment implements ClickEvent{
-
-    FragmentHomeBinding binding;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     //Floating Button
@@ -52,49 +53,36 @@ public class HomeFragment extends Fragment implements ClickEvent{
     private boolean isOpen=false;
     //Animation
     private Animation FadOpen,FadeClose;
-    ExpenseAdapter expenseAdapter;
-    ExpenseDatabase expenseDatabase;
-    ExpenseDao expenseDao;
-    int income = 0, expense = 0;
-    public HomeFragment() {
-        // Required empty public constructor
-    }
-
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
-    }
+    //Firebase
+    private FirebaseAuth mAuth;
+    private DatabaseReference mIncomeDatabase;
+    private DatabaseReference mExpenseDatabase;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myview=inflater.inflate(R.layout.fragment_home,container,false);
+
+        mAuth=FirebaseAuth.getInstance();
+        FirebaseUser mUser=mAuth.getCurrentUser();
+        String uid=mUser.getUid();
+
+        mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
+        mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
 
         //Connect button to layout
         fab_main_btn=myview.findViewById(R.id.fb_main_plus_btn);
         fab_income_btn=myview.findViewById(R.id.income_Ft_btn);
         fab_expense_btn=myview.findViewById(R.id.expense_Ft_btn);
         //Connect floating text;
-        fab_main_btn=myview.findViewById(R.id.income_ft_text);
-        fab_expense_btn=myview.findViewById(R.id.expense_ft_text);
+        fab_income_txt=myview.findViewById(R.id.income_ft_text);
+        fab_expense_txt=myview.findViewById(R.id.expense_ft_text);
         //Animation connect
         FadOpen= AnimationUtils.loadAnimation(getActivity(),R.anim.fade_open);
         FadeClose=AnimationUtils.loadAnimation(getActivity(),R.anim.fade_close);
         fab_main_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                addData();
                 if(isOpen){
                     fab_income_btn.startAnimation(FadeClose);
                     fab_expense_btn.startAnimation(FadeClose);
@@ -124,80 +112,74 @@ public class HomeFragment extends Fragment implements ClickEvent{
             }
         });
         return myview;
-        //Phat
-        /*binding = FragmentHomeBinding.inflate(inflater, container, false);
-        binding.newBtn.setOnClickListener(new View.OnClickListener() {
+    }
+    private void addData()
+    {
+        //Fab Button income
+        fab_income_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddActivity.class);
-                startActivity(intent);
+                incomeDataInsert();
             }
         });
-        return binding.getRoot();*/
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        LoadItem();
-    }
-    public void LoadItem(){
-        expenseDatabase= ExpenseDatabase.getInstance(getContext());
-        expenseDao = expenseDatabase.getDao();
-        expenseAdapter = new ExpenseAdapter(getContext(), this);
-        binding.itemsRecycler.setAdapter(expenseAdapter);
-        binding.itemsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        //Fab button expense
+        fab_expense_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        List<ExpenseTable> expenseTables = expenseDao.getAll();
-
-        for(int i = 0; i < expenseTables.size(); i++){
-            if(expenseTables.get(i).isIncome()){
-                income = income + expenseTables.get(i).getAmount();
             }
-            else {
-                expense = expense + expenseTables.get(i).getAmount();
+        });
+    }
+    public void incomeDataInsert()
+    {
+        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater=LayoutInflater.from(getActivity());
+        View myviewm=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
+        mydialog.setView(myviewm);
+        AlertDialog dialog=mydialog.create();
+        EditText edtAmmount=myviewm.findViewById(R.id.ammount_edt);
+        EditText edtType=myviewm.findViewById(R.id.type_edt);
+        EditText edtNote=myviewm.findViewById(R.id.note_edt);
+
+        Button btnSave=myviewm.findViewById(R.id.btnSave);
+        Button btnCancel=myviewm.findViewById(R.id.btnCancel);
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String type=edtType.getText().toString().trim();
+                String amount=edtAmmount.getText().toString().trim();
+                String note=edtNote.getText().toString().trim();
+
+                if(TextUtils.isEmpty(type)){
+                    edtType.setError("Required Field");
+                    return;
+                }
+                if(TextUtils.isEmpty(amount)){
+                    edtAmmount.setError("Required Field");
+                    return;
+                }
+                int ourammontint=Integer.parseInt(amount);
+                if(TextUtils.isEmpty(note)){
+                    edtNote.setError("Required Field");
+                    return;
+                }
+                String id=mIncomeDatabase.push().getKey();
+                String mDate= DateFormat.getDateInstance().format(new Date());
+                Data data=new Data(ourammontint,type,note,id,mDate);
+                mIncomeDatabase.child(id).setValue(data);
+                Toast.makeText(getActivity(),"DATA ADDED",Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
-            expenseAdapter.add(expenseTables.get(i));
-        }
-        binding.totalIncome.setText(income+"");
-        binding.totalExpense.setText(expense+"");
-        int balance = income - expense;
-        binding.totalAmount.setText(balance+"");
-        income = 0;
-        expense = 0;
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
     }
 
-    @Override
-    public void OnClick(int pos) {
-        Intent intent = new Intent(getActivity(),AddActivity.class);
-        intent.putExtra("update",true);
-        intent.putExtra("id", expenseAdapter.getId(pos));
-        intent.putExtra("amount", expenseAdapter.Amount(pos));
-        intent.putExtra("type", expenseAdapter.paymentType(pos));
-        intent.putExtra("description", expenseAdapter.desc(pos));
-        intent.putExtra("isIncome", expenseAdapter.isIncome(pos));
-        startActivity(intent);
-    }
 
-    @Override
-    public void OnLongPress(int pos) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Delete")
-                .setMessage("Do you want to delete it?")
-                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        int id = expenseAdapter.getId(pos);
-                        expenseDao.delete(id);
-                        expenseAdapter.delete(pos);
-                        LoadItem();
-                    }
-                })
-                .setNegativeButton("no", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-        builder.show();
-    }
 }
