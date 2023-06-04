@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout;
     BottomNavigationView bottomNavigationView;
     HomeFragment homeFragment;
+    IncomeFragment incomeFragment;
+    ExpenseFragment expenseFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         NavigationView navigationView=findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        homeFragment=new HomeFragment();
+        incomeFragment=new IncomeFragment();
+        expenseFragment=new ExpenseFragment();
         //Menu menu = navigationView.getMenu();
         //Thao tac chuc nang navigation
        /* navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

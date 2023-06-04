@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="5dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="5dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="5dp">
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1 June 2023"
+                android:textColor="@color/date_color"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textStyle="bold"
+                android:id="@+id/date_txt_expense"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Type"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textStyle="bold"
+                android:id="@+id/type_txt_expense" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Note"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textStyle="bold"
+                android:layout_below="@+id/type_txt_expense"
+                android:id="@+id/note_txt_expense"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="900000"
+                android:textColor="@color/expense_ammount"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textStyle="bold"
+                android:id="@+id/ammount_txt_expense"/>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
