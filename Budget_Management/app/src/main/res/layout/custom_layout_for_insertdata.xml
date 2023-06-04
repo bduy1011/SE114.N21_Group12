@@ -40,7 +40,9 @@
                     <EditText
                         android:id="@+id/ammount_edt"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"/>
+                        android:layout_height="50dp"
+                        android:hint="amount"
+                        android:textAlignment="center"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -73,7 +75,9 @@
                     <EditText
                         android:id="@+id/type_edt"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp" />
+                        android:layout_height="50dp"
+                        android:hint="type"
+                        android:textAlignment="center"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -106,7 +110,9 @@
                     <EditText
                         android:id="@+id/note_edt"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp" />
+                        android:layout_height="50dp"
+                        android:hint="note"
+                        android:textAlignment="center"/>
 
                 </LinearLayout>
             </LinearLayout>

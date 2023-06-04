@@ -37,6 +37,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.transform.sax.SAXResult;
+
 public class HomeFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
@@ -165,10 +167,12 @@ public class HomeFragment extends Fragment {
         LayoutInflater inflater=LayoutInflater.from(getActivity());
         View myviewm=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
         mydialog.setView(myviewm);
-        AlertDialog dialog=mydialog.create();
-        EditText edtAmmount=myviewm.findViewById(R.id.ammount_edt);
-        EditText edtType=myviewm.findViewById(R.id.type_edt);
-        EditText edtNote=myviewm.findViewById(R.id.note_edt);
+        final AlertDialog dialog=mydialog.create();
+
+        dialog.setCancelable(false);
+        final EditText edtAmmount=myviewm.findViewById(R.id.ammount_edt);
+        final EditText edtType=myviewm.findViewById(R.id.type_edt);
+        final EditText edtNote=myviewm.findViewById(R.id.note_edt);
 
         Button btnSave=myviewm.findViewById(R.id.btnSave);
         Button btnCancel=myviewm.findViewById(R.id.btnCancel);
@@ -219,10 +223,12 @@ public class HomeFragment extends Fragment {
         mydialog.setView(myview);
 
         final AlertDialog dialog=mydialog.create();
+        dialog.setCancelable(false);
 
-        EditText ammount=myview.findViewById(R.id.ammount_edt);
-        EditText type=myview.findViewById(R.id.type_edt);
-        EditText note=myview.findViewById(R.id.note_edt);
+
+        final EditText ammount=myview.findViewById(R.id.ammount_edt);
+        final EditText type=myview.findViewById(R.id.type_edt);
+        final EditText note=myview.findViewById(R.id.note_edt);
         Button btnSave=myview.findViewById(R.id.btnSave);
         Button btnCancel=myview.findViewById(R.id.btnCancel);
 
@@ -237,6 +243,8 @@ public class HomeFragment extends Fragment {
                     ammount.setError("Required field");
                     return;
                 }
+
+                int inamount=Integer.parseInt(tmAmmount);
                 if (TextUtils.isEmpty(tmtype)){
                     type.setError("Required field");
                     return;
@@ -245,8 +253,14 @@ public class HomeFragment extends Fragment {
                     note.setError("Required field");
                     return;
                 }
+                String id=mExpenseDatabase.push().getKey();
+                String mDate=DateFormat.getDateInstance().format(new Date());
+                Data data=new Data(inamount,tmtype,tmnote,id,mDate);
+                mExpenseDatabase.child(id).setValue(data);
 
+                Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
                 ftAnimation();
+                dialog.dismiss();
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
