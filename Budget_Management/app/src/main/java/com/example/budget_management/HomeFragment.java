@@ -15,9 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 
 import com.example.budget_management.databinding.ActivityMainBinding;
 import com.example.budget_management.databinding.FragmentHomeBinding;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -38,7 +42,16 @@ public class HomeFragment extends Fragment implements ClickEvent{
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    //Floating Button
+    private FloatingActionButton fab_main_btn;
+    private FloatingActionButton fab_income_btn;
+    private FloatingActionButton fab_expense_btn;
+    //Floating button TV
+    private TextView fab_income_txt;
+    private TextView fab_expense_txt;
+    private boolean isOpen=false;
+    //Animation
+    private Animation FadOpen,FadeClose;
     ExpenseAdapter expenseAdapter;
     ExpenseDatabase expenseDatabase;
     ExpenseDao expenseDao;
@@ -47,15 +60,6 @@ public class HomeFragment extends Fragment implements ClickEvent{
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -76,7 +80,52 @@ public class HomeFragment extends Fragment implements ClickEvent{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        View myview=inflater.inflate(R.layout.fragment_home,container,false);
+
+        //Connect button to layout
+        fab_main_btn=myview.findViewById(R.id.fb_main_plus_btn);
+        fab_income_btn=myview.findViewById(R.id.income_Ft_btn);
+        fab_expense_btn=myview.findViewById(R.id.expense_Ft_btn);
+        //Connect floating text;
+        fab_main_btn=myview.findViewById(R.id.income_ft_text);
+        fab_expense_btn=myview.findViewById(R.id.expense_ft_text);
+        //Animation connect
+        FadOpen= AnimationUtils.loadAnimation(getActivity(),R.anim.fade_open);
+        FadeClose=AnimationUtils.loadAnimation(getActivity(),R.anim.fade_close);
+        fab_main_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isOpen){
+                    fab_income_btn.startAnimation(FadeClose);
+                    fab_expense_btn.startAnimation(FadeClose);
+                    fab_income_btn.setClickable(false);
+                    fab_expense_btn.setClickable(false);
+
+                    fab_income_txt.startAnimation(FadeClose);
+                    fab_expense_txt.startAnimation(FadeClose);
+                    fab_income_txt.setClickable(false);
+                    fab_expense_txt.setClickable(false);
+                    isOpen=false;
+
+                }
+                else
+                {
+                    fab_income_btn.startAnimation(FadOpen);
+                    fab_expense_btn.startAnimation(FadOpen);
+                    fab_income_btn.setClickable(true);
+                    fab_expense_btn.setClickable(true);
+
+                    fab_income_txt.startAnimation(FadOpen);
+                    fab_expense_txt.startAnimation(FadOpen);
+                    fab_income_txt.setClickable(true);
+                    fab_expense_txt.setClickable(true);
+                    isOpen=true;
+                }
+            }
+        });
+        return myview;
+        //Phat
+        /*binding = FragmentHomeBinding.inflate(inflater, container, false);
         binding.newBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,7 +133,7 @@ public class HomeFragment extends Fragment implements ClickEvent{
                 startActivity(intent);
             }
         });
-        return binding.getRoot();
+        return binding.getRoot();*/
     }
     @Override
     public void onResume() {
