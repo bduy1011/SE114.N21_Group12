@@ -1,5 +1,7 @@
 package com.example.budget_management;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,6 +27,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.zip.Inflater;
+
 public class ExpenseFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -35,9 +42,22 @@ public class ExpenseFragment extends Fragment {
     //Firebase database
     private FirebaseAuth mAuth;
     private DatabaseReference mExpenseDatabase;
-
+    //Recyclerview
     private RecyclerView recyclerView;
     private TextView expenseTotalSum;
+    //Update edit text
+    private  EditText edtAmmount;
+    private  EditText edtType;
+    private  EditText edtNote;
+    //Update button and delete button
+    private Button btnUpdate;
+    private Button btnDelete;
+    //Data item value
+    private  String type;
+    private String note;
+    private  int amount;
+
+    private String post_key;
     public ExpenseFragment() {
         // Required empty public constructor
     }
@@ -71,9 +91,9 @@ public class ExpenseFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
-            int totalValue;
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                int totalValue = 0;
                 for(DataSnapshot myDataSnapshot:dataSnapshot.getChildren()){
                     Data data = myDataSnapshot.getValue(Data.class);
                     totalValue += data.getAmount();
@@ -112,6 +132,19 @@ public class ExpenseFragment extends Fragment {
                 holder.setNote(model.getNote());
                 holder.setDate(model.getDate());
                 holder.setAmmount(model.getAmount());
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        post_key = getRef(position).getKey();
+
+                        type = model.getType();
+                        note = model.getNote();
+                        amount = model.getAmount();
+
+                        updateDataItem();
+                    }
+                });
             }
         };
         recyclerView.setAdapter(adapter);
@@ -140,5 +173,62 @@ public class ExpenseFragment extends Fragment {
             String stammount=String.valueOf(ammount);
             mAmmount.setText(stammount);
         }
+    }
+
+    private void updateDataItem(){
+        AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+
+        View myview = inflater.inflate(R.layout.update_data_item, null);
+        myDialog.setView(myview);
+
+        edtAmmount = myview.findViewById(R.id.ammount_edt);
+        edtType = myview.findViewById(R.id.type_edt);
+        edtNote = myview.findViewById(R.id.note_edt);
+
+        //Set data to editText
+
+        edtType.setText(type);
+        edtType.setSelection(type.length());
+
+        edtNote.setText(note);
+        edtNote.setSelection(note.length());
+
+        edtAmmount.setText(String.valueOf(amount));
+        edtAmmount.setSelection(String.valueOf(amount).length());
+
+        btnUpdate = myview.findViewById(R.id.btn_upd_Update);
+        btnDelete = myview.findViewById(R.id.btn_upd_Delete);
+
+        AlertDialog dialog = myDialog.create();
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                type = edtType.getText().toString().trim();
+                note = edtNote.getText().toString().trim();
+                String mdAmount = String.valueOf(amount);
+
+                mdAmount = edtAmmount.getText().toString().trim();
+
+                int myAmount = Integer.parseInt(mdAmount);
+
+                String mDate = DateFormat.getDateInstance().format(new Date());
+
+                Data data = new Data(myAmount,type,note,post_key,mDate);
+
+                mExpenseDatabase.child(post_key).setValue(data);
+
+                dialog.dismiss();
+
+            }
+        });
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mExpenseDatabase.child(post_key).removeValue();
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 }

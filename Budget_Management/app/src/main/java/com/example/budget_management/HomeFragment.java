@@ -1,17 +1,9 @@
 package com.example.budget_management;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Database;
+
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -33,16 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.List;
-
-import javax.xml.transform.sax.SAXResult;
-
 public class HomeFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
     //Floating Button
     private FloatingActionButton fab_main_btn;
     private FloatingActionButton fab_income_btn;
