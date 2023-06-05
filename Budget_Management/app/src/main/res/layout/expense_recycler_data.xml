@@ -19,6 +19,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="1 June 2023"
+                android:layout_margin="5dp"
                 android:textColor="@color/date_color"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textStyle="bold"
