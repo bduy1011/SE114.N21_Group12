@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bottomNavigationView=findViewById(R.id.bottomNavigationView);
-        fab=findViewById(R.id.fab);
         drawerLayout=findViewById(R.id.drawer_layout);
         Toolbar toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -94,24 +93,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.home:
                     replaceFragment(new HomeFragment());
                     break;
-                case R.id.shorts:
-                    replaceFragment(new ShortsFragment());
+                case R.id.income:
+                    replaceFragment(new IncomeFragment());
                     break;
-                case R.id.subscriptions:
-                    replaceFragment(new SubscriptionsFragment());
+                case R.id.expense:
+                    replaceFragment(new ExpenseFragment());
                     break;
-                case R.id.library:
-                    replaceFragment(new LibraryFragment());
+                case R.id.graph:
+                    replaceFragment(new GraphFragment());
                     break;
             }
 
             return true;
-        });
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBottomDialog();
-            }
         });
     }
     //Nav

@@ -25,8 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.budget_management.Model.Data;
-import com.example.budget_management.databinding.ActivityMainBinding;
-import com.example.budget_management.databinding.FragmentHomeBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -163,50 +161,52 @@ public class HomeFragment extends Fragment {
         });
     }
     public void incomeDataInsert() {
-        AlertDialog.Builder mydialog =new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater=LayoutInflater.from(getActivity());
-        View myviewm=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
-        mydialog.setView(myviewm);
-        final AlertDialog dialog=mydialog.create();
+            AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+            LayoutInflater inflater=LayoutInflater.from(getActivity());
+            View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
+            mydialog.setView(myview);
 
-        dialog.setCancelable(false);
-        final EditText edtAmmount=myviewm.findViewById(R.id.ammount_edt);
-        final EditText edtType=myviewm.findViewById(R.id.type_edt);
-        final EditText edtNote=myviewm.findViewById(R.id.note_edt);
+            final AlertDialog dialog=mydialog.create();
+            dialog.setCancelable(false);
 
-        Button btnSave=myviewm.findViewById(R.id.btnSave);
-        Button btnCancel=myviewm.findViewById(R.id.btnCancel);
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String type=edtType.getText().toString().trim();
-                String amount=edtAmmount.getText().toString().trim();
-                String note=edtNote.getText().toString().trim();
+            final EditText ammount=myview.findViewById(R.id.ammount_edt);
+            final EditText type=myview.findViewById(R.id.type_edt);
+            final EditText note=myview.findViewById(R.id.note_edt);
+            Button btnSave=myview.findViewById(R.id.btnSave);
+            Button btnCancel=myview.findViewById(R.id.btnCancel);
 
-                if(TextUtils.isEmpty(type)){
-                    edtType.setError("Required Field");
-                    return;
+            btnSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String tmAmmount = ammount.getText().toString().trim();
+                    String tmtype = type.getText().toString().trim();
+                    String tmnote = note.getText().toString().trim();
+
+                    if(TextUtils.isEmpty(tmAmmount)){
+                        ammount.setError("Required field");
+                        return;
+                    }
+
+                    int inamount=Integer.parseInt(tmAmmount);
+                    if (TextUtils.isEmpty(tmtype)){
+                        type.setError("Required field");
+                        return;
+                    }
+                    if (TextUtils.isEmpty(tmnote)){
+                        note.setError("Required field");
+                        return;
+                    }
+                    String id=mIncomeDatabase.push().getKey();
+                    String mDate=DateFormat.getDateInstance().format(new Date());
+                    Data data=new Data(inamount,tmtype,tmnote,id,mDate);
+                    mIncomeDatabase.child(id).setValue(data);
+
+                    Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
+                    ftAnimation();
+                    dialog.dismiss();
                 }
-                if(TextUtils.isEmpty(amount)){
-                    edtAmmount.setError("Required Field");
-                    return;
-                }
-                int ourammontint=Integer.parseInt(amount);
-                if(TextUtils.isEmpty(note)){
-                    edtNote.setError("Required Field");
-                    return;
-                }
-                String id=mIncomeDatabase.push().getKey();
-                String mDate= DateFormat.getDateInstance().format(new Date());
-                Data data=new Data(ourammontint,type,note,id,mDate);
-                mIncomeDatabase.child(id).setValue(data);
-                Toast.makeText(getActivity(),"DATA ADDED",Toast.LENGTH_SHORT).show();
-
-                ftAnimation();
-                dialog.dismiss();
-            }
-        });
+            });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -236,9 +236,9 @@ public class HomeFragment extends Fragment {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String tmAmmount=ammount.getText().toString().trim();
-                String tmtype=ammount.getText().toString().trim();
-                String tmnote=ammount.getText().toString().trim();
+                String tmAmmount = ammount.getText().toString().trim();
+                String tmtype = type.getText().toString().trim();
+                String tmnote = note.getText().toString().trim();
 
                 if(TextUtils.isEmpty(tmAmmount)){
                     ammount.setError("Required field");
