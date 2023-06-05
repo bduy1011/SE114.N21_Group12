@@ -135,14 +135,19 @@ public class ExpenseFragment extends Fragment {
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        int adapterPosition=holder.getAdapterPosition();
+                        if(adapterPosition!=RecyclerView.NO_POSITION)
+                        {
+                            post_key = getRef(adapterPosition).getKey();
 
-                        post_key = getRef(position).getKey();
+                            type = model.getType();
+                            note = model.getNote();
+                            amount = model.getAmount();
 
-                        type = model.getType();
-                        note = model.getNote();
-                        amount = model.getAmount();
+                            updateDataItem();
+                        }
 
-                        updateDataItem();
+
                     }
                 });
             }
