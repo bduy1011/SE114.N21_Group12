@@ -68,6 +68,9 @@ public class HomeFragment extends Fragment {
         mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
         mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
 
+        mIncomeDatabase.keepSynced(true);
+        mExpenseDatabase.keepSynced(true);
+
         //Connect button to layout
         fab_main_btn=myview.findViewById(R.id.fb_main_plus_btn);
         fab_income_btn=myview.findViewById(R.id.income_Ft_btn);
@@ -344,11 +347,11 @@ public class HomeFragment extends Fragment {
     @Override
     public  void onStart(){
         super.onStart();
-        FirebaseRecyclerOptions<Data> options =
+        FirebaseRecyclerAdapter<Data,IncomeViewHolder>incomeAdapter=new FirebaseRecyclerAdapter<Data, IncomeViewHolder>(
                 new FirebaseRecyclerOptions.Builder<Data>()
                         .setQuery(mIncomeDatabase, Data.class)
-                        .build();
-        FirebaseRecyclerAdapter<Data,IncomeViewHolder>incomeAdapter=new FirebaseRecyclerAdapter<Data, IncomeViewHolder>(options) {
+                        .build()
+        ) {
             @Override
             protected void onBindViewHolder(@NonNull IncomeViewHolder holder, int position, @NonNull Data model) {
                 holder.setIncomeType(model.getType());
@@ -360,11 +363,34 @@ public class HomeFragment extends Fragment {
             @Override
             public IncomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.income_recycler_data, parent, false);
+                        .inflate(R.layout.home_income, parent, false);
                 return new HomeFragment.IncomeViewHolder(view);
             }
         };
         mRecyclerIncome.setAdapter(incomeAdapter);
+
+        //Expense
+        FirebaseRecyclerAdapter<Data,ExpenseViewHolder>expenseAdapter=new FirebaseRecyclerAdapter<Data, ExpenseViewHolder>(
+                new FirebaseRecyclerOptions.Builder<Data>()
+                        .setQuery(mExpenseDatabase, Data.class)
+                        .build()
+        ) {
+            @Override
+            protected void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position, @NonNull Data model) {
+                holder.setExpenseType(model.getType());
+                holder.setExpenseAmmount((int) model.getAmount());
+                holder.setExpenseDate(model.getDate());
+            }
+
+            @NonNull
+            @Override
+            public ExpenseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.home_expense, parent, false);
+                return new HomeFragment.ExpenseViewHolder(view);
+            }
+        };
+        mRecyclerExpense.setAdapter(expenseAdapter);
     }
     //For income data
     public  static class IncomeViewHolder extends  RecyclerView.ViewHolder{
@@ -385,5 +411,28 @@ public class HomeFragment extends Fragment {
             TextView mDate=mIncomeView.findViewById(R.id.date_income_ds);
             mDate.setText(date);
         }
+    }
+    //For expense data
+    public static  class ExpenseViewHolder extends RecyclerView.ViewHolder{
+        View mExpenseView;
+        public  ExpenseViewHolder(View itemView)
+        {
+            super(itemView);
+            mExpenseView=itemView;
+        }
+        public void setExpenseType(String type){
+            TextView mtype=mExpenseView.findViewById(R.id.type_expense_ds);
+            mtype.setText(type);
+        }
+        public void setExpenseAmmount(int ammount){
+            TextView mAmmount=mExpenseView.findViewById(R.id.ammount_expense_ds);
+            String strAmmount=String.valueOf(ammount);
+            mAmmount.setText(strAmmount);
+        }
+        public void setExpenseDate(String date){
+            TextView mDate=mExpenseView.findViewById(R.id.date_income_ds);
+            mDate.setText(date);
+        }
+
     }
 }
