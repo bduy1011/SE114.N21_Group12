@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.text.TextUtils;
@@ -49,6 +51,9 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
+    //Recycle view
+    private RecyclerView mRecyclerIncome;
+    private RecyclerView mRecyclerExpense;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -71,6 +76,9 @@ public class HomeFragment extends Fragment {
         //Total value set
         totalIncomeResult=myview.findViewById(R.id.income_set_result);
         totalExpenseResult=myview.findViewById(R.id.expense_set_result);
+        //Recycler
+        mRecyclerIncome=myview.findViewById(R.id.recycler_income);
+        mRecyclerExpense=myview.findViewById(R.id.recycler_expense);
 
         //Animation connect
         FadOpen= AnimationUtils.loadAnimation(getActivity(),R.anim.fade_open);
@@ -145,6 +153,18 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        //Recycler
+        LinearLayoutManager layoutManagerIncome=new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
+        layoutManagerIncome.setStackFromEnd(true);
+        layoutManagerIncome.setReverseLayout(true);
+        mRecyclerIncome.setHasFixedSize(true);
+        mRecyclerIncome.setLayoutManager(layoutManagerIncome);
+
+        LinearLayoutManager layoutManagerExpense=new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
+        layoutManagerExpense.setReverseLayout(true);
+        layoutManagerExpense.setStackFromEnd(true);
+        mRecyclerExpense.setHasFixedSize(true);
+        mRecyclerExpense.setLayoutManager(layoutManagerExpense);
 
 
         return myview;
@@ -197,52 +217,52 @@ public class HomeFragment extends Fragment {
         });
     }
     public void incomeDataInsert() {
-            AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
-            LayoutInflater inflater=LayoutInflater.from(getActivity());
-            View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
-            mydialog.setView(myview);
+        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater=LayoutInflater.from(getActivity());
+        View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
+        mydialog.setView(myview);
 
-            final AlertDialog dialog=mydialog.create();
-            dialog.setCancelable(false);
+        final AlertDialog dialog=mydialog.create();
+        dialog.setCancelable(false);
 
 
-            final EditText ammount=myview.findViewById(R.id.ammount_edt);
-            final EditText type=myview.findViewById(R.id.type_edt);
-            final EditText note=myview.findViewById(R.id.note_edt);
-            Button btnSave=myview.findViewById(R.id.btnSave);
-            Button btnCancel=myview.findViewById(R.id.btnCancel);
+        final EditText ammount=myview.findViewById(R.id.ammount_edt);
+        final EditText type=myview.findViewById(R.id.type_edt);
+        final EditText note=myview.findViewById(R.id.note_edt);
+        Button btnSave=myview.findViewById(R.id.btnSave);
+        Button btnCancel=myview.findViewById(R.id.btnCancel);
 
-            btnSave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String tmAmmount = ammount.getText().toString().trim();
-                    String tmtype = type.getText().toString().trim();
-                    String tmnote = note.getText().toString().trim();
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tmAmmount = ammount.getText().toString().trim();
+                String tmtype = type.getText().toString().trim();
+                String tmnote = note.getText().toString().trim();
 
-                    if(TextUtils.isEmpty(tmAmmount)){
-                        ammount.setError("Required field");
-                        return;
-                    }
-
-                    int inamount=Integer.parseInt(tmAmmount);
-                    if (TextUtils.isEmpty(tmtype)){
-                        type.setError("Required field");
-                        return;
-                    }
-                    if (TextUtils.isEmpty(tmnote)){
-                        note.setError("Required field");
-                        return;
-                    }
-                    String id=mIncomeDatabase.push().getKey();
-                    String mDate=DateFormat.getDateInstance().format(new Date());
-                    Data data=new Data(inamount,tmtype,tmnote,id,mDate);
-                    mIncomeDatabase.child(id).setValue(data);
-
-                    Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
-                    ftAnimation();
-                    dialog.dismiss();
+                if(TextUtils.isEmpty(tmAmmount)){
+                    ammount.setError("Required field");
+                    return;
                 }
-            });
+
+                int inamount=Integer.parseInt(tmAmmount);
+                if (TextUtils.isEmpty(tmtype)){
+                    type.setError("Required field");
+                    return;
+                }
+                if (TextUtils.isEmpty(tmnote)){
+                    note.setError("Required field");
+                    return;
+                }
+                String id=mIncomeDatabase.push().getKey();
+                String mDate=DateFormat.getDateInstance().format(new Date());
+                Data data=new Data(inamount,tmtype,tmnote,id,mDate);
+                mIncomeDatabase.child(id).setValue(data);
+
+                Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
+                ftAnimation();
+                dialog.dismiss();
+            }
+        });
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -309,7 +329,4 @@ public class HomeFragment extends Fragment {
         });
         dialog.show();
     }
-
-
-
 }
