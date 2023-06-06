@@ -69,9 +69,9 @@ public class IncomeFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
-            int totalValue;
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                int totalValue = 0;
                 for(DataSnapshot myDataSnapshot:dataSnapshot.getChildren()){
                     Data data = myDataSnapshot.getValue(Data.class);
                     totalValue += data.getAmount();

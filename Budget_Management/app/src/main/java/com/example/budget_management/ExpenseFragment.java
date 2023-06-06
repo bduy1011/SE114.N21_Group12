@@ -144,8 +144,6 @@ public class ExpenseFragment extends Fragment {
 
                             updateDataItem();
                         }
-
-
                     }
                 });
             }
