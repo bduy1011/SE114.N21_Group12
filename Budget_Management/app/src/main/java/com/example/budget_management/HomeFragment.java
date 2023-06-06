@@ -124,7 +124,7 @@ public class HomeFragment extends Fragment {
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long totalsum=0;
+                int totalsum=0;
                 for (DataSnapshot mysnap:snapshot.getChildren()){
                     Data data=mysnap.getValue(Data.class);
                     totalsum+=data.getAmount();
@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long totalsum=0;
+                int totalsum=0;
                 for(DataSnapshot mysnapshot:snapshot.getChildren())
                 {
                     Data data=mysnapshot.getValue(Data.class);
@@ -331,7 +331,7 @@ public class HomeFragment extends Fragment {
         });
         dialog.show();
     }
-    public static String formatCurrency(long amount) {
+    public static String formatCurrency(int amount) {
         String currency;
         if (amount >= 1000000000) {
             currency = String.format("%.2fB", amount / 1e9);
@@ -347,7 +347,7 @@ public class HomeFragment extends Fragment {
     @Override
     public  void onStart(){
         super.onStart();
-        FirebaseRecyclerAdapter<Data,IncomeViewHolder>incomeAdapter=new FirebaseRecyclerAdapter<Data, IncomeViewHolder>(
+        FirebaseRecyclerAdapter<Data,IncomeViewHolder> incomeAdapter = new FirebaseRecyclerAdapter<Data, IncomeViewHolder>(
                 new FirebaseRecyclerOptions.Builder<Data>()
                         .setQuery(mIncomeDatabase, Data.class)
                         .build()
@@ -358,7 +358,6 @@ public class HomeFragment extends Fragment {
                 holder.setIncomeAmmount((int) model.getAmount());
                 holder.setIncomeDate(model.getDate());
             }
-
             @NonNull
             @Override
             public IncomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -368,7 +367,7 @@ public class HomeFragment extends Fragment {
             }
         };
         mRecyclerIncome.setAdapter(incomeAdapter);
-
+        incomeAdapter.startListening();
         //Expense
         FirebaseRecyclerAdapter<Data,ExpenseViewHolder>expenseAdapter=new FirebaseRecyclerAdapter<Data, ExpenseViewHolder>(
                 new FirebaseRecyclerOptions.Builder<Data>()
@@ -391,12 +390,15 @@ public class HomeFragment extends Fragment {
             }
         };
         mRecyclerExpense.setAdapter(expenseAdapter);
+        expenseAdapter.startListening();
+
     }
     //For income data
-    public  static class IncomeViewHolder extends  RecyclerView.ViewHolder{
+    public  static class IncomeViewHolder extends RecyclerView.ViewHolder{
         View mIncomeView;
         public  IncomeViewHolder(View itemView){
             super(itemView);
+            mIncomeView = itemView;
         }
         public  void setIncomeType(String type){
             TextView mtype=mIncomeView.findViewById(R.id.type_income_ds);
@@ -430,7 +432,7 @@ public class HomeFragment extends Fragment {
             mAmmount.setText(strAmmount);
         }
         public void setExpenseDate(String date){
-            TextView mDate=mExpenseView.findViewById(R.id.date_income_ds);
+            TextView mDate=mExpenseView.findViewById(R.id.date_expense_ds);
             mDate.setText(date);
         }
 

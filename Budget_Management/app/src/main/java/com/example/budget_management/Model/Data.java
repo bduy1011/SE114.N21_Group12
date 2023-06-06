@@ -1,17 +1,17 @@
 package com.example.budget_management.Model;
 
 public class Data {
-    private long amount;
+    private int amount;
     private String type;
     private String note;
     private String id;
     private String date;
 
-    public long getAmount() {
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 
