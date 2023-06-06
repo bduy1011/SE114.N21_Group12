@@ -51,6 +51,9 @@ public class IncomeFragment extends Fragment {
     private  long amount;
     private  String post_key;
 
+    public IncomeFragment() {
+        // Required empty public constructor
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -91,7 +94,7 @@ public class IncomeFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        FirebaseRecyclerAdapter<Data, MyViewHolder> adapter = new FirebaseRecyclerAdapter<Data, MyViewHolder>
+        FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder> adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
                 (
                 new FirebaseRecyclerOptions.Builder<Data>()
                 .setQuery(mIncomeDatabase, Data.class)
@@ -161,11 +164,13 @@ public class IncomeFragment extends Fragment {
     private void updateDataItem(){
         AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
         LayoutInflater inflater=LayoutInflater.from(getActivity());
+
         View myview=inflater.inflate((R.layout.update_data_item),null);
         mydialog.setView(myview);
         edtAmmount=myview.findViewById(R.id.ammount_edt);
         edtType=myview.findViewById(R.id.type_edt);
         edtNote=myview.findViewById(R.id.note_edt);
+
         //Set data to edit text
         edtType.setText(type);
         edtType.setSelection(type.length());
@@ -197,7 +202,10 @@ public class IncomeFragment extends Fragment {
         });
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+
+            public void onClick(View v)
+            {
+                mIncomeDatabase.child(post_key).removeValue();
                 dialog.dismiss();
             }
         });
