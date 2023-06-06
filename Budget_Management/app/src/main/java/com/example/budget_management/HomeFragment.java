@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.budget_management.Model.Data;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -196,7 +198,6 @@ public class HomeFragment extends Fragment {
             isOpen=true;
         }
     }
-
     private void addData()
     {
         //Fab Button income
@@ -339,5 +340,50 @@ public class HomeFragment extends Fragment {
             currency = String.format("%dđ", amount);
         }
         return currency;
+    }
+    @Override
+    public  void onStart(){
+        super.onStart();
+        FirebaseRecyclerOptions<Data> options =
+                new FirebaseRecyclerOptions.Builder<Data>()
+                        .setQuery(mIncomeDatabase, Data.class)
+                        .build();
+        FirebaseRecyclerAdapter<Data,IncomeViewHolder>incomeAdapter=new FirebaseRecyclerAdapter<Data, IncomeViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull IncomeViewHolder holder, int position, @NonNull Data model) {
+                holder.setIncomeType(model.getType());
+                holder.setIncomeAmmount((int) model.getAmount());
+                holder.setIncomeDate(model.getDate());
+            }
+
+            @NonNull
+            @Override
+            public IncomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.income_recycler_data, parent, false);
+                return new HomeFragment.IncomeViewHolder(view);
+            }
+        };
+        mRecyclerIncome.setAdapter(incomeAdapter);
+    }
+    //For income data
+    public  static class IncomeViewHolder extends  RecyclerView.ViewHolder{
+        View mIncomeView;
+        public  IncomeViewHolder(View itemView){
+            super(itemView);
+        }
+        public  void setIncomeType(String type){
+            TextView mtype=mIncomeView.findViewById(R.id.type_income_ds);
+            mtype.setText(type);
+        }
+        public void setIncomeAmmount(int ammount){
+            TextView mAmmount=mIncomeView.findViewById(R.id.ammount_income_ds);
+            String strAmmount=String.valueOf(ammount);
+            mAmmount.setText(strAmmount);
+        }
+        public void setIncomeDate(String date){
+            TextView mDate=mIncomeView.findViewById(R.id.date_income_ds);
+            mDate.setText(date);
+        }
     }
 }
