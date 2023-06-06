@@ -139,17 +139,22 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@id/img_card1">
+
                             <TextView
-                                android:textSize="18sp"
-                                android:text="Expense"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/white"/>
+                                android:text="Expense"
+                                android:textColor="@color/white"
+                                android:textSize="18sp" />
 
                             <TextView
                                 android:id="@+id/expense_set_result"
+                                android:textStyle="bold"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
+                                android:layout_height="wrap_content"
+                                android:textSize="22sp"
+                                android:textColor="@color/white"
+                                android:text="0"/>
                         </LinearLayout>
                     </RelativeLayout>
 

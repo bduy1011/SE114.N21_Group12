@@ -119,12 +119,11 @@ public class HomeFragment extends Fragment {
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int totalsum=0;
+                long totalsum=0;
                 for (DataSnapshot mysnap:snapshot.getChildren()){
                     Data data=mysnap.getValue(Data.class);
                     totalsum+=data.getAmount();
-                    String stResult=String.valueOf(totalsum);
-                    totalIncomeResult.setText(stResult+".00");
+                    totalIncomeResult.setText(formatCurrency(totalsum));
                 }
             }
 
@@ -137,13 +136,12 @@ public class HomeFragment extends Fragment {
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int totalsum=0;
+                long totalsum=0;
                 for(DataSnapshot mysnapshot:snapshot.getChildren())
                 {
                     Data data=mysnapshot.getValue(Data.class);
                     totalsum+=data.getAmount();
-                    String strTotalSum=String.valueOf(totalsum);
-                    totalIncomeResult.setText(strTotalSum+".00");
+                    totalExpenseResult.setText(formatCurrency(totalsum));
                 }
             }
 
@@ -328,5 +326,18 @@ public class HomeFragment extends Fragment {
             }
         });
         dialog.show();
+    }
+    public static String formatCurrency(long amount) {
+        String currency;
+        if (amount >= 1000000000) {
+            currency = String.format("%.2fB", amount / 1e9);
+        } else if (amount >= 1000000) {
+            currency = String.format("%.2fM", amount / 1e6);
+        } else if (amount >= 1000) {
+            currency = String.format("%.2fk", amount / 1e3);
+        } else {
+            currency = String.format("%dđ", amount);
+        }
+        return currency;
     }
 }

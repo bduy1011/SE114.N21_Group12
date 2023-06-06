@@ -1,6 +1,5 @@
 package com.example.budget_management;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 
@@ -29,7 +28,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.zip.Inflater;
 
 public class ExpenseFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
@@ -55,7 +53,7 @@ public class ExpenseFragment extends Fragment {
     //Data item value
     private  String type;
     private String note;
-    private  int amount;
+    private  long amount;
 
     private String post_key;
     public ExpenseFragment() {
@@ -173,7 +171,7 @@ public class ExpenseFragment extends Fragment {
             TextView mDate=mView.findViewById(R.id.date_txt_expense);
             mDate.setText(date);
         }
-        private  void setAmmount(int ammount){
+        private  void setAmmount(long ammount){
             TextView mAmmount=mView.findViewById(R.id.ammount_txt_expense);
             String stammount=String.valueOf(ammount);
             mAmmount.setText(stammount);

@@ -48,7 +48,7 @@ public class IncomeFragment extends Fragment {
     //Data item value
     private  String type;
     private  String note;
-    private  int amount;
+    private  long amount;
     private  String post_key;
 
     @Override
@@ -152,7 +152,7 @@ public class IncomeFragment extends Fragment {
             TextView mDate=mView.findViewById(R.id.date_txt_income);
             mDate.setText(date);
         }
-        private  void setAmmount(int ammount){
+        private  void setAmmount(long ammount){
             TextView mAmmount=mView.findViewById(R.id.ammount_txt_income);
             String stammount=String.valueOf(ammount);
             mAmmount.setText(stammount);
