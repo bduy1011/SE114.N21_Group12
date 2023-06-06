@@ -50,7 +50,8 @@ public class IncomeFragment extends Fragment {
     private  String note;
     private  long amount;
     private  String post_key;
-
+    //Recycle Adapter
+    FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder> adapter;
     public IncomeFragment() {
         // Required empty public constructor
     }
@@ -88,17 +89,11 @@ public class IncomeFragment extends Fragment {
 
             }
         });
-        return myview;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder> adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
+        adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
                 (
-                new FirebaseRecyclerOptions.Builder<Data>()
-                .setQuery(mIncomeDatabase, Data.class)
-                .build()
+                        new FirebaseRecyclerOptions.Builder<Data>()
+                                .setQuery(mIncomeDatabase, Data.class)
+                                .build()
                 ){
             @NonNull
             @Override
@@ -135,7 +130,21 @@ public class IncomeFragment extends Fragment {
         };
         recyclerView.setAdapter(adapter);
         adapter.startListening();
+        return myview;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder{
         View mView;
         public  MyViewHolder(View itemView)

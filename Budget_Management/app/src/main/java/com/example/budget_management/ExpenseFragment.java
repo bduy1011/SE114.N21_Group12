@@ -51,6 +51,8 @@ public class ExpenseFragment extends Fragment {
     private  long amount;
 
     private String post_key;
+    //Recycle adpapter
+    FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder> adapter;
     public ExpenseFragment() {
         // Required empty public constructor
     }
@@ -90,13 +92,7 @@ public class ExpenseFragment extends Fragment {
 
             }
         });
-        return myview;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder> adapter = new FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder>
+        adapter = new FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder>
                 (
                         new FirebaseRecyclerOptions.Builder<Data>()
                                 .setQuery(mExpenseDatabase, Data.class)
@@ -135,7 +131,21 @@ public class ExpenseFragment extends Fragment {
         };
         recyclerView.setAdapter(adapter);
         adapter.startListening();
+        return myview;
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
     private static class MyViewHolder extends RecyclerView.ViewHolder{
         View mView;
         public MyViewHolder(@NonNull View itemView) {
