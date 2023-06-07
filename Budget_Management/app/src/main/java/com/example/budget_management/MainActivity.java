@@ -57,28 +57,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         incomeFragment=new IncomeFragment();
         expenseFragment=new ExpenseFragment();
         //Menu menu = navigationView.getMenu();
-        //Thao tac chuc nang navigation
-       /* navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if(item.getItemId()==R.id.nav_logout)
-                {
-                    //Xoa thong tin dang nhap va chuyen man hinh dang nhap
-                    //Su dung SharedPreferences de luu thong tin thi lam z
-                    SharedPreferences sharedPreferences=getSharedPreferences("myPrefs",MODE_PRIVATE);
-                    SharedPreferences.Editor editor=sharedPreferences.edit();
-                    editor.remove("username");
-                    editor.remove("password");
-                    editor.apply();
-
-                    Intent intent=new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
-                    return true;
-                }
-                return false;
-            }
-        });*/
         //Chon Fragment
         if(savedInstanceState==null)
         {
@@ -121,34 +99,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
-    public void displaySelectedListener(int itemId)
-    {
-        Fragment fragment=null;
-        switch (itemId){
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
             case R.id.nav_home:
-                fragment=new HomeFragment();
+                replaceFragment(new HomeFragment());
                 break;
             case R.id.nav_share:
-                fragment=new LibraryFragment();
+                replaceFragment(new LibraryFragment());
                 break;
             case R.id.nav_logout:
-                Intent intent=new Intent(MainActivity.this, LoginActivity.class);
+                SharedPreferences sharedPreferences = getSharedPreferences("myPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove("username");
+                editor.remove("password");
+                editor.apply();
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
                 break;
         }
-        if (fragment!=null)
-        {
-            FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.frame_layout,fragment);
-            fragmentTransaction.commit();
-        }
-        DrawerLayout drawerLayout=findViewById(R.id.drawer_layout);
-        drawerLayout.closeDrawer(GravityCompat.START);
-    }
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        displaySelectedListener(item.getItemId());
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
