@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -210,97 +210,98 @@
                         android:textAppearance="?android:textAppearanceLarge">
 
                     </TextView>
+
                     <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_expense"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:id="@+id/recycler_expense">
+                        android:layout_height="200dp">
 
                     </androidx.recyclerview.widget.RecyclerView>
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/fb_main_plus_btn"
-                        android:layout_width="29dp"
-                        android:layout_height="32dp"
-                        android:layout_gravity="bottom|end"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginBottom="16dp"
-                        android:backgroundTint="#6A1B9A"
-                        android:src="@drawable/add_icon"
-                        app:fabSize="normal" />
                 </LinearLayout>
             </ScrollView>
             <!--Button-->
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginBottom="160dp">
-
-                    <TextView
-                        android:id="@+id/expense_ft_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@color/lavender"
-                        android:padding="5dp"
-                        android:text="Expense"
-                        android:textAppearance="?android:textAppearanceSmall"
-                        android:textColor="@color/white"
-                        android:visibility="invisible" />
-
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/expense_Ft_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|end"
-                        android:backgroundTint="#07bca4"
-                        android:elevation="6dp"
-                        android:src="@drawable/add_icon"
-                        android:visibility="invisible"
-                        app:fabSize="mini"
-                        app:pressedTranslationZ="12dp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginBottom="90dp">
-
-                    <TextView
-                        android:id="@+id/income_ft_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:background="@color/lavender"
-                        android:padding="5dp"
-                        android:text="Income"
-                        android:textAppearance="?android:textAppearanceSmall"
-                        android:textColor="@color/white"
-                        android:visibility="invisible" />
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/income_Ft_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|end"
-                        android:backgroundTint="#1ce10a"
-                        android:elevation="6dp"
-                        android:src="@drawable/add_icon"
-                        android:visibility="invisible"
-                        app:fabSize="mini"
-                        app:pressedTranslationZ="12dp" />
-                </LinearLayout>
-
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
         </LinearLayout>
 
     </LinearLayout>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="160dp">
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/expense_ft_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/lavender"
+                android:padding="5dp"
+                android:text="Expense"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="@color/white"
+                android:visibility="invisible" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/expense_Ft_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:backgroundTint="#07bca4"
+                android:elevation="6dp"
+                android:src="@drawable/add_icon"
+                android:visibility="invisible"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="90dp">
+
+            <TextView
+                android:id="@+id/income_ft_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/lavender"
+                android:padding="5dp"
+                android:text="Income"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="@color/white"
+                android:visibility="invisible" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/income_Ft_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:backgroundTint="#1ce10a"
+                android:elevation="6dp"
+                android:src="@drawable/add_icon"
+                android:visibility="invisible"
+                app:fabSize="mini"
+                app:pressedTranslationZ="12dp" />
+        </LinearLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fb_main_plus_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#6A1B9A"
+            android:src="@drawable/add_icon"
+            app:fabSize="normal" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>
