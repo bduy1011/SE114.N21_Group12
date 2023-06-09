@@ -26,9 +26,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class GraphFragment extends Fragment {
     private FirebaseAuth mAuth;
@@ -39,14 +42,20 @@ public class GraphFragment extends Fragment {
     private Button thisWeekBtn;
     private Button thisMonthBtn;
     private Button thisYearBtn;
-    GraphFragment(){
+    private Boolean isDayClick = false;
+    private Boolean isWeekClick = false;
+    private Boolean isMonthClick = false;
+    private Boolean isYearClick = false;
+
+    GraphFragment() {
 
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View myview = inflater.inflate(R.layout.fragment_graph,container,false);
+        View myview = inflater.inflate(R.layout.fragment_graph, container, false);
+
 
         pieChart = myview.findViewById(R.id.pieChart);
         toDayBtn = myview.findViewById(R.id.today_btn);
@@ -54,20 +63,44 @@ public class GraphFragment extends Fragment {
         thisMonthBtn = myview.findViewById(R.id.month_btn);
         thisYearBtn = myview.findViewById(R.id.year_btn);
 
-        mAuth=FirebaseAuth.getInstance();
-        FirebaseUser mUser=mAuth.getCurrentUser();
-        String uid=mUser.getUid();
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        String uid = mUser.getUid();
 
-        mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
-        mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
+        mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
 
         toDayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                isDayClick = true;
+                LoadPieChart();
             }
         });
-
+        thisWeekBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isWeekClick = true;
+                LoadPieChart();
+            }
+        });
+        thisMonthBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isMonthClick = true;
+                LoadPieChart();
+            }
+        });
+        thisYearBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYearClick = true;
+                LoadPieChart();
+            }
+        });
+        return myview;
+    }
+    private void LoadPieChart(){
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             int expense = 0;
             int income = 0;
@@ -75,8 +108,33 @@ public class GraphFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot mysnap: snapshot.getChildren()){
                     Data data= mysnap.getValue(Data.class);
-                    if(data.getDate().equals( DateFormat.getDateInstance().format(new Date()))){
-                        income += data.getAmount();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                    try {
+                        Date date = dateFormat.parse(data.getDate());
+
+                        Calendar calendar = Calendar.getInstance();
+                        int currentYear = calendar.get(Calendar.YEAR); // Lấy năm hiện tại
+                        int currentMonth = calendar.get(Calendar.MONTH); // Lấy tháng hiện tại
+                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày hiện tại
+                        calendar.setTime(date);
+                        int year = calendar.get(Calendar.YEAR); // Lấy năm của ngày nhập thông tin
+                        int month = calendar.get(Calendar.MONTH); // Lấy tháng của ngày nhập thông tin
+                        int day = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày của ngày nhập thông tin
+                        if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
+                            expense += data.getAmount();
+                            isDayClick = false;
+                        } else if (month == currentMonth && year == currentYear && isMonthClick) {
+                            expense +=data.getAmount();
+                            isMonthClick = false;
+                        } else if (year == currentYear && isYearClick) {
+                            expense += data.getAmount();
+                            isYearClick = false;
+                        }
+                        else {
+
+                        }
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
                 }
                 mExpenseDatabase.addValueEventListener(new ValueEventListener() {
@@ -84,8 +142,30 @@ public class GraphFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for(DataSnapshot mysnap: snapshot.getChildren()){
                             Data data= mysnap.getValue(Data.class);
-                            if(data.getDate().equals( DateFormat.getDateInstance().format(new Date()))){
-                                expense += data.getAmount();
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                            try {
+                                Date date = dateFormat.parse(data.getDate());
+
+                                Calendar calendar = Calendar.getInstance();
+                                int currentYear = calendar.get(Calendar.YEAR); // Lấy năm hiện tại
+                                int currentMonth = calendar.get(Calendar.MONTH); // Lấy tháng hiện tại
+                                int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày hiện tại
+                                calendar.setTime(date);
+                                int year = calendar.get(Calendar.YEAR); // Lấy năm của ngày nhập thông tin
+                                int month = calendar.get(Calendar.MONTH); // Lấy tháng của ngày nhập thông tin
+                                int day = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày của ngày nhập thông tin
+                                if(day == currentDay && isDayClick) {
+                                    income += data.getAmount();
+                                } else if (month == currentMonth && isMonthClick) {
+                                    income +=data.getAmount();
+                                } else if (year == currentYear && isYearClick) {
+                                    income += data.getAmount();
+                                }
+                                else {
+                                    income += data.getAmount();
+                                }
+                            } catch (ParseException e) {
+                                throw new RuntimeException(e);
                             }
                         }
                         ArrayList<PieEntry> entries = new ArrayList<>();
@@ -133,6 +213,5 @@ public class GraphFragment extends Fragment {
 
             }
         });
-        return myview;
     }
 }
