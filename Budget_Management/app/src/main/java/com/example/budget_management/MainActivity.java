@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 replaceFragment(new HomeFragment());
                 break;
             case R.id.nav_share:
-                replaceFragment(new LibraryFragment());
+                replaceFragment(new IncomeFragment());
                 break;
             case R.id.nav_logout:
                 SharedPreferences sharedPreferences = getSharedPreferences("myPrefs", MODE_PRIVATE);
@@ -133,61 +133,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
-    //Bottom Nav
-    private void showBottomDialog() {
-
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.bottomsheetlayout);
-
-        LinearLayout videoLayout = dialog.findViewById(R.id.layoutVideo);
-        LinearLayout shortsLayout = dialog.findViewById(R.id.layoutShorts);
-        LinearLayout liveLayout = dialog.findViewById(R.id.layoutLive);
-        ImageView cancelButton = dialog.findViewById(R.id.cancelButton);
-
-        videoLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this, "Upload a Video is clicked", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        shortsLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this,"Create a short is Clicked",Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        liveLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this,"Go live is Clicked",Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-
-    }
-
-
 }

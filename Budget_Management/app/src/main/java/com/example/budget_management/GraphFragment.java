@@ -130,9 +130,6 @@ public class GraphFragment extends Fragment {
                             expense += data.getAmount();
                             isYearClick = false;
                         }
-                        else {
-
-                        }
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
