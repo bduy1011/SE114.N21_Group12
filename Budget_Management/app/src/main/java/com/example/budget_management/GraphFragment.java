@@ -121,14 +121,14 @@ public class GraphFragment extends Fragment {
                         int month = calendar.get(Calendar.MONTH); // Lấy tháng của ngày nhập thông tin
                         int day = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày của ngày nhập thông tin
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
-                            expense += data.getAmount();
-                            isDayClick = false;
+                            income += data.getAmount();
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
-                            expense +=data.getAmount();
-                            isMonthClick = false;
+                            income +=data.getAmount();
                         } else if (year == currentYear && isYearClick) {
-                            expense += data.getAmount();
-                            isYearClick = false;
+                            income += data.getAmount();
+                        }
+                        else{
+
                         }
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
@@ -151,15 +151,15 @@ public class GraphFragment extends Fragment {
                                 int year = calendar.get(Calendar.YEAR); // Lấy năm của ngày nhập thông tin
                                 int month = calendar.get(Calendar.MONTH); // Lấy tháng của ngày nhập thông tin
                                 int day = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày của ngày nhập thông tin
-                                if(day == currentDay && isDayClick) {
-                                    income += data.getAmount();
-                                } else if (month == currentMonth && isMonthClick) {
-                                    income +=data.getAmount();
+                                if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
+                                    expense += data.getAmount();
+                                } else if (month == currentMonth && year == currentYear && isMonthClick) {
+                                    expense +=data.getAmount();
                                 } else if (year == currentYear && isYearClick) {
-                                    income += data.getAmount();
+                                    expense += data.getAmount();
                                 }
                                 else {
-                                    income += data.getAmount();
+
                                 }
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
@@ -197,6 +197,10 @@ public class GraphFragment extends Fragment {
                         pieChart.setEntryLabelTextSize(14f);
                         pieChart.animateY(1000, Easing.EaseInOutQuad);
                         pieChart.invalidate();
+
+                        isDayClick = false;
+                        isMonthClick = false;
+                        isYearClick = false;
                     }
 
                     @Override
