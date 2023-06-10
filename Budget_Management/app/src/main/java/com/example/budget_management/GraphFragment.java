@@ -108,7 +108,7 @@ public class GraphFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot mysnap: snapshot.getChildren()){
                     Data data= mysnap.getValue(Data.class);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                     try {
                         Date date = dateFormat.parse(data.getDate());
 
@@ -139,7 +139,7 @@ public class GraphFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for(DataSnapshot mysnap: snapshot.getChildren()){
                             Data data= mysnap.getValue(Data.class);
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                             try {
                                 Date date = dateFormat.parse(data.getDate());
 
@@ -198,6 +198,7 @@ public class GraphFragment extends Fragment {
                         pieChart.animateY(1000, Easing.EaseInOutQuad);
                         pieChart.invalidate();
 
+                        //Set false
                         isDayClick = false;
                         isMonthClick = false;
                         isYearClick = false;

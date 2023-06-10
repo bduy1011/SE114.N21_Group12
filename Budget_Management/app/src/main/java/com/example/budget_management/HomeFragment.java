@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +34,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+
 public class HomeFragment extends Fragment {
 
     //Floating Button
@@ -276,6 +281,7 @@ public class HomeFragment extends Fragment {
         final EditText ammount=myview.findViewById(R.id.ammount_edt);
         final EditText type=myview.findViewById(R.id.type_edt);
         final EditText note=myview.findViewById(R.id.note_edt);
+        final DatePicker datePicker = myview.findViewById(R.id.datePicker_insert);
         Button btnSave=myview.findViewById(R.id.btnSave);
         Button btnCancel=myview.findViewById(R.id.btnCancel);
 
@@ -285,13 +291,19 @@ public class HomeFragment extends Fragment {
                 String tmAmmount = ammount.getText().toString().trim();
                 String tmtype = type.getText().toString().trim();
                 String tmnote = note.getText().toString().trim();
+                int inamount=Integer.parseInt(tmAmmount);
+
+
+                Calendar calendar = Calendar.getInstance();
+                int year = datePicker.getYear();
+                int month = datePicker.getMonth();
+                int day = datePicker.getDayOfMonth();
+                calendar.set(year,month,day);
 
                 if(TextUtils.isEmpty(tmAmmount)){
                     ammount.setError("Required field");
                     return;
                 }
-
-                int inamount=Integer.parseInt(tmAmmount);
                 if (TextUtils.isEmpty(tmtype)){
                     type.setError("Required field");
                     return;
@@ -301,7 +313,11 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 String id=mIncomeDatabase.push().getKey();
-                String mDate=DateFormat.getDateInstance().format(new Date());
+
+                Date date = calendar.getTime();
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+                String mDate = sdf.format(date);
+
                 Data data=new Data(inamount,tmtype,tmnote,id,mDate);
                 mIncomeDatabase.child(id).setValue(data);
 
@@ -333,6 +349,7 @@ public class HomeFragment extends Fragment {
         final EditText ammount=myview.findViewById(R.id.ammount_edt);
         final EditText type=myview.findViewById(R.id.type_edt);
         final EditText note=myview.findViewById(R.id.note_edt);
+        final DatePicker datePicker = myview.findViewById(R.id.datePicker_insert);
         Button btnSave=myview.findViewById(R.id.btnSave);
         Button btnCancel=myview.findViewById(R.id.btnCancel);
 
@@ -342,13 +359,18 @@ public class HomeFragment extends Fragment {
                 String tmAmmount = ammount.getText().toString().trim();
                 String tmtype = type.getText().toString().trim();
                 String tmnote = note.getText().toString().trim();
+                int inamount=Integer.parseInt(tmAmmount);
 
+                Calendar calendar = Calendar.getInstance();
+                int year = datePicker.getYear();
+                int month = datePicker.getMonth();
+                int day = datePicker.getDayOfMonth();
+                calendar.set(year,month,day);
                 if(TextUtils.isEmpty(tmAmmount)){
                     ammount.setError("Required field");
                     return;
                 }
 
-                int inamount=Integer.parseInt(tmAmmount);
                 if (TextUtils.isEmpty(tmtype)){
                     type.setError("Required field");
                     return;
@@ -357,8 +379,15 @@ public class HomeFragment extends Fragment {
                     note.setError("Required field");
                     return;
                 }
+
                 String id=mExpenseDatabase.push().getKey();
-                String mDate=DateFormat.getDateInstance().format(new Date());
+
+                Date date = calendar.getTime();
+
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+
+                String mDate = sdf.format(date);
+
                 Data data=new Data(inamount,tmtype,tmnote,id,mDate);
                 mExpenseDatabase.child(id).setValue(data);
 
