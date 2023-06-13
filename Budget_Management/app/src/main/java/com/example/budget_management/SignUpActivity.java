@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,29 +35,30 @@ public class SignUpActivity extends AppCompatActivity {
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String user =signupEmail.getText().toString().trim();
+                String email =signupEmail.getText().toString().trim();
                 String pass= signupPassword.getText().toString().trim();
-                if (user.isEmpty())
+                if (TextUtils.isEmpty(email))
                 {
                     signupEmail.setError("Email cannot be empty");
                 }
-                if (user.isEmpty())
+                if (TextUtils.isEmpty(pass))
                 {
                     signupPassword.setError("Password cannot be empty");
                 }
                 else
                 {
-                    auth.createUserWithEmailAndPassword(user,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    auth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful())
                             {
-                                Toast.makeText(SignUpActivity.this, "Sign up successful", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"Signup Complelte", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(SignUpActivity.this, "Sign up successful", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(SignUpActivity.this,LoginActivity.class));
                             }
                             else
                             {
-                                Toast.makeText(SignUpActivity.this, "Sign up Failed"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Sign up Failed"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -67,7 +69,8 @@ public class SignUpActivity extends AppCompatActivity {
         loginRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+             //   startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
             }
         });
     }

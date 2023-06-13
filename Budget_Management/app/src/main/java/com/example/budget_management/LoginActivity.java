@@ -47,7 +47,7 @@ public class   LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String email=loginEmail.getText().toString();
                 String pass=loginPassword.getText().toString();
-                if (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+               /* if (!email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                     if (!pass.isEmpty())
                     {
                         auth.signInWithEmailAndPassword(email,pass)
@@ -74,15 +74,39 @@ public class   LoginActivity extends AppCompatActivity {
                 else if (email.isEmpty())
                 {
                     loginEmail.setError("Email cannot be empty");
+                }*/
+                if(TextUtils.isEmpty(email)){
+                    loginEmail.setError("Email required");
+                    return;
                 }
+                if(TextUtils.isEmpty(pass)){
+                    loginPassword.setError("Password required");
+                }
+                auth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                            Toast.makeText(getApplicationContext(),"Login successful",Toast.LENGTH_SHORT).show();
+
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(),"Login failed",Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
             }
         });
+        //Sign up activity
         signupRedirectText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
+               // startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
+                startActivity(new Intent(getApplicationContext(),SignUpActivity.class));
             }
         });
+        //Forget password activity
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
