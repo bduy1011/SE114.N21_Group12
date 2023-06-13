@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,7 +29,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class IncomeFragment extends Fragment {
     //Firebase database
@@ -48,10 +53,13 @@ public class IncomeFragment extends Fragment {
     //Data item value
     private  String type;
     private  String note;
-    private  long amount;
+    private  int amount;
+    private String theDay;
     private  String post_key;
     //Recycle Adapter
     FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder> adapter;
+    //Date Picker
+    DatePicker datePicker;
     public IncomeFragment() {
         // Required empty public constructor
     }
@@ -67,10 +75,12 @@ public class IncomeFragment extends Fragment {
         incomeTotalSum = myview.findViewById(R.id.income_txt_result);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
+
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
+
 
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -108,6 +118,7 @@ public class IncomeFragment extends Fragment {
                 holder.setNote(model.getNote());
                 holder.setDate(model.getDate());
                 holder.setAmmount(model.getAmount());
+
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -119,6 +130,7 @@ public class IncomeFragment extends Fragment {
                             type = model.getType();
                             note = model.getNote();
                             amount = model.getAmount();
+                            theDay = model.getDate();
 
                             updateDataItem();
                         }
@@ -193,6 +205,9 @@ public class IncomeFragment extends Fragment {
         btnUpdate=myview.findViewById(R.id.btn_upd_Update);
         btnDelete=myview.findViewById(R.id.btn_upd_Delete);
 
+        datePicker = myview.findViewById(R.id.datePicker_update);
+        setDatePicker(theDay);
+
         AlertDialog dialog=mydialog.create();
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,7 +218,17 @@ public class IncomeFragment extends Fragment {
                 String mdammount=String.valueOf(amount);
                 mdammount=edtAmmount.getText().toString().trim();
                 int myAmmount=Integer.parseInt(mdammount);
-                String mDate= DateFormat.getDateInstance().format(new Date());
+
+                Calendar calendar = Calendar.getInstance();
+                int year = datePicker.getYear();
+                int month = datePicker.getMonth();
+                int day = datePicker.getDayOfMonth();
+                calendar.set(year,month,day);
+
+                Date date = calendar.getTime();
+                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+                String mDate = sdf.format(date);
+
                 Data data=new Data(myAmmount,type,note,post_key,mDate);
                 mIncomeDatabase.child(post_key).setValue(data);
                 dialog.dismiss();
@@ -220,5 +245,17 @@ public class IncomeFragment extends Fragment {
         });
         dialog.show();
     }
-
+    public void setDatePicker(String thisDay){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+        try {
+            Date date = dateFormat.parse(thisDay);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            datePicker.updateDate(calendar.get(Calendar.YEAR)
+                    , calendar.get(Calendar.MONTH)
+                    , calendar.get(Calendar.DAY_OF_MONTH));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
