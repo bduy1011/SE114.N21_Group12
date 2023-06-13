@@ -25,27 +25,36 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="25dp"
+        android:layout_margin="13dp"
+        android:gravity="center"
         android:orientation="horizontal">
         <Button
             android:id="@+id/today_btn"
+            android:textSize="12sp"
             android:text="To Day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/week_btn"
-            android:text="Week"
+            android:textAllCaps="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <Button
             android:id="@+id/month_btn"
-            android:text="month"
+            android:text="This Month"
+            android:textSize="12sp"
+            android:textAllCaps="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <Button
             android:id="@+id/year_btn"
-            android:text="Year"
+            android:text="This Year"
+            android:textSize="12sp"
+            android:textAllCaps="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/custom_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Custom"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

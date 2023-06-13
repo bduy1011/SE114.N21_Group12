@@ -1,11 +1,15 @@
 package com.example.budget_management;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,13 +43,17 @@ public class GraphFragment extends Fragment {
     private DatabaseReference mExpenseDatabase;
     private PieChart pieChart;
     private Button toDayBtn;
-    private Button thisWeekBtn;
+    private Button customBtn;
     private Button thisMonthBtn;
     private Button thisYearBtn;
     private Boolean isDayClick = false;
-    private Boolean isWeekClick = false;
+
+    private Boolean isCustomClick = false;
     private Boolean isMonthClick = false;
     private Boolean isYearClick = false;
+
+    Calendar startCalendar;
+    Calendar endCalendar;
 
     GraphFragment() {
 
@@ -59,7 +67,7 @@ public class GraphFragment extends Fragment {
 
         pieChart = myview.findViewById(R.id.pieChart);
         toDayBtn = myview.findViewById(R.id.today_btn);
-        thisWeekBtn = myview.findViewById(R.id.week_btn);
+        customBtn=myview.findViewById(R.id.custom_btn);
         thisMonthBtn = myview.findViewById(R.id.month_btn);
         thisYearBtn = myview.findViewById(R.id.year_btn);
 
@@ -74,36 +82,84 @@ public class GraphFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 isDayClick = true;
-                LoadPieChart();
-            }
-        });
-        thisWeekBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isWeekClick = true;
-                LoadPieChart();
+                LoadPieChart(null,null);
             }
         });
         thisMonthBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isMonthClick = true;
-                LoadPieChart();
+                LoadPieChart(null, null);
             }
         });
         thisYearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isYearClick = true;
-                LoadPieChart();
+                LoadPieChart(null,null);
+            }
+        });
+        customBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isCustomClick = true;
+                AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater=LayoutInflater.from(getActivity());
+                View myview=inflater.inflate(R.layout.day_range,null);
+                mydialog.setView(myview);
+
+                final AlertDialog dialog=mydialog.create();
+                dialog.setCancelable(false);
+
+                Button applyBtn = myview.findViewById(R.id.btn_apply);
+                Button cancelBtn = myview.findViewById(R.id.btn_cancel);
+
+                final EditText sDay = myview.findViewById(R.id.start_day_edt);
+                final EditText sMonth = myview.findViewById(R.id.start_moth_edt);
+                final EditText sYear = myview.findViewById(R.id.start_year_edt);
+                final EditText eDay = myview.findViewById(R.id.end_day_edt);
+                final EditText eMonth = myview.findViewById(R.id.end_month_edt);
+                final EditText eYear = myview.findViewById(R.id.end_year_edt);
+                applyBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Date startDate, endDate;
+                        String sDayString = sDay.getText().toString();
+                        String sMonthString = sMonth.getText().toString();
+                        String sYearString = sYear.getText().toString();
+                        String eDayString = eDay.getText().toString();
+                        String eMonthString = eMonth.getText().toString();
+                        String eYearString = eYear.getText().toString();
+                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                        try {
+                            startDate = format.parse(sDayString + "/" + sMonthString + "/" + sYearString);
+                            endDate = format.parse(eDayString + "/" + eMonthString + "/" + eYearString);
+                            LoadPieChart(startDate, endDate);
+                            dialog.dismiss();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        isCustomClick = false;
+                    }
+                });
+                dialog.show();
             }
         });
         return myview;
     }
-    private void LoadPieChart(){
+
+
+    private void LoadPieChart(@Nullable Date sDate, @Nullable Date eDate){
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             int expense = 0;
             int income = 0;
+            String typeOfPieChart = "";
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot mysnap: snapshot.getChildren()){
@@ -113,13 +169,13 @@ public class GraphFragment extends Fragment {
                         Date date = dateFormat.parse(data.getDate());
 
                         Calendar calendar = Calendar.getInstance();
-                        int currentYear = calendar.get(Calendar.YEAR); // Lấy năm hiện tại
-                        int currentMonth = calendar.get(Calendar.MONTH); // Lấy tháng hiện tại
-                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày hiện tại
+                        int currentYear = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm hiá»‡n táº¡i
+                        int currentMonth = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng hiá»‡n táº¡i
+                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y hiá»‡n táº¡i
                         calendar.setTime(date);
-                        int year = calendar.get(Calendar.YEAR); // Lấy năm của ngày nhập thông tin
-                        int month = calendar.get(Calendar.MONTH); // Lấy tháng của ngày nhập thông tin
-                        int day = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày của ngày nhập thông tin
+                        int year = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm cá»§a ngÃ y nháº­p thÃ´ng tin
+                        int month = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng cá»§a ngÃ y nháº­p thÃ´ng tin
+                        int day = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y cá»§a ngÃ y nháº­p thÃ´ng tin
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                             income += data.getAmount();
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
@@ -127,8 +183,8 @@ public class GraphFragment extends Fragment {
                         } else if (year == currentYear && isYearClick) {
                             income += data.getAmount();
                         }
-                        else{
-
+                        else if (isCustomClick && date.compareTo(sDate) > 0 && date.compareTo(eDate) < 0) {
+                            income += data.getAmount();
                         }
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
@@ -144,13 +200,13 @@ public class GraphFragment extends Fragment {
                                 Date date = dateFormat.parse(data.getDate());
 
                                 Calendar calendar = Calendar.getInstance();
-                                int currentYear = calendar.get(Calendar.YEAR); // Lấy năm hiện tại
-                                int currentMonth = calendar.get(Calendar.MONTH); // Lấy tháng hiện tại
-                                int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày hiện tại
+                                int currentYear = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm hiá»‡n táº¡i
+                                int currentMonth = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng hiá»‡n táº¡i
+                                int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y hiá»‡n táº¡i
                                 calendar.setTime(date);
-                                int year = calendar.get(Calendar.YEAR); // Lấy năm của ngày nhập thông tin
-                                int month = calendar.get(Calendar.MONTH); // Lấy tháng của ngày nhập thông tin
-                                int day = calendar.get(Calendar.DAY_OF_MONTH); // Lấy ngày của ngày nhập thông tin
+                                int year = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm cá»§a ngÃ y nháº­p thÃ´ng tin
+                                int month = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng cá»§a ngÃ y nháº­p thÃ´ng tin
+                                int day = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y cá»§a ngÃ y nháº­p thÃ´ng tin
                                 if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                                     expense += data.getAmount();
                                 } else if (month == currentMonth && year == currentYear && isMonthClick) {
@@ -158,23 +214,35 @@ public class GraphFragment extends Fragment {
                                 } else if (year == currentYear && isYearClick) {
                                     expense += data.getAmount();
                                 }
-                                else {
-
+                                else if (isCustomClick && date.compareTo(sDate) > 0 && date.compareTo(eDate) < 0) {
+                                    expense += data.getAmount();
                                 }
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
                             }
                         }
+                        if(isDayClick)
+                            typeOfPieChart = "To Day";
+
+                        if(isMonthClick)
+                            typeOfPieChart = "This Month";
+
+                        if(isYearClick)
+                            typeOfPieChart = "This Year";
+
+                        if(isCustomClick)
+                            typeOfPieChart = "Custom";
+
                         ArrayList<PieEntry> entries = new ArrayList<>();
                         entries.add(new PieEntry((float) expense, "Doanh thu"));
-                        entries.add(new PieEntry((float) income, "Chi phí"));
+                        entries.add(new PieEntry((float) income, "Chi phÃ­"));
 
-                        PieDataSet dataSet = new PieDataSet(entries,"");
+                        PieDataSet dataSet = new PieDataSet(entries, typeOfPieChart);
 
                         dataSet.setValueFormatter(new PercentFormatter(pieChart));
                         dataSet.setValueTextSize(16f);
 
-                        // Thiết lập màu cho các phần tử trong biểu đồ tròn
+                        // Thiáº¿t láº­p mÃ u cho cÃ¡c pháº§n tá»­ trong biá»ƒu Ä‘á»“ trÃ²n
                         ArrayList<Integer> colors = new ArrayList<>();
 
                         int incomeColor = Color.parseColor("#F91115"); //Green but lighter
@@ -183,10 +251,10 @@ public class GraphFragment extends Fragment {
                         colors.add(incomeColor);
                         dataSet.setColors(colors);
 
-                        // Tạo PieData từ PieDataSet
+                        // Táº¡o PieData tá»« PieDataSet
                         PieData pieData = new PieData(dataSet);
 
-                        // Thiết lập các thuộc tính cho PieChart
+                        // Thiáº¿t láº­p cÃ¡c thuá»™c tÃ­nh cho PieChart
                         pieChart.setData(pieData);
                         pieChart.getDescription().setEnabled(false);
                         pieChart.setUsePercentValues(true);
@@ -202,6 +270,7 @@ public class GraphFragment extends Fragment {
                         isDayClick = false;
                         isMonthClick = false;
                         isYearClick = false;
+                        isCustomClick = false;
                     }
 
                     @Override
