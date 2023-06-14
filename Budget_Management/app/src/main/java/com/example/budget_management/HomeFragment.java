@@ -70,6 +70,8 @@ public class HomeFragment extends Fragment {
         View myview=inflater.inflate(R.layout.fragment_home,container,false);
 
         mAuth=FirebaseAuth.getInstance();
+        //New fix
+
         FirebaseUser mUser=mAuth.getCurrentUser();
         String uid=mUser.getUid();
 

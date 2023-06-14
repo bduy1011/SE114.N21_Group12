@@ -3,6 +3,7 @@ package com.example.budget_management;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     IncomeFragment incomeFragment;
     ExpenseFragment expenseFragment;
     FirebaseAuth mAuth;
+    TextView tvemail;
+    NavigationView navigationView;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,13 +47,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.navView);
+        //NavigationView navigationView = findViewById(R.id.navView);
+        navigationView = findViewById(R.id.navView);
         navigationView.setNavigationItemSelectedListener(this);
 
         homeFragment=new HomeFragment();
         incomeFragment=new IncomeFragment();
         expenseFragment=new ExpenseFragment();
-
+        showUserInformation();
         if(savedInstanceState==null)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.main_frame,new HomeFragment()).commit();
@@ -110,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.nav_logout:
                 mAuth.signOut();
-                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                startActivity(new Intent(getApplicationContext(),LoginActivity.class));
                 break;
         }
         if(fragment != null){
@@ -134,4 +139,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.replace(R.id.main_frame, fragment);
         fragmentTransaction.commit();
     }
+      private void iniUnit()
+    {
+        tvemail=navigationView.getHeaderView(0).findViewById(R.id.tv_email);
+    }
+    private void showUserInformation()
+    {
+        FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+        if(user==null)
+        {
+            return;
+        }
+        if(tvemail==null){
+            iniUnit();
+
+        }
+        String email=user.getEmail();
+        if (tvemail!=null){
+            tvemail.setText(email);
+        }
+
+
+    }
+
 }
