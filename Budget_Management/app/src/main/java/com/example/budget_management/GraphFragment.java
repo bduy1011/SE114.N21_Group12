@@ -52,9 +52,6 @@ public class GraphFragment extends Fragment {
     private Boolean isMonthClick = false;
     private Boolean isYearClick = false;
 
-    Calendar startCalendar;
-    Calendar endCalendar;
-
     GraphFragment() {
 
     }
@@ -221,17 +218,6 @@ public class GraphFragment extends Fragment {
                                 throw new RuntimeException(e);
                             }
                         }
-                        if(isDayClick)
-                            typeOfPieChart = "To Day";
-
-                        if(isMonthClick)
-                            typeOfPieChart = "This Month";
-
-                        if(isYearClick)
-                            typeOfPieChart = "This Year";
-
-                        if(isCustomClick)
-                            typeOfPieChart = "Custom";
 
                         ArrayList<PieEntry> entries = new ArrayList<>();
                         entries.add(new PieEntry((float) expense, "Doanh thu"));

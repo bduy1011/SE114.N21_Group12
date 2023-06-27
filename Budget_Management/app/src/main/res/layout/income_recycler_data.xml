@@ -62,8 +62,5 @@
                 android:textStyle="bold"
                 android:id="@+id/ammount_txt_income"/>
         </RelativeLayout>
-
-
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

@@ -1,6 +1,8 @@
 package com.example.budget_management;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,6 +26,13 @@ import android.widget.Toast;
 import com.example.budget_management.Model.Data;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,11 +42,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 public class HomeFragment extends Fragment {
 
@@ -59,11 +72,16 @@ public class HomeFragment extends Fragment {
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
     //Recycle view
-    private RecyclerView mRecyclerIncome;
-    private RecyclerView mRecyclerExpense;
+    //private RecyclerView mRecyclerIncome;
+    //private RecyclerView mRecyclerExpense;
+    private RecyclerView mainRecycleView;
     //FireBase Adapter
     FirebaseRecyclerAdapter<Data,ExpenseViewHolder> expenseAdapter;
     FirebaseRecyclerAdapter<Data,IncomeViewHolder> incomeAdapter;
+    //PieChart
+    private PieChart mainChart;
+
+    Boolean isIncome = true, isExpense = true;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -92,12 +110,36 @@ public class HomeFragment extends Fragment {
         totalIncomeResult=myview.findViewById(R.id.income_set_result);
         totalExpenseResult=myview.findViewById(R.id.expense_set_result);
         //Recycler
-        mRecyclerIncome=myview.findViewById(R.id.recycler_income);
-        mRecyclerExpense=myview.findViewById(R.id.recycler_expense);
-
+        //mRecyclerIncome=myview.findViewById(R.id.recycler_income);
+        //mRecyclerExpense=myview.findViewById(R.id.recycler_expense);
+        mainRecycleView = myview.findViewById(R.id.main_recycleview);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        mainRecycleView.setHasFixedSize(true);
+        mainRecycleView.setLayoutManager(layoutManager);
+        //Pie Chart
+        mainChart = myview.findViewById(R.id.main_chart);
         //Animation connect
         FadOpen= AnimationUtils.loadAnimation(getActivity(),R.anim.fade_open);
         FadeClose=AnimationUtils.loadAnimation(getActivity(),R.anim.fade_close);
+        //Load data from begin
+        loadIncomePieChart();
+        loadExpensePieChart();
+        totalExpenseResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isExpense = true;
+                loadExpensePieChart();
+            }
+        });
+        totalIncomeResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isIncome = true;
+                loadIncomePieChart();
+            }
+        });
         fab_main_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -130,54 +172,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        //Calculate total income
-        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int totalsum=0;
-                for (DataSnapshot mysnap:snapshot.getChildren()){
-                    Data data=mysnap.getValue(Data.class);
-                    totalsum+=data.getAmount();
-                    totalIncomeResult.setText(formatCurrency(totalsum));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        //Calculate total expense
-        mExpenseDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int totalsum=0;
-                for(DataSnapshot mysnapshot:snapshot.getChildren())
-                {
-                    Data data=mysnapshot.getValue(Data.class);
-                    totalsum+=data.getAmount();
-                    totalExpenseResult.setText(formatCurrency(totalsum));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        //Recycler
-        LinearLayoutManager layoutManagerIncome=new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
-        layoutManagerIncome.setStackFromEnd(true);
-        layoutManagerIncome.setReverseLayout(true);
-        mRecyclerIncome.setHasFixedSize(true);
-        mRecyclerIncome.setLayoutManager(layoutManagerIncome);
-
-        LinearLayoutManager layoutManagerExpense=new LinearLayoutManager(getActivity(),LinearLayoutManager.HORIZONTAL,false);
-        layoutManagerExpense.setReverseLayout(true);
-        layoutManagerExpense.setStackFromEnd(true);
-        mRecyclerExpense.setHasFixedSize(true);
-        mRecyclerExpense.setLayoutManager(layoutManagerExpense);
 
         incomeAdapter = new FirebaseRecyclerAdapter<Data, IncomeViewHolder>(
                 new FirebaseRecyclerOptions.Builder<Data>()
@@ -189,16 +183,16 @@ public class HomeFragment extends Fragment {
                 holder.setIncomeType(model.getType());
                 holder.setIncomeAmmount((int) model.getAmount());
                 holder.setIncomeDate(model.getDate());
+                holder.setIncomeNote(model.getNote());
             }
             @NonNull
             @Override
             public IncomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.home_income, parent, false);
-                return new HomeFragment.IncomeViewHolder(view);
+                        .inflate(R.layout.income_recycler_data, parent, false);
+                return new IncomeViewHolder(view);
             }
         };
-        mRecyclerIncome.setAdapter(incomeAdapter);
         //Expense
         expenseAdapter=new FirebaseRecyclerAdapter<Data, ExpenseViewHolder>(
                 new FirebaseRecyclerOptions.Builder<Data>()
@@ -210,18 +204,17 @@ public class HomeFragment extends Fragment {
                 holder.setExpenseType(model.getType());
                 holder.setExpenseAmmount((int) model.getAmount());
                 holder.setExpenseDate(model.getDate());
+                holder.setExpenseNote(model.getNote());
             }
 
             @NonNull
             @Override
             public ExpenseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.home_expense, parent, false);
-                return new HomeFragment.ExpenseViewHolder(view);
+                        .inflate(R.layout.expense_recycler_data, parent, false);
+                return new ExpenseViewHolder(view);
             }
         };
-        mRecyclerExpense.setAdapter(expenseAdapter);
-
         return myview;
     }
     //Floating button animation
@@ -253,8 +246,7 @@ public class HomeFragment extends Fragment {
             isOpen=true;
         }
     }
-    private void addData()
-    {
+    private void addData() {
         //Fab Button income
         fab_income_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -271,6 +263,7 @@ public class HomeFragment extends Fragment {
         });
     }
     public void incomeDataInsert() {
+        isIncome = true;
         AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
         LayoutInflater inflater=LayoutInflater.from(getActivity());
         View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
@@ -325,6 +318,7 @@ public class HomeFragment extends Fragment {
 
                 Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
                 ftAnimation();
+                loadIncomePieChart();
                 dialog.dismiss();
             }
         });
@@ -339,6 +333,7 @@ public class HomeFragment extends Fragment {
 
     }
     public void expenseDataInsert(){
+        isExpense = true;
         AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
         LayoutInflater inflater=LayoutInflater.from(getActivity());
         View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
@@ -395,6 +390,7 @@ public class HomeFragment extends Fragment {
 
                 Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
                 ftAnimation();
+                loadExpensePieChart();
                 dialog.dismiss();
             }
         });
@@ -407,6 +403,7 @@ public class HomeFragment extends Fragment {
         });
         dialog.show();
     }
+    @NonNull
     public static String formatCurrency(int amount) {
         String currency;
         if (amount >= 1000000000) {
@@ -433,49 +430,210 @@ public class HomeFragment extends Fragment {
         incomeAdapter.stopListening();
         expenseAdapter.stopListening();
     }
-
-    //For income data
-    public  static class IncomeViewHolder extends RecyclerView.ViewHolder{
-        View mIncomeView;
-        public  IncomeViewHolder(View itemView){
+    public static class IncomeViewHolder extends RecyclerView.ViewHolder{
+        View mView;
+        public IncomeViewHolder(@NonNull View itemView) {
             super(itemView);
-            mIncomeView = itemView;
+            mView = itemView;
         }
-        public  void setIncomeType(String type){
-            TextView mtype=mIncomeView.findViewById(R.id.type_income_ds);
-            mtype.setText(type);
+
+        private void setIncomeType(String type){
+            TextView mType=mView.findViewById(R.id.type_txt_income);
+            mType.setText(type);
         }
-        public void setIncomeAmmount(int ammount){
-            TextView mAmmount=mIncomeView.findViewById(R.id.ammount_income_ds);
-            String strAmmount=String.valueOf(ammount);
-            mAmmount.setText(strAmmount);
+        private  void setIncomeNote(String note){
+            TextView mNote=mView.findViewById(R.id.note_txt_income);
+            mNote.setText(note);
         }
-        public void setIncomeDate(String date){
-            TextView mDate=mIncomeView.findViewById(R.id.date_income_ds);
+        private  void setIncomeDate(String date){
+            TextView mDate=mView.findViewById(R.id.date_txt_income);
             mDate.setText(date);
+        }
+        private  void setIncomeAmmount(long ammount){
+            TextView mAmmount=mView.findViewById(R.id.ammount_txt_income);
+            String stammount=String.valueOf(ammount);
+            mAmmount.setText(stammount);
         }
     }
-    //For expense data
-    public static  class ExpenseViewHolder extends RecyclerView.ViewHolder{
-        View mExpenseView;
-        public  ExpenseViewHolder(View itemView)
-        {
+    private static class ExpenseViewHolder extends RecyclerView.ViewHolder{
+        View mView;
+        public ExpenseViewHolder(@NonNull View itemView) {
             super(itemView);
-            mExpenseView=itemView;
+            mView = itemView;
         }
-        public void setExpenseType(String type){
-            TextView mtype=mExpenseView.findViewById(R.id.type_expense_ds);
-            mtype.setText(type);
+        private void setExpenseType(String type){
+            TextView mType=mView.findViewById(R.id.type_txt_expense);
+            mType.setText(type);
         }
-        public void setExpenseAmmount(int ammount){
-            TextView mAmmount=mExpenseView.findViewById(R.id.ammount_expense_ds);
-            String strAmmount=String.valueOf(ammount);
-            mAmmount.setText(strAmmount);
+        private  void setExpenseNote(String note){
+            TextView mNote=mView.findViewById(R.id.note_txt_expense);
+            mNote.setText(note);
         }
-        public void setExpenseDate(String date){
-            TextView mDate=mExpenseView.findViewById(R.id.date_expense_ds);
+        private  void setExpenseDate(String date){
+            TextView mDate=mView.findViewById(R.id.date_txt_expense);
             mDate.setText(date);
         }
+        private  void setExpenseAmmount(long ammount){
+            TextView mAmmount=mView.findViewById(R.id.ammount_txt_expense);
+            String stammount=String.valueOf(ammount);
+            mAmmount.setText(stammount);
+        }
+    }
+    private int getColorForType(String type) {
+        // Tạo số nguyên từ tên loại bằng hàm băm
+        int hashCode = type.hashCode();
 
+        // Tạo một màu sắc ngẫu nhiên từ số nguyên
+        Random random = new Random(hashCode);
+        int color = Color.argb(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+
+        return color;
+    }
+    private void loadIncomePieChart(){
+        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(isIncome){
+                    Random random = new Random();
+                    int totalIncomeSum=0;
+                    mainRecycleView.setAdapter(incomeAdapter);
+                    List<Data> dataList = new ArrayList<>();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        Data data = dataSnapshot.getValue(Data.class);
+                        totalIncomeSum+=data.getAmount();
+                        totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                        dataList.add(data);
+                    }
+
+                    Map<String, Float> typeAmountMap = new HashMap<>();
+                    for (Data data : dataList) {
+                        String type = data.getType();
+                        float amount = data.getAmount();
+                        if (typeAmountMap.containsKey(type)) {
+                            amount += typeAmountMap.get(type);
+                        }
+                        typeAmountMap.put(type, amount);
+                    }
+
+                    List<PieEntry> entries = new ArrayList<>();
+                    PieDataSet dataSet = new PieDataSet(null, "Biểu đồ tròn");
+                    for (Map.Entry<String, Float> entry : typeAmountMap.entrySet()) {
+                        String type = entry.getKey();
+                        float amount = entry.getValue();
+                        int color = getColorForType(type);
+                        entries.add(new PieEntry(amount, type));
+                        dataSet.addColor(color);
+                    }
+                    dataSet.setValues(entries);
+
+                    PieData incomeData = new PieData(dataSet);
+                    incomeData.setValueTextSize(12f);
+                    incomeData.setValueTextColor(Color.BLACK);
+
+                    dataSet.setValueFormatter(new PercentFormatter(mainChart));
+                    dataSet.setSliceSpace(3f);
+                    dataSet.setValues(entries);
+
+                    mainChart.setCenterText("\tIncome Money\n"+totalIncomeSum + "đ");
+                    mainChart.setCenterTextColor(Color.GREEN);
+                    mainChart.setCenterTextSize(20f);
+                    mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
+
+
+                    mainChart.setDrawHoleEnabled(true);
+                    mainChart.setHoleColor(Color.TRANSPARENT);
+                    mainChart.setTransparentCircleRadius(40f);
+
+                    mainChart.setEntryLabelColor(Color.BLACK);
+                    mainChart.setEntryLabelTextSize(14f);
+                    mainChart.setHoleRadius(70f);
+
+                    mainChart.setUsePercentValues(true);
+                    mainChart.animateY(1000, Easing.EaseInOutQuad);
+                    mainChart.getDescription().setEnabled(false);
+                    mainChart.getLegend().setEnabled(false);
+                    mainChart.setData(incomeData);
+                    mainChart.invalidate();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                isIncome = false;
+            }
+        });
+
+    }
+    private void loadExpensePieChart(){
+        mExpenseDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(isExpense){
+                    Random random = new Random();
+                    int totalExpenseSum=0;
+                    mainRecycleView.setAdapter(expenseAdapter);
+                    List<Data> dataList = new ArrayList<>();
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        Data data = dataSnapshot.getValue(Data.class);
+                        totalExpenseSum+=data.getAmount();
+                        totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                        dataList.add(data);
+                    }
+
+                    Map<String, Float> typeAmountMap = new HashMap<>();
+                    for (Data data : dataList) {
+                        String type = data.getType();
+                        float amount = data.getAmount();
+                        if (typeAmountMap.containsKey(type)) {
+                            amount += typeAmountMap.get(type);
+                        }
+                        typeAmountMap.put(type, amount);
+                    }
+
+                    List<PieEntry> entries = new ArrayList<>();
+                    PieDataSet dataSet = new PieDataSet(null, "");
+                    for (Map.Entry<String, Float> entry : typeAmountMap.entrySet()) {
+                        String type = entry.getKey();
+                        float amount = entry.getValue();
+                        int color = getColorForType(type);
+                        entries.add(new PieEntry(amount, type));
+                        dataSet.addColor(color);
+                    }
+                    dataSet.setValueFormatter(new PercentFormatter(mainChart));
+                    dataSet.setSliceSpace(3f);
+                    dataSet.setValues(entries);
+
+                    PieData expenseData = new PieData(dataSet);
+                    expenseData.setValueTextSize(12f);
+                    expenseData.setValueTextColor(Color.BLACK);
+
+                    mainChart.setCenterText("\tExpense Money\n"+totalExpenseSum + "đ");
+                    mainChart.setCenterTextColor(Color.RED);
+                    mainChart.setCenterTextSize(20f);
+                    mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
+
+
+                    mainChart.setDrawHoleEnabled(true);
+                    mainChart.setHoleColor(Color.TRANSPARENT);
+                    mainChart.setTransparentCircleRadius(40f);
+
+                    mainChart.setEntryLabelColor(Color.BLACK);
+                    mainChart.setEntryLabelTextSize(14f);
+                    mainChart.setHoleRadius(70f);
+
+                    mainChart.setUsePercentValues(true);
+                    mainChart.animateY(1000, Easing.EaseInOutQuad);
+                    mainChart.getDescription().setEnabled(false);
+                    mainChart.getLegend().setEnabled(false);
+                    mainChart.setData(expenseData);
+                    mainChart.invalidate();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                isExpense = false;
+            }
+        });
     }
 }
