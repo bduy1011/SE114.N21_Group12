@@ -1,6 +1,7 @@
 package com.example.budget_management;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -28,7 +29,6 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -144,32 +144,32 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 addData();
-                if(isOpen){
-                    fab_income_btn.startAnimation(FadeClose);
-                    fab_expense_btn.startAnimation(FadeClose);
-                    fab_income_btn.setClickable(false);
-                    fab_expense_btn.setClickable(false);
-
-                    fab_income_txt.startAnimation(FadeClose);
-                    fab_expense_txt.startAnimation(FadeClose);
-                    fab_income_txt.setClickable(false);
-                    fab_expense_txt.setClickable(false);
-                    isOpen=false;
-
-                }
-                else
-                {
-                    fab_income_btn.startAnimation(FadOpen);
-                    fab_expense_btn.startAnimation(FadOpen);
-                    fab_income_btn.setClickable(true);
-                    fab_expense_btn.setClickable(true);
-
-                    fab_income_txt.startAnimation(FadOpen);
-                    fab_expense_txt.startAnimation(FadOpen);
-                    fab_income_txt.setClickable(true);
-                    fab_expense_txt.setClickable(true);
-                    isOpen=true;
-                }
+//                if(isOpen){
+//                    fab_income_btn.startAnimation(FadeClose);
+//                    fab_expense_btn.startAnimation(FadeClose);
+//                    fab_income_btn.setClickable(false);
+//                    fab_expense_btn.setClickable(false);
+//
+//                    fab_income_txt.startAnimation(FadeClose);
+//                    fab_expense_txt.startAnimation(FadeClose);
+//                    fab_income_txt.setClickable(false);
+//                    fab_expense_txt.setClickable(false);
+//                    isOpen=false;
+//
+//                }
+//                else
+//                {
+//                    fab_income_btn.startAnimation(FadOpen);
+//                    fab_expense_btn.startAnimation(FadOpen);
+//                    fab_income_btn.setClickable(true);
+//                    fab_expense_btn.setClickable(true);
+//
+//                    fab_income_txt.startAnimation(FadOpen);
+//                    fab_expense_txt.startAnimation(FadOpen);
+//                    fab_income_txt.setClickable(true);
+//                    fab_expense_txt.setClickable(true);
+//                    isOpen=true;
+//                }
             }
         });
 
@@ -247,89 +247,97 @@ public class HomeFragment extends Fragment {
         }
     }
     private void addData() {
+//        if (!isIncome) {
+            incomeDataInsert();
+//        }
+
         //Fab Button income
-        fab_income_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                incomeDataInsert();
-            }
-        });
-        //Fab button expense
-        fab_expense_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                expenseDataInsert();
-            }
-        });
+//        fab_income_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                incomeDataInsert();
+//            }
+//        });
+//        //Fab button expense
+//        fab_expense_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                expenseDataInsert();
+//            }
+//        });
     }
     public void incomeDataInsert() {
         isIncome = true;
-        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater=LayoutInflater.from(getActivity());
-        View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
-        mydialog.setView(myview);
-
-        final AlertDialog dialog=mydialog.create();
-        dialog.setCancelable(false);
+        Intent intentIncome = new Intent(getContext(), AddIncomeActivity.class);
+        startActivity(intentIncome);
 
 
-        final EditText ammount=myview.findViewById(R.id.ammount_edt);
-        final EditText type=myview.findViewById(R.id.type_edt);
-        final EditText note=myview.findViewById(R.id.note_edt);
-        final DatePicker datePicker = myview.findViewById(R.id.datePicker_insert);
-        Button btnSave=myview.findViewById(R.id.btnSave);
-        Button btnCancel=myview.findViewById(R.id.btnCancel);
-
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String tmAmmount = ammount.getText().toString().trim();
-                String tmtype = type.getText().toString().trim();
-                String tmnote = note.getText().toString().trim();
-                int inamount=Integer.parseInt(tmAmmount);
-
-
-                Calendar calendar = Calendar.getInstance();
-                int year = datePicker.getYear();
-                int month = datePicker.getMonth();
-                int day = datePicker.getDayOfMonth();
-                calendar.set(year,month,day);
-
-                if(TextUtils.isEmpty(tmAmmount)){
-                    ammount.setError("Required field");
-                    return;
-                }
-                if (TextUtils.isEmpty(tmtype)){
-                    type.setError("Required field");
-                    return;
-                }
-                if (TextUtils.isEmpty(tmnote)){
-                    note.setError("Required field");
-                    return;
-                }
-                String id=mIncomeDatabase.push().getKey();
-
-                Date date = calendar.getTime();
-                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-                String mDate = sdf.format(date);
-
-                Data data=new Data(inamount,tmtype,tmnote,id,mDate);
-                mIncomeDatabase.child(id).setValue(data);
-
-                Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
-                ftAnimation();
-                loadIncomePieChart();
-                dialog.dismiss();
-            }
-        });
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ftAnimation();
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
+//        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+//        LayoutInflater inflater=LayoutInflater.from(getActivity());
+//        View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
+//        mydialog.setView(myview);
+//
+//        final AlertDialog dialog=mydialog.create();
+//        dialog.setCancelable(false);
+//
+//
+//        final EditText ammount=myview.findViewById(R.id.ammount_edt);
+//        final EditText type=myview.findViewById(R.id.type_edt);
+//        final EditText note=myview.findViewById(R.id.note_edt);
+//        final DatePicker datePicker = myview.findViewById(R.id.datePicker_insert);
+//        Button btnSave=myview.findViewById(R.id.btnSave);
+//        Button btnCancel=myview.findViewById(R.id.btnCancel);
+//
+//        btnSave.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String tmAmmount = ammount.getText().toString().trim();
+//                String tmtype = type.getText().toString().trim();
+//                String tmnote = note.getText().toString().trim();
+//                int inamount=Integer.parseInt(tmAmmount);
+//
+//
+//                Calendar calendar = Calendar.getInstance();
+//                int year = datePicker.getYear();
+//                int month = datePicker.getMonth();
+//                int day = datePicker.getDayOfMonth();
+//                calendar.set(year,month,day);
+//
+//                if(TextUtils.isEmpty(tmAmmount)){
+//                    ammount.setError("Required field");
+//                    return;
+//                }
+//                if (TextUtils.isEmpty(tmtype)){
+//                    type.setError("Required field");
+//                    return;
+//                }
+//                if (TextUtils.isEmpty(tmnote)){
+//                    note.setError("Required field");
+//                    return;
+//                }
+//                String id=mIncomeDatabase.push().getKey();
+//
+//                Date date = calendar.getTime();
+//                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+//                String mDate = sdf.format(date);
+//
+//                Data data=new Data(inamount,tmtype,tmnote,id,mDate);
+//                mIncomeDatabase.child(id).setValue(data);
+//
+//                Toast.makeText(getActivity(),"Data added",Toast.LENGTH_SHORT).show();
+//                ftAnimation();
+//                loadIncomePieChart();
+//                dialog.dismiss();
+//            }
+//        });
+//        btnCancel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ftAnimation();
+//                dialog.dismiss();
+//            }
+//        });
+//        dialog.show();
 
     }
     public void expenseDataInsert(){
