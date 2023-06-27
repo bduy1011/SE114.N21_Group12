@@ -58,7 +58,7 @@ public class ExpenseFragment extends Fragment {
     //DatePicker
     DatePicker datePicker;
     private String post_key;
-    //Recycle adpapter
+    //Recycle adapter
     FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder> adapter;
     public ExpenseFragment() {
         // Required empty public constructor

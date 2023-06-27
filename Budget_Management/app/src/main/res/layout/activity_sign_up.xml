@@ -42,19 +42,27 @@
                 android:hint="Email"
                 android:padding="8dp"
                 android:textColor="@color/black" />
-
-            <EditText
-                android:id="@+id/signup_password"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/custom_edittext"
-                android:drawableLeft="@drawable/ic_baseline_lock_24"
+                android:layout_height="wrap_content"
+                android:id="@+id/textInputSignupLayout"
+                app:passwordToggleEnabled="true"
+                app:counterMaxLength="32"
+                app:counterEnabled="true">
+                <EditText
+                    android:id="@+id/signup_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/custom_edittext"
+                    android:drawableLeft="@drawable/ic_baseline_lock_24"
+                    android:drawablePadding="8dp"
+                    android:hint="Password"
+                    android:padding="8dp"
+                    android:maxLength="32"
+                    android:textColor="@color/black" />
 
-                android:drawablePadding="8dp"
-                android:hint="Password"
-                android:padding="8dp"
-                android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
