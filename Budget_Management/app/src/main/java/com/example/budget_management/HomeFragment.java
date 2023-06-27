@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment {
     //PieChart
     private PieChart mainChart;
 
-    Boolean isIncome = true, isExpense = true;
+    Boolean isIncome = false, isExpense = true;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -247,9 +247,12 @@ public class HomeFragment extends Fragment {
         }
     }
     private void addData() {
-//        if (!isIncome) {
+        if (isIncome) {
             incomeDataInsert();
-//        }
+        }
+        if (isExpense) {
+            expenseDataInsert();
+        }
 
         //Fab Button income
 //        fab_income_btn.setOnClickListener(new View.OnClickListener() {
@@ -267,12 +270,11 @@ public class HomeFragment extends Fragment {
 //        });
     }
     public void incomeDataInsert() {
-        isIncome = true;
         Intent intentIncome = new Intent(getContext(), AddIncomeActivity.class);
         startActivity(intentIncome);
 
 
-//        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+/*        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
 //        LayoutInflater inflater=LayoutInflater.from(getActivity());
 //        View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
 //        mydialog.setView(myview);
@@ -337,12 +339,13 @@ public class HomeFragment extends Fragment {
 //                dialog.dismiss();
 //            }
 //        });
-//        dialog.show();
+        dialog.show();*/
 
     }
     public void expenseDataInsert(){
-        isExpense = true;
-        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
+        Intent intentExpense = new Intent(getContext(), AddExpenseActivity.class);
+        startActivity(intentExpense);
+        /*AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
         LayoutInflater inflater=LayoutInflater.from(getActivity());
         View myview=inflater.inflate(R.layout.custom_layout_for_insertdata,null);
         mydialog.setView(myview);
@@ -409,7 +412,7 @@ public class HomeFragment extends Fragment {
                 dialog.dismiss();
             }
         });
-        dialog.show();
+        dialog.show();*/
     }
     @NonNull
     public static String formatCurrency(int amount) {
@@ -501,7 +504,7 @@ public class HomeFragment extends Fragment {
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(isIncome){
+                //if(isIncome){
                     Random random = new Random();
                     int totalIncomeSum=0;
                     mainRecycleView.setAdapter(incomeAdapter);
@@ -564,7 +567,7 @@ public class HomeFragment extends Fragment {
                     mainChart.invalidate();
 
                 }
-            }
+            //}
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -577,7 +580,7 @@ public class HomeFragment extends Fragment {
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(isExpense){
+                //if(isExpense){
                     Random random = new Random();
                     int totalExpenseSum=0;
                     mainRecycleView.setAdapter(expenseAdapter);
@@ -637,7 +640,7 @@ public class HomeFragment extends Fragment {
                     mainChart.setData(expenseData);
                     mainChart.invalidate();
                 }
-            }
+            //}
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 isExpense = false;

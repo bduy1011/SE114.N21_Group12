@@ -31,7 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class AddIncomeActivity extends AppCompatActivity {
+public class AddExpenseActivity extends AppCompatActivity {
     //Firebase
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
@@ -70,13 +70,9 @@ public class AddIncomeActivity extends AppCompatActivity {
         mLinearLayouts = new ArrayList<>();
 
         mCatalogExpense = new ArrayList<String>();
-        mCatalogExpense.add("Ăn uống");
-        mCatalogExpense.add("Đi lại");
+        mCatalogExpense.add("Lương");
         mCatalogExpense.add("Quà tặng");
-        mCatalogExpense.add("Giải trí");
-        mCatalogExpense.add("Học tập");
-        mCatalogExpense.add("Sức khỏe");
-        mCatalogExpense.add("Quần áo");
+        mCatalogExpense.add("Lì xì");
         mCatalogExpense.add("Khác");
 
         gridLayout = findViewById(R.id.gridLayout);
@@ -314,7 +310,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         imageButtonCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog dialog = new Dialog(AddIncomeActivity.this);
+                Dialog dialog = new Dialog(AddExpenseActivity.this);
                 dialog.setContentView(R.layout.dialog_calendar);
 
                 // Định nghĩa giao diện bo góc
@@ -428,14 +424,6 @@ public class AddIncomeActivity extends AppCompatActivity {
             case 2:
                 return R.drawable.ic_expense_gift;
             case 3:
-                return R.drawable.ic_expense_game;
-            case 4:
-                return R.drawable.ic_expense_book;
-            case 5:
-                return R.drawable.ic_expense_health;
-            case 6:
-                return R.drawable.ic_expense_shirt;
-            case 7:
                 return R.drawable.ic_expense_question;
             default:
                 return 0;

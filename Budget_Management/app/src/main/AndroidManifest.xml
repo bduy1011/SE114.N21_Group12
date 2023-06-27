@@ -25,10 +25,13 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
         <activity
             android:name=".AddIncomeActivity"
-            android:exported="false"/>
+            android:exported="false" />
+        <activity
+            android:name=".AddExpenseActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
