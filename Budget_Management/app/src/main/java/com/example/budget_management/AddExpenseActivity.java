@@ -1,6 +1,7 @@
 package com.example.budget_management;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -32,9 +33,10 @@ import java.util.Date;
 import java.util.Locale;
 
 public class AddExpenseActivity extends AppCompatActivity {
+    private final int AMOUNT_ITEM_CATALOG = 8;
+    private final int REQUEST_CODE_EXPENSE_CATALOG = 10;
     //Firebase
     private FirebaseAuth mAuth;
-    private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
     private GridLayout gridLayout;
     private LinearLayout mSelectedLinearLayoutCatalog;
@@ -49,30 +51,53 @@ public class AddExpenseActivity extends AppCompatActivity {
     private Date date3;
     private EditText mEditTextDescription;
     private EditText mEditTextMoney;
-    private Button btnThem;
+    private Button btnAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_income);
+        setContentView(R.layout.activity_add_expense);
 
         init();
 
-        createGridViewCatalog();
+        ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+        createGridViewCatalog(tmpCatalogExpense, AMOUNT_ITEM_CATALOG - 1);
 
         createLinearLayoutDate();
 
         createImageButtonCalendar();
 
-        createButtonThemClick();
+        //createButtonAddClick();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
+            int positionFromExpenseCatalogActivity = data.getIntExtra("SelectedExtendIcon", 10000);
+            if (positionFromExpenseCatalogActivity < mCatalogExpense.size()) {
+                setBackgroundPreviousSelectedIcon();
+                ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+                createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG - 1);
+            }
+        }
     }
     private void init() {
         mLinearLayouts = new ArrayList<>();
 
         mCatalogExpense = new ArrayList<String>();
-        mCatalogExpense.add("Lương");
+        mCatalogExpense.add("Ăn uống");
+        mCatalogExpense.add("Đi lại");
         mCatalogExpense.add("Quà tặng");
-        mCatalogExpense.add("Lì xì");
+        mCatalogExpense.add("Giải trí");
+        mCatalogExpense.add("Học tập");
+        mCatalogExpense.add("Sức khỏe");
+        mCatalogExpense.add("Quần áo");
+        mCatalogExpense.add("Quần áo1");
+        mCatalogExpense.add("Quần áo2");
+        mCatalogExpense.add("Quần áo3");
+        mCatalogExpense.add("Quần áo4");
+        mCatalogExpense.add("Quần áo5");
         mCatalogExpense.add("Khác");
 
         gridLayout = findViewById(R.id.gridLayout);
@@ -96,7 +121,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         mEditTextMoney = findViewById(R.id.editMoney);
         mEditTextMoney.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-        btnThem = findViewById(R.id.btnThem);
+        btnAdd = findViewById(R.id.btnAddNoteExpense);
 
         // Chọn ngày hôm nay
         setSelectedLinearLayoutDate(1);
@@ -112,17 +137,14 @@ public class AddExpenseActivity extends AppCompatActivity {
         //Database
         mAuth= FirebaseAuth.getInstance();
         //New fix
-
         FirebaseUser mUser=mAuth.getCurrentUser();
         String uid=mUser.getUid();
 
-        mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
         mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
 
-        mIncomeDatabase.keepSynced(true);
         mExpenseDatabase.keepSynced(true);
     }
-    private void createGridViewCatalog() {
+    private void createGridViewCatalog(ArrayList<String> mCatalogExpense, int amountItem) {
         // Thiết lập số cột của GridLayout là 4
         gridLayout.setColumnCount(4);
 
@@ -132,7 +154,9 @@ public class AddExpenseActivity extends AppCompatActivity {
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
 
-        for (int i = 0; i < mCatalogExpense.size(); i++) {
+        mLinearLayouts.clear();
+
+        for (int i = 0; i < amountItem + 1; i++) {
             // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -145,8 +169,6 @@ public class AddExpenseActivity extends AppCompatActivity {
             drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
             drawableLinearLayout.setCornerRadii(new float[]{25, 25, 25, 25, 25, 25, 25, 25});
             drawableLinearLayout.setColor(Color.WHITE);
-
-            // Thiết lập GradientDrawable làm nền cho LinearLayout
             linearLayout.setBackground(drawableLinearLayout);
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -157,20 +179,23 @@ public class AddExpenseActivity extends AppCompatActivity {
             linearLayout.setLayoutParams(params);
             linearLayout.setPadding(0, 10, 0, 20);
 
-            // Thêm LinearLayout vào danh sách mLinearLayouts
             mLinearLayouts.add(linearLayout);
 
             // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
-
-            imageButton.setImageResource(getImageResource(i));
-            // Thiết lập ScaleType
+            if (i != amountItem) {
+                imageButton.setImageResource(getImageResource(i));
+            }
+            else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
-            // Lấy màu sắc tùy chỉnh dựa trên chỉ số i
-            int customColor = getTintColor(i);
+            int customColor;
+            if (i != amountItem) {
+                customColor = getTintColor(i);
+            }
+            else customColor = Color.LTGRAY;
 
-            // Tạo một Drawable từ code Java với màu sắc mới
+            // Tạo một Drawable với màu sắc mới cho ImageButton
             GradientDrawable drawableImageButton = new GradientDrawable();
             drawableImageButton.setShape(GradientDrawable.OVAL);
             drawableImageButton.setColor(customColor);
@@ -178,90 +203,120 @@ public class AddExpenseActivity extends AppCompatActivity {
             imageButton.setTag(customColor);
 
             // Thêm sự kiện click cho ImageButton
-            imageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Lấy màu sắc của GradientDrawable
-                    int selectedColor = (int) v.getTag();
-                    // Thay đổi màu sắc của LinearLayout và TextView tương ứng
-                    if (mSelectedLinearLayoutCatalog != null) {
-                        mSelectedLinearLayoutCatalog.setBackgroundColor(Color.WHITE);
+            if(i != amountItem) {
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setBackgroundPreviousSelectedIcon();
+
+                        // Lấy màu của ImageButton được click
+                        int selectedColor = (int) v.getTag();
+
+                        // Lấy tên topic của icon được chọn
+                        ViewGroup viewGroup = (ViewGroup) v.getParent();
+                        TextView textView = (TextView) viewGroup.getChildAt(1);
+
+                        // Thiết lập Background cho topic đang chọn
+                        setBackgroundCurrentSelectedIcon(linearLayout, selectedColor, textView);
+
+                        // Lấy vị trí của LinearLayout trong danh sách
+                        int currentPosition = mLinearLayouts.indexOf(linearLayout) + 1;
+                        pushIntentToExpenseCatalogActivity(currentPosition);
+
+                        // Lưu trữ topic được chọn
+                        saveSelectedTopic(linearLayout, textView);
                     }
-                    if (mSelectedTextView != null) {
-                        mSelectedTextView.setTextColor(Color.BLACK);
+                });
+            }
+            else {
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Lấy vị trí của LinearLayout trong danh sách
+                        int currentPosition = mLinearLayouts.indexOf(linearLayout) + 1;
+                        pushIntentToExpenseCatalogActivity(currentPosition);
                     }
-                    GradientDrawable drawableLinearLayout = new GradientDrawable();
-                    drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
-                    drawableLinearLayout.setCornerRadii(new float[]{25, 25, 25, 25, 25, 25, 25, 25});
-                    drawableLinearLayout.setColor(selectedColor);
-                    // Đặt màu cho LinearLayout được click
-                    linearLayout.setBackground(drawableLinearLayout);
-                    // Lấy ViewGroup chứa TextView từ LinearLayout cha của ImageButton
-                    ViewGroup viewGroup = (ViewGroup) v.getParent();
-                    TextView textView = (TextView) viewGroup.getChildAt(1);
-                    // Đặt màu cho TextView được click
-                    textView.setTextColor(Color.WHITE);
-                    // Lưu trữ LinearLayout và TextView được click
-                    mSelectedLinearLayoutCatalog = linearLayout;
-                    mSelectedTextView = textView;
-                }
-            });
+                });
+            }
 
             // Thiết lập kích thước của ImageButton
             LinearLayout.LayoutParams paramsImageButton = new LinearLayout.LayoutParams(widthItem, widthItem);
             paramsImageButton.setMargins(0, 0, 0, 20);
             imageButton.setLayoutParams(paramsImageButton);
 
+            if (i == amountItem) {
+                int smallerSize = (int) (widthItem * 0.7);
+                LinearLayout.LayoutParams smallerParams = new LinearLayout.LayoutParams(smallerSize, smallerSize);
+                smallerParams.setMargins(0, (int) (widthItem * 0.15), 0, 20 + (int) (widthItem * 0.16));
+                imageButton.setLayoutParams(smallerParams);
+            }
+
             // Thêm ImageButton vào LinearLayout
             linearLayout.addView(imageButton);
 
             // Thêm TextView vào LinearLayout
             TextView textView = new TextView(this);
-            textView.setText(mCatalogExpense.get(i));
+            if (i != amountItem) {
+                textView.setText(mCatalogExpense.get(i));
+            }
+            else textView.setText("Xem thêm");
             textView.setTextColor(Color.BLACK);
             textView.setGravity(Gravity.CENTER);
             linearLayout.setTag(textView);
             linearLayout.addView(textView);
 
-            // Đăng ký sự kiện click cho LinearLayout
-            linearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Nếu LinearLayout đã chọn trước đó khác với LinearLayout hiện tại
-                    if (mSelectedLinearLayoutCatalog != v) {
-                        // Đặt màu trắng cho LinearLayout đã chọn trước đó
-                        if (mSelectedLinearLayoutCatalog != null) {
-                            mSelectedLinearLayoutCatalog.setBackgroundColor(Color.WHITE);
-                        }
-                        // Đặt màu đen cho TextView đã chọn trước đó
-                        if (mSelectedTextView != null) {
-                            mSelectedTextView.setTextColor(Color.BLACK);
-                        }
-                        // Lưu trữ LinearLayout hiện tại vào biến mSelectedLinearLayout
-                        mSelectedLinearLayoutCatalog = (LinearLayout) v;
-                        mSelectedTextView = textView;
+            // Thêm sự kiện click cho LinearLayout
+            if (i != amountItem) {
+                linearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        setBackgroundPreviousSelectedIcon();
+
                         // Lấy màu của ImageButton được click
                         int selectedColor = 100;
                         String tmp = textView.getText().toString();
-                        for (int i = 0; i < 8; i++) {
-                            if (tmp == mCatalogExpense.get(i)) selectedColor = getTintColor(i);
+                        for (int i = 0; i < mCatalogExpense.size(); i++) {
+                            if (tmp == mCatalogExpense.get(i))
+                                selectedColor = getTintColor(i);
                         }
-                        // Đặt màu cho tên Topic hiện tại
-                        textView.setTextColor(Color.WHITE);
-                        // Đặt màu cho LinearLayout hiện tại
-                        v.setBackgroundColor(Color.WHITE);
-                        GradientDrawable drawableLinearLayout = new GradientDrawable();
-                        drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
-                        drawableLinearLayout.setCornerRadii(new float[]{25, 25, 25, 25, 25, 25, 25, 25});
-                        drawableLinearLayout.setColor(selectedColor);
-                        v.setBackground(drawableLinearLayout);
+
+                        // Thiết lập Background cho topic đang chọn
+                        setBackgroundCurrentSelectedIcon((LinearLayout) v, selectedColor, textView);
+
+                        // Lưu trữ topic được chọn
+                        saveSelectedTopic((LinearLayout) v, textView);
                     }
-                }
-            });
+                });
+            }
 
             // Thêm LinearLayout vào GridLayout
             gridLayout.addView(linearLayout);
         }
+    }
+    private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout, int selectedColor, TextView textView) {
+        // Đặt màu cho tên Topic hiện tại
+        textView.setTextColor(Color.WHITE);
+
+        // Đặt màu nền cho tên Topic hiện tại
+        GradientDrawable drawableLinearLayout = new GradientDrawable();
+        drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
+        drawableLinearLayout.setCornerRadii(new float[]{25, 25, 25, 25, 25, 25, 25, 25});
+        drawableLinearLayout.setColor(selectedColor);
+        linearLayout.setBackground(drawableLinearLayout);
+    }
+    private void setBackgroundPreviousSelectedIcon() {
+        // Đặt màu trắng cho LinearLayout đã chọn trước đó
+        if (mSelectedLinearLayoutCatalog != null) {
+            mSelectedLinearLayoutCatalog.setBackgroundColor(Color.WHITE);
+        }
+        // Đặt màu đen cho TextView đã chọn trước đó
+        if (mSelectedTextView != null) {
+            mSelectedTextView.setTextColor(Color.BLACK);
+        }
+    }
+    private void saveSelectedTopic(LinearLayout linearLayout, TextView textView) {
+        mSelectedLinearLayoutCatalog = linearLayout;
+        mSelectedTextView = textView;
     }
     private void createLinearLayoutDate() {
         // Lấy ngày hiện tại
@@ -395,11 +450,11 @@ public class AddExpenseActivity extends AppCompatActivity {
             }
         });
     }
-    private void createButtonThemClick() {
-        btnThem.setOnClickListener(new View.OnClickListener() {
+    private void createButtonAddClick() {
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String id=mIncomeDatabase.push().getKey();
+                String id = mExpenseDatabase.push().getKey();
 
                 String tmAmmount = mEditTextMoney.getText().toString().trim();
                 String tmtype = mSelectedTextView.getText().toString().trim();
@@ -410,7 +465,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 String mDate = sdf.format(mSelectedDate);
 
                 Data data=new Data(inamount,tmtype,tmnote,id,mDate);
-                mIncomeDatabase.child(id).setValue(data);
+                mExpenseDatabase.child(id).setValue(data);
                 finish();
             }
         });
@@ -418,13 +473,23 @@ public class AddExpenseActivity extends AppCompatActivity {
     private int getImageResource(int index) {
         switch (index) {
             case 0:
-                return R.drawable.ic_expense_fastfood;
+                return R.drawable.icon_foodanddrink_1;
             case 1:
-                return R.drawable.ic_expense_bus;
+                return R.drawable.icon_transportation_1;
             case 2:
-                return R.drawable.ic_expense_gift;
+                return R.drawable.icon_shopping_2;
             case 3:
-                return R.drawable.ic_expense_question;
+                return R.drawable.icon_shopping_3;
+            case 4:
+                return R.drawable.icon_education_1;
+            case 5:
+                return R.drawable.icon_health_1;
+            case 6:
+                return R.drawable.icon_shopping_1;
+            case 7:
+                return R.drawable.icon_orther_1;
+            case 8:
+                return R.drawable.add_icon;
             default:
                 return 0;
         }
@@ -447,6 +512,8 @@ public class AddExpenseActivity extends AppCompatActivity {
                 return Color.parseColor("#FF5722");
             case 7:
                 return Color.parseColor("#607D8B");
+            case 8:
+                return Color.LTGRAY;
             default:
                 return Color.parseColor("#FFFFFF");
         }
@@ -513,5 +580,26 @@ public class AddExpenseActivity extends AppCompatActivity {
                 mSelectedDate = date3;
                 break;
         }
+    }
+    private void pushIntentToExpenseCatalogActivity(int currentPosition) {
+        if (currentPosition == AMOUNT_ITEM_CATALOG) {
+            Intent intent = new Intent(this, ExpenseCatalogActivity.class);
+            if (mSelectedLinearLayoutCatalog != null) {
+                int previousPosition = mLinearLayouts.indexOf(mSelectedLinearLayoutCatalog);
+                intent.putExtra("PreviousSelectedIcon", previousPosition);
+            }
+            startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
+        }
+    }
+    public ArrayList<String> changedCatalogExpense(ArrayList<String> catalogExpense, int index) {
+        if (index >= 0 && index < catalogExpense.size()) {
+            // Lấy phần tử ở vị trí index
+            String item = catalogExpense.get(index);
+            // Xóa phần tử tại vị trí index
+            catalogExpense.remove(index);
+            // Chèn phần tử vào vị trí đầu tiên
+            catalogExpense.add(0, item);
+        }
+        return catalogExpense;
     }
 }

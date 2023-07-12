@@ -35,11 +35,10 @@ public class AddIncomeActivity extends AppCompatActivity {
     //Firebase
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
-    private DatabaseReference mExpenseDatabase;
     private GridLayout gridLayout;
     private LinearLayout mSelectedLinearLayoutCatalog;
     private TextView mSelectedTextView;
-    private ArrayList<String> mCatalogExpense;
+    private ArrayList<String> mCatalogIncome;
     private ArrayList<LinearLayout> mLinearLayouts;
     private LinearLayout linearLayout1, linearLayout2, linearLayout3;
     private TextView textDate1, textDate2, textDate3;
@@ -49,7 +48,7 @@ public class AddIncomeActivity extends AppCompatActivity {
     private Date date3;
     private EditText mEditTextDescription;
     private EditText mEditTextMoney;
-    private Button btnThem;
+    private Button btnAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,15 +68,11 @@ public class AddIncomeActivity extends AppCompatActivity {
     private void init() {
         mLinearLayouts = new ArrayList<>();
 
-        mCatalogExpense = new ArrayList<String>();
-        mCatalogExpense.add("Ăn uống");
-        mCatalogExpense.add("Đi lại");
-        mCatalogExpense.add("Quà tặng");
-        mCatalogExpense.add("Giải trí");
-        mCatalogExpense.add("Học tập");
-        mCatalogExpense.add("Sức khỏe");
-        mCatalogExpense.add("Quần áo");
-        mCatalogExpense.add("Khác");
+        mCatalogIncome = new ArrayList<String>();
+        mCatalogIncome.add("Lương");
+        mCatalogIncome.add("Quà tặng");
+        mCatalogIncome.add("Lì xì");
+        mCatalogIncome.add("Khác");
 
         gridLayout = findViewById(R.id.gridLayout);
 
@@ -100,7 +95,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         mEditTextMoney = findViewById(R.id.editMoney);
         mEditTextMoney.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-        btnThem = findViewById(R.id.btnThem);
+        btnAdd = findViewById(R.id.btnAddNoteIncome);
 
         // Chọn ngày hôm nay
         setSelectedLinearLayoutDate(1);
@@ -121,10 +116,8 @@ public class AddIncomeActivity extends AppCompatActivity {
         String uid=mUser.getUid();
 
         mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
-        mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
 
         mIncomeDatabase.keepSynced(true);
-        mExpenseDatabase.keepSynced(true);
     }
     private void createGridViewCatalog() {
         // Thiết lập số cột của GridLayout là 4
@@ -136,7 +129,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
 
-        for (int i = 0; i < mCatalogExpense.size(); i++) {
+        for (int i = 0; i < mCatalogIncome.size(); i++) {
             // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -221,7 +214,7 @@ public class AddIncomeActivity extends AppCompatActivity {
 
             // Thêm TextView vào LinearLayout
             TextView textView = new TextView(this);
-            textView.setText(mCatalogExpense.get(i));
+            textView.setText(mCatalogIncome.get(i));
             textView.setTextColor(Color.BLACK);
             textView.setGravity(Gravity.CENTER);
             linearLayout.setTag(textView);
@@ -247,8 +240,8 @@ public class AddIncomeActivity extends AppCompatActivity {
                         // Lấy màu của ImageButton được click
                         int selectedColor = 100;
                         String tmp = textView.getText().toString();
-                        for (int i = 0; i < 8; i++) {
-                            if (tmp == mCatalogExpense.get(i)) selectedColor = getTintColor(i);
+                        for (int i = 0; i < mCatalogIncome.size(); i++) {
+                            if (tmp == mCatalogIncome.get(i)) selectedColor = getTintColor(i);
                         }
                         // Đặt màu cho tên Topic hiện tại
                         textView.setTextColor(Color.WHITE);
@@ -400,7 +393,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         });
     }
     private void createButtonThemClick() {
-        btnThem.setOnClickListener(new View.OnClickListener() {
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String id=mIncomeDatabase.push().getKey();
@@ -422,21 +415,13 @@ public class AddIncomeActivity extends AppCompatActivity {
     private int getImageResource(int index) {
         switch (index) {
             case 0:
-                return R.drawable.ic_expense_fastfood;
+                return R.drawable.icon_foodanddrink_1;
             case 1:
-                return R.drawable.ic_expense_bus;
+                return R.drawable.icon_transportation_1;
             case 2:
-                return R.drawable.ic_expense_gift;
+                return R.drawable.icon_shopping_2;
             case 3:
-                return R.drawable.ic_expense_game;
-            case 4:
-                return R.drawable.ic_expense_book;
-            case 5:
-                return R.drawable.ic_expense_health;
-            case 6:
-                return R.drawable.ic_expense_shirt;
-            case 7:
-                return R.drawable.ic_expense_question;
+                return R.drawable.icon_orther_1;
             default:
                 return 0;
         }

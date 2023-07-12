@@ -12,6 +12,15 @@
         android:theme="@style/Theme.Budget_Management"
         tools:targetApi="31">
         <activity
+            android:name=".IconCatalogActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ExpenseCatalogActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateItemCatalogsActivity"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
