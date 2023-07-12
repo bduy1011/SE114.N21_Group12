@@ -251,7 +251,7 @@
                     android:layout_gravity="center"
                     android:layout_margin="20dp"
                     app:cardCornerRadius="20dp"
-                    android:elevation="16dp"
+                    app:cardElevation="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
                     <FrameLayout
@@ -264,12 +264,12 @@
                         </com.github.mikephil.charting.charts.PieChart>
                     </FrameLayout>
                 </androidx.cardview.widget.CardView>
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/main_recycleview"
-                    android:scrollbars="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp">
-                </androidx.recyclerview.widget.RecyclerView>
+                    android:layout_height="220dp"
+                    android:scrollbars="vertical"></androidx.recyclerview.widget.RecyclerView>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

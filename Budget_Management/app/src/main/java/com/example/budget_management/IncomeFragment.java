@@ -26,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
@@ -66,11 +67,15 @@ public class IncomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        Bundle arg = getArguments();
+        String myType = arg.getString("type");
+
         View myview = inflater.inflate(R.layout.fragment_income, container, false);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = mUser.getUid();
         mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
+        Query myQuery = mIncomeDatabase.orderByChild("type").equalTo(myType);
         recyclerView = myview.findViewById(R.id.recycle_id_income);
         incomeTotalSum = myview.findViewById(R.id.income_txt_result);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -82,7 +87,7 @@ public class IncomeFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
 
-        mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+        myQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int totalValue = 0;
@@ -91,6 +96,7 @@ public class IncomeFragment extends Fragment {
                     totalValue += data.getAmount();
                     String sTotalValue = String.valueOf(totalValue);
                     incomeTotalSum.setText(sTotalValue);
+
                 }
             }
 
@@ -102,7 +108,7 @@ public class IncomeFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
                 (
                         new FirebaseRecyclerOptions.Builder<Data>()
-                                .setQuery(mIncomeDatabase, Data.class)
+                                .setQuery(myQuery, Data.class)
                                 .build()
                 ){
             @NonNull
@@ -114,11 +120,10 @@ public class IncomeFragment extends Fragment {
             }
             @Override
             protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Data model) {
-                holder.setType(model.getType());
-                holder.setNote(model.getNote());
-                holder.setDate(model.getDate());
-                holder.setAmmount(model.getAmount());
-
+                    holder.setType(model.getType());
+                    holder.setNote(model.getNote());
+                    holder.setDate(model.getDate());
+                    holder.setAmmount(model.getAmount());
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

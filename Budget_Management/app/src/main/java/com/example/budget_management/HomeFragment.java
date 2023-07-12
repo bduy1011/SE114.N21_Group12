@@ -6,7 +6,11 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.TintTypedArray;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -187,49 +191,6 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
     }
-    public static class IncomeViewHolder extends RecyclerView.ViewHolder{
-        View mView;
-        public IncomeViewHolder(@NonNull View itemView) {
-            super(itemView);
-            mView = itemView;
-        }
-
-        private void setIncomeType(String type){
-            TextView mType=mView.findViewById(R.id.type_text);
-            mType.setText(type);
-        }
-        private  void setIncomePercent(String percent){
-            TextView mPercent=mView.findViewById(R.id.percent_text);
-            mPercent.setText(percent);
-        }
-        private  void setIncomeAmmount(float ammount){
-            TextView mAmmount=mView.findViewById(R.id.amount_text);
-            DecimalFormat decimalFormat = new DecimalFormat("#");
-            String stammount= decimalFormat.format(ammount);
-            mAmmount.setText(stammount);
-        }
-    }
-    private static class ExpenseViewHolder extends RecyclerView.ViewHolder{
-        View mView;
-        public ExpenseViewHolder(@NonNull View itemView) {
-            super(itemView);
-            mView = itemView;
-        }
-        private void setExpenseType(String type){
-            TextView mType=mView.findViewById(R.id.type_text);
-            mType.setText(type);
-        }
-        private  void setExpensePercent(String percent){
-            TextView mPercent=mView.findViewById(R.id.percent_text);
-            mPercent.setText(percent);
-        }
-        private  void setExpenseAmmount(float ammount){
-            TextView mAmmount=mView.findViewById(R.id.amount_text);
-            DecimalFormat decimalFormat = new DecimalFormat("#");
-            String stammount= decimalFormat.format(ammount);
-            mAmmount.setText(stammount);
-        }
-    }
     private int getColorForType(String type) {
         // Tạo số nguyên từ tên loại bằng hàm băm
         int hashCode = type.hashCode();
@@ -280,8 +241,10 @@ public class HomeFragment extends Fragment {
                     incomeData.setValueTextColor(Color.BLACK);
 
                     dataSet.setValueFormatter(new PercentFormatter(mainChart));
-                    dataSet.setSliceSpace(3f);
+                    dataSet.setSliceSpace(2f);
                     dataSet.setValues(entries);
+                    dataSet.setDrawValues(false);
+
 
                     mainChart.setCenterText("\tIncome Money\n"+totalIncomeSum + "đ");
                     mainChart.setCenterTextColor(Color.GREEN);
@@ -295,13 +258,15 @@ public class HomeFragment extends Fragment {
 
                     mainChart.setEntryLabelColor(Color.BLACK);
                     mainChart.setEntryLabelTextSize(14f);
-                    mainChart.setHoleRadius(70f);
+                    mainChart.setHoleRadius(65f);
 
-                    mainChart.setUsePercentValues(true);
                     mainChart.animateY(1000, Easing.EaseInOutQuad);
                     mainChart.getDescription().setEnabled(false);
                     mainChart.getLegend().setEnabled(false);
                     mainChart.setData(incomeData);
+
+                    mainChart.setDrawEntryLabels(false);
+
                     mainChart.invalidate();
 
                     incomeAdapter = new IncomeAdapter();
@@ -351,8 +316,9 @@ public class HomeFragment extends Fragment {
                         dataSet.addColor(color);
                     }
                     dataSet.setValueFormatter(new PercentFormatter(mainChart));
-                    dataSet.setSliceSpace(3f);
+                    dataSet.setSliceSpace(2f);
                     dataSet.setValues(entries);
+                    dataSet.setDrawValues(false);
 
                     PieData expenseData = new PieData(dataSet);
                     expenseData.setValueTextSize(12f);
@@ -370,13 +336,13 @@ public class HomeFragment extends Fragment {
 
                     mainChart.setEntryLabelColor(Color.BLACK);
                     mainChart.setEntryLabelTextSize(14f);
-                    mainChart.setHoleRadius(70f);
+                    mainChart.setHoleRadius(65f);
 
-                    mainChart.setUsePercentValues(true);
                     mainChart.animateY(1000, Easing.EaseInOutQuad);
                     mainChart.getDescription().setEnabled(false);
                     mainChart.getLegend().setEnabled(false);
                     mainChart.setData(expenseData);
+                    mainChart.setDrawEntryLabels(false);
                     mainChart.invalidate();
 
                     expenseAdapter = new ExpenseAdapter();
@@ -388,6 +354,27 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+    public class ItemData{
+        private String itemType;
+        private Float sumOfMoney;
+
+        public String getItemType() {
+            return itemType;
+        }
+
+        public void setItemType(String itemType) {
+            this.itemType = itemType;
+        }
+
+        public Float getSumOfMoney() {
+            return sumOfMoney;
+        }
+
+        public void setSumOfMoney(Float sumOfMoney) {
+            this.sumOfMoney = sumOfMoney;
+        }
+    }
+
     private class IncomeAdapter extends RecyclerView.Adapter<IncomeViewHolder> {
 
         @NonNull
@@ -402,7 +389,7 @@ public class HomeFragment extends Fragment {
         public void onBindViewHolder(@NonNull IncomeViewHolder holder, int position) {
             String type = (String) typeIncomeAmountMap.keySet().toArray()[position];
             Float amount = typeIncomeAmountMap.get(type);
-            DecimalFormat df = new DecimalFormat("#.#");
+            DecimalFormat df = new DecimalFormat("#");
             Float percent = Float.valueOf(df.format((amount*100)/totalIncomeSum));
 
             holder.setIncomeType(type);
@@ -412,6 +399,17 @@ public class HomeFragment extends Fragment {
         @Override
         public int getItemCount() {
            return typeIncomeAmountMap.size();
+        }
+
+        public ItemData getItem(int position){
+            ItemData itemData = new ItemData();
+            String type = (String) typeIncomeAmountMap.keySet().toArray()[position];
+            Float sumOfMoney = typeIncomeAmountMap.get(type);
+
+            itemData.setItemType(type);
+            itemData.setSumOfMoney(sumOfMoney);
+
+            return itemData;
         }
     }
     private class ExpenseAdapter extends RecyclerView.Adapter<ExpenseViewHolder> {
@@ -428,7 +426,7 @@ public class HomeFragment extends Fragment {
         public void onBindViewHolder(@NonNull ExpenseViewHolder holder, int position) {
             String type = (String) typeExpenseAmountMap.keySet().toArray()[position];
             Float amount = typeExpenseAmountMap.get(type);
-            DecimalFormat df = new DecimalFormat("#.#");
+            DecimalFormat df = new DecimalFormat("#");
             Float percent = Float.valueOf(df.format((amount*100)/totalExpenseSum));
 
             holder.setExpenseType(type);
@@ -439,7 +437,100 @@ public class HomeFragment extends Fragment {
         public int getItemCount() {
             return typeExpenseAmountMap.size();
         }
-    }
 
+        public ItemData getItem(int position){
+            ItemData itemData = new ItemData();
+            String type = (String) typeExpenseAmountMap.keySet().toArray()[position];
+            Float sumOfMoney = typeExpenseAmountMap.get(type);
+
+            itemData.setItemType(type);
+            itemData.setSumOfMoney(sumOfMoney);
+
+            return itemData;
+        }
+
+    }
+    public class IncomeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        View mView;
+        IncomeFragment incomeFragment = new IncomeFragment();
+        public IncomeViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mView = itemView;
+            itemView.setOnClickListener(this);
+        }
+        private void setIncomeType(String type){
+            TextView mType=mView.findViewById(R.id.type_text);
+            mType.setText(type);
+        }
+        private  void setIncomePercent(String percent){
+            TextView mPercent=mView.findViewById(R.id.percent_text);
+            mPercent.setText(percent);
+        }
+        private  void setIncomeAmmount(float ammount){
+            TextView mAmmount=mView.findViewById(R.id.amount_text);
+            DecimalFormat decimalFormat = new DecimalFormat("#");
+            String stammount= decimalFormat.format(ammount);
+            mAmmount.setText(stammount);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAbsoluteAdapterPosition();
+            if(position != RecyclerView.NO_POSITION){
+                ItemData myItemData = incomeAdapter.getItem(position);
+
+                Bundle arg = new Bundle();
+                arg.putString("type",myItemData.getItemType());
+
+                incomeFragment.setArguments(arg);
+                FragmentManager fragmentManager = ((AppCompatActivity) itemView.getContext()).getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frame, incomeFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        }
+    }
+    private class ExpenseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        View mView;
+        ExpenseFragment expenseFragment = new ExpenseFragment();
+        public ExpenseViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mView = itemView;
+            itemView.setOnClickListener(this);
+        }
+        private void setExpenseType(String type){
+            TextView mType=mView.findViewById(R.id.type_text);
+            mType.setText(type);
+        }
+        private  void setExpensePercent(String percent){
+            TextView mPercent=mView.findViewById(R.id.percent_text);
+            mPercent.setText(percent);
+        }
+        private  void setExpenseAmmount(float ammount){
+            TextView mAmmount=mView.findViewById(R.id.amount_text);
+            DecimalFormat decimalFormat = new DecimalFormat("#");
+            String stammount= decimalFormat.format(ammount);
+            mAmmount.setText(stammount);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAbsoluteAdapterPosition();
+            if(position != RecyclerView.NO_POSITION){
+                ItemData myItemData = expenseAdapter.getItem(position);
+
+                Bundle arg = new Bundle();
+                arg.putString("type",myItemData.getItemType());
+
+                expenseFragment.setArguments(arg);
+                FragmentManager fragmentManager = ((AppCompatActivity) itemView.getContext()).getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.main_frame, expenseFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        }
+    }
 
 }

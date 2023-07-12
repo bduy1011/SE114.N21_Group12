@@ -25,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
@@ -65,14 +66,18 @@ public class ExpenseFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        Bundle arg = getArguments();
+        String myType = arg.getString("type");
+
         View myview =  inflater.inflate(R.layout.fragment_expense, container, false);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = mUser.getUid();
         mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+        Query myQuery = mExpenseDatabase.orderByChild("type").equalTo(myType);
         recyclerView = myview.findViewById(R.id.recycle_id_expense);
         expenseTotalSum = myview.findViewById(R.id.expense_txt_result);
 
@@ -102,7 +107,7 @@ public class ExpenseFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder>
                 (
                         new FirebaseRecyclerOptions.Builder<Data>()
-                                .setQuery(mExpenseDatabase, Data.class)
+                                .setQuery(myQuery, Data.class)
                                 .build()
                 ){
             @NonNull
