@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 public class ExpenseCatalogActivity extends AppCompatActivity {
     private final int REQUEST_CODE_EXPENSE_CATALOG = 10;
+    private final int REQUEST_CODE_CREATE_ITEM_CATALOG = 11;
     private GridLayout gridLayout;
     private ArrayList<String> mCatalogExpense;
     private ArrayList<LinearLayout> mLinearLayouts;
@@ -285,15 +286,15 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
             case 7:
                 return R.drawable.icon_orther_1;
             case 8:
-                return R.drawable.add_icon;
+                return R.drawable.icon_accounts_1;
             case 9:
-                return R.drawable.icon_foodanddrink_1;
+                return R.drawable.icon_shopping_5;
             case 10:
-                return R.drawable.icon_transportation_1;
+                return R.drawable.icon_accounts_5;
             case 11:
-                return R.drawable.icon_shopping_2;
+                return R.drawable.icon_shopping_9;
             case 12:
-                return R.drawable.icon_shopping_3;
+                return R.drawable.icon_shopping_13;
             default:
                 return 0;
         }
@@ -327,10 +328,8 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
     }
     private void pushIntentToExpenseCatalogActivity(int currentPosition) {
         if (currentPosition == mCatalogExpense.size()) {
-            // Test intent to CreateItemCatalogExpense
             Intent intent = new Intent(this, CreateItemCatalogsActivity.class);
-            startActivityForResult(intent, /*REQUEST_CODE_EXPENSE_CATALOG*/ 9);
+            startActivityForResult(intent, REQUEST_CODE_CREATE_ITEM_CATALOG);
         }
-        //finish();
     }
 }

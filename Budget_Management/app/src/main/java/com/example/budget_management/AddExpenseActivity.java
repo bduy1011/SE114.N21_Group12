@@ -61,13 +61,13 @@ public class AddExpenseActivity extends AppCompatActivity {
         init();
 
         ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
-        createGridViewCatalog(tmpCatalogExpense, AMOUNT_ITEM_CATALOG - 1);
+        createGridViewCatalog(tmpCatalogExpense, AMOUNT_ITEM_CATALOG);
 
         createLinearLayoutDate();
 
         createImageButtonCalendar();
 
-        //createButtonAddClick();
+        createButtonAddClick();
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -78,7 +78,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             if (positionFromExpenseCatalogActivity < mCatalogExpense.size()) {
                 setBackgroundPreviousSelectedIcon();
                 ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
-                createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG - 1);
+                createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG);
             }
         }
     }
@@ -156,7 +156,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
         mLinearLayouts.clear();
 
-        for (int i = 0; i < amountItem + 1; i++) {
+        for (int i = 0; i < amountItem; i++) {
             // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -183,14 +183,14 @@ public class AddExpenseActivity extends AppCompatActivity {
 
             // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
-            if (i != amountItem) {
+            if (i != amountItem - 1) {
                 imageButton.setImageResource(getImageResource(i));
             }
             else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor;
-            if (i != amountItem) {
+            if (i != amountItem - 1) {
                 customColor = getTintColor(i);
             }
             else customColor = Color.LTGRAY;
@@ -203,7 +203,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             imageButton.setTag(customColor);
 
             // Thêm sự kiện click cho ImageButton
-            if(i != amountItem) {
+            if(i != amountItem - 1) {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -244,7 +244,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             paramsImageButton.setMargins(0, 0, 0, 20);
             imageButton.setLayoutParams(paramsImageButton);
 
-            if (i == amountItem) {
+            if (i == amountItem - 1) {
                 int smallerSize = (int) (widthItem * 0.7);
                 LinearLayout.LayoutParams smallerParams = new LinearLayout.LayoutParams(smallerSize, smallerSize);
                 smallerParams.setMargins(0, (int) (widthItem * 0.15), 0, 20 + (int) (widthItem * 0.16));
@@ -256,7 +256,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
             // Thêm TextView vào LinearLayout
             TextView textView = new TextView(this);
-            if (i != amountItem) {
+            if (i != amountItem - 1) {
                 textView.setText(mCatalogExpense.get(i));
             }
             else textView.setText("Xem thêm");
@@ -266,7 +266,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             linearLayout.addView(textView);
 
             // Thêm sự kiện click cho LinearLayout
-            if (i != amountItem) {
+            if (i != amountItem - 1) {
                 linearLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

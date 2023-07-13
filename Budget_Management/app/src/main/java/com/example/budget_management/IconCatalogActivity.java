@@ -2,6 +2,7 @@ package com.example.budget_management;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -15,6 +16,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.budget_management.Model.Catalog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -23,6 +27,7 @@ public class IconCatalogActivity extends AppCompatActivity {
     private LinearLayout linearLayoutMain;
     private ArrayList<String> mIconCategoryList;
     private ArrayList<LinearLayout> mLinearLayoutIcon;
+    private int mSelectedIcon = 0;
     private LinearLayout mSelectedLinearLayoutIcon;
     private Button btnSelect;
 
@@ -34,6 +39,18 @@ public class IconCatalogActivity extends AppCompatActivity {
         init();
 
         createGridViewItemCategoryList(mIconCategoryList);
+
+        btnSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mSelectedIcon != 0) {
+                    //Intent;
+                }
+                else {
+                    Toast.makeText(IconCatalogActivity.this, "Bạn chưa chọn icon!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void init() {
@@ -170,6 +187,7 @@ public class IconCatalogActivity extends AppCompatActivity {
             ImageButton imageButton = new ImageButton(this);
 
             imageButton.setImageResource(mIconCategory.get(i));
+            imageButton.setTag(mIconCategory.get(i));
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor = Color.LTGRAY;
@@ -187,6 +205,8 @@ public class IconCatalogActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     btnSelect.setAlpha(1f);
                     btnSelect.setEnabled(true);
+
+                    mSelectedIcon = (int) ((ImageButton) v).getTag();
 
                     setBackgroundPreviousSelectedIcon();
 

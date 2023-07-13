@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,56 +10,74 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên danh mục"
+                android:textSize="20dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tên danh mục"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+            <RadioGroup
+                android:id="@+id/radioGroupType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <RadioButton
+                    android:id="@+id/radioButtonExpense"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chi phí"
+                    android:textSize="20dp"
+                    android:layout_marginRight="40dp"/>
+                <RadioButton
+                    android:id="@+id/radioButtonIncome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thu nhập"
+                    android:textSize="20dp"/>
+            </RadioGroup>
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tên danh mục"
-            android:textSize="20dp"
-            android:textColor="@color/black"
-            android:textStyle="bold"/>
-        <EditText
+            android:text="Biểu tượng"
+            android:layout_marginTop="20dp"
+            android:textSize="18dp"/>
+
+        <GridLayout
+            android:id="@+id/gridLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tên danh mục"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btnAddItemCategory"
+        android:layout_width="230dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
-        <RadioGroup
-            android:id="@+id/radioGroupType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <RadioButton
-                android:id="@+id/radioButtonExpense"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chi phí"
-                android:textSize="20dp"
-                android:layout_marginRight="40dp"/>
-            <RadioButton
-                android:id="@+id/radioButtonIncome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Thu nhập"
-                android:textSize="20dp"/>
-        </RadioGroup>
-    </LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:elevation="10dp"
+        android:text="Select"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:background="@drawable/button_background_yellow"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Biểu tượng"
-        android:layout_marginTop="20dp"
-        android:textSize="18dp"/>
-
-    <GridLayout
-        android:id="@+id/gridLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-</LinearLayout>
+</RelativeLayout>
