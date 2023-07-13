@@ -74,8 +74,7 @@ public class AddExpenseActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             int positionFromExpenseCatalogActivity = data.getIntExtra("SelectedExtendIcon", 10000);
             if (positionFromExpenseCatalogActivity < mCatalogExpense.size()) {
                 setBackgroundPreviousSelectedIcon();
@@ -611,7 +610,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             // Xóa phần tử tại vị trí index
             catalogExpense.remove(index);
             // Chèn phần tử vào vị trí đầu tiên
-            catalogExpense.add(0, catalogExpense.get(index));
+            catalogExpense.add(0, mCatalogExpense.get(index));
         }
         return catalogExpense;
     }

@@ -210,7 +210,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
 
                             int position = mLinearLayouts.indexOf(mSelectedLinearLayoutCatalog);
                             if (position < mCatalogExpense.size()) {
-                                Intent intent = new Intent(v.getContext(), AddExpenseActivity.class);
+                                Intent intent = new Intent();
                                 intent.putExtra("SelectedExtendIcon", position);
                                 setResult(RESULT_OK, intent);
                                 finish();
@@ -219,8 +219,6 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                                 Intent intent = new Intent(v.getContext(), CreateItemCatalogsActivity.class);
                                 startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
                             }
-
-
                         }
                     }
                 });

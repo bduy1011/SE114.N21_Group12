@@ -1,10 +1,10 @@
 package com.example.budget_management;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -52,17 +52,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private int mIconItemCatalog = 0, mColorItemCatalog = 0;
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-//        if (requestCode == RESPONSE_CODE_ICON_CATALOG && resultCode == RESULT_OK) {
-//            int positionFromExpenseCatalogActivity = data.getIntExtra("SelectedExtendIcon", 10000);
-//            if (positionFromExpenseCatalogActivity < mCatalogExpense.size()) {
-//                setBackgroundPreviousSelectedIcon();
-//                ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
-//                createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG - 1);
-//            }
-//        }
+        if (requestCode == REQUEST_TO_ICON_CATEGORY && resultCode == RESULT_OK && data != null) {
+            int selectedIcon = data.getIntExtra("SelectedIcon", 0);
+            mIconItemCatalog = selectedIcon;
+            if (getImageResources().contains(selectedIcon)) {
+                setBackgroundPreviousSelectedIcon();
+                LinearLayout selectedLinearLayout = mLinearLayoutIcon.get(getImageResources().indexOf(selectedIcon));
+                setBackgroundCurrentSelectedIcon(selectedLinearLayout);
+                saveSelectedTopic(selectedLinearLayout);
+            }
+        }
     }
 
     @Override
@@ -98,7 +99,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             }
         });
 
-        mIconCatalog = getImageResourcesFromDirectory();
+        mIconCatalog = getImageResources();
 
         createGridViewCatalog(mIconCatalog, AMOUNT_ITEM_CATALOG);
     }
@@ -186,13 +187,16 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             drawableImageButton.setShape(GradientDrawable.OVAL);
             drawableImageButton.setColor(customColor);
             imageButton.setBackground(drawableImageButton);
-            imageButton.setTag(customColor);
+            if (i != amountItem - 1)
+                imageButton.setTag(getImageResources().get(i));
 
             if (i != amountItem - 1) {
                 // Thêm sự kiện click cho ImageButton
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        mIconItemCatalog = (int) ((ImageButton) v).getTag();
+
                         setBackgroundPreviousSelectedIcon();
 
                         // Thiết lập Background cho topic đang chọn
@@ -204,31 +208,11 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 });
             }
             else {
-
-//                XỬ LÝ HÀM GỬI ĐI ĐẾN TRANG DANH SÁCH ICON (30P)
-//                XỬ LÝ HÀM TRẢ VỀ TRANG TẠO ITEM (30P)
-//                TẠO BẢNG MÀU (LÂU) 2 TIẾNG THÔI
-//                => TẠO ITEM LÊN FIREBASE (30P)
-//
-//                => 3H30P (DẬY 9H, 10H LÀM - 12H30 => 1H30 ĐI)
-//
-//                TRƯỚC KHI ĐI CF
-//
-//                CÒN ĐI CF LÀ GIÚP PHÁT THÔI
-
                 // Thêm sự kiện click cho ImageButton
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int currentResIcon = 0;
-                        Drawable drawable = imageButton.getDrawable();
-                        if (drawable != null) {
-                            Drawable.ConstantState constantState = drawable.getConstantState();
-                            if (constantState != null) {
-                                currentResIcon = constantState.hashCode();
-                            }
-                        }
-                        pushIntentToExpenseCatalogActivity(currentResIcon);
+                        sendIntent(mIconItemCatalog);
                     }
                 });
             }
@@ -270,7 +254,6 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private void saveSelectedTopic(LinearLayout linearLayout) {
         mSelectedLinearLayoutCatalog = linearLayout;
     }
-
     private boolean isCheckFillFullInfor() {
         if (mNameItemCatalog != null && mNameItemCatalog.trim() != "") {
             if (mTypeItemCatalog != null && mTypeItemCatalog.trim() != "") {
@@ -298,7 +281,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             return false;
         }
     }
-    private ArrayList<Integer> getImageResourcesFromDirectory() {
+    private ArrayList<Integer> getImageResources() {
         ArrayList<Integer> resourceList = new ArrayList<>();
         resourceList.add(R.drawable.icon_other_1);
         resourceList.add(R.drawable.icon_transportation_3);
@@ -318,7 +301,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
         return resourceList;
     }
-    private void pushIntentToExpenseCatalogActivity(int currentResIcon) {
+    private void sendIntent(int currentResIcon) {
         Intent intent = new Intent(this, IconCatalogActivity.class);
         intent.putExtra("CurrentResIcon", currentResIcon);
         startActivityForResult(intent, REQUEST_TO_ICON_CATEGORY);

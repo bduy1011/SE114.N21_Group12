@@ -11,14 +11,10 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.budget_management.Model.Catalog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,31 +24,10 @@ public class IconCatalogActivity extends AppCompatActivity {
     private LinearLayout linearLayoutMain;
     private ArrayList<String> mIconCategoryList;
     private ArrayList<LinearLayout> mLinearLayoutIcon;
+    private ArrayList<Integer> mIconList;
     private int mSelectedIcon = 0;
     private LinearLayout mSelectedLinearLayoutIcon;
     private Button btnSelect;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_FROM_CREATE_ITEM_CATALOGS && resultCode == RESULT_OK) {
-            int currentResIcon = data.getIntExtra("CurrentResIcon", -1);
-            ArrayList<Integer> mIconCategory = new ArrayList<>();
-            mIconCategory = getImageResourcesFromDirectory("icon");
-            int position = mIconCategory.indexOf(currentResIcon);
-            if (position != -1) {
-                btnSelect.setAlpha(1f);
-                btnSelect.setEnabled(true);
-
-                setBackgroundPreviousSelectedIcon();
-
-                mSelectedIcon = currentResIcon;
-                mSelectedLinearLayoutIcon = mLinearLayoutIcon.get(position);
-
-                setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutIcon);
-            }
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,22 +38,16 @@ public class IconCatalogActivity extends AppCompatActivity {
 
         createGridViewItemCategoryList(mIconCategoryList);
 
-        btnSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mSelectedIcon != 0) {
-                    //Intent;
-                }
-                else {
-                    Toast.makeText(IconCatalogActivity.this, "Bạn chưa chọn icon!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        createButtonSelectClick();
+
+        receiveIntent();
     }
 
     private void init() {
         linearLayoutMain = findViewById(R.id.mainLinearLayout);
         btnSelect = findViewById(R.id.btnSelect);
+
+        mIconList = new ArrayList<>();
 
         mLinearLayoutIcon = new ArrayList<>();
 
@@ -162,8 +131,8 @@ public class IconCatalogActivity extends AppCompatActivity {
             }
             if (directoryName != null) {
                 mIconCategory = getImageResourcesFromDirectory(directoryName);
+                mIconList.addAll(mIconCategory);
                 linearLayoutMain.addView(createGridViewItem(mIconCategory));
-                mIconCategoryList.clear();
             }
         }
     }
@@ -221,7 +190,6 @@ public class IconCatalogActivity extends AppCompatActivity {
             drawableImageButton.setShape(GradientDrawable.OVAL);
             drawableImageButton.setColor(customColor);
             imageButton.setBackground(drawableImageButton);
-            imageButton.setTag(customColor);
 
             // Thêm sự kiện click cho ImageButton
             imageButton.setOnClickListener(new View.OnClickListener() {
@@ -295,5 +263,42 @@ public class IconCatalogActivity extends AppCompatActivity {
             }
         }
         return resourceList;
+    }
+
+    private void createButtonSelectClick() {
+        btnSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mSelectedIcon != 0) {
+                    Intent intent = new Intent();
+                    intent.putExtra("SelectedIcon", mSelectedIcon);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                else {
+                    Toast.makeText(IconCatalogActivity.this, "Bạn chưa chọn icon!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void receiveIntent() {
+        Intent intent = getIntent();
+        int currentResIcon = intent.getIntExtra("CurrentResIcon", -1);
+        Toast.makeText(this, currentResIcon, Toast.LENGTH_SHORT).show();
+        if (currentResIcon != -1) {
+            int position = mIconList.indexOf(currentResIcon);
+            if (position != -1) {
+                btnSelect.setAlpha(1f);
+                btnSelect.setEnabled(true);
+
+                setBackgroundPreviousSelectedIcon();
+
+                mSelectedIcon = currentResIcon;
+                mSelectedLinearLayoutIcon = mLinearLayoutIcon.get(position);
+
+                setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutIcon);
+            }
+        }
     }
 }
