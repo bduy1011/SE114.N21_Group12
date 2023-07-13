@@ -284,7 +284,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
             case 6:
                 return R.drawable.icon_shopping_1;
             case 7:
-                return R.drawable.icon_orther_1;
+                return R.drawable.icon_other_1;
             case 8:
                 return R.drawable.icon_accounts_1;
             case 9:

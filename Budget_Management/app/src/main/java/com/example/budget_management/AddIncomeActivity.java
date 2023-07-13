@@ -406,7 +406,7 @@ public class AddIncomeActivity extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 String mDate = sdf.format(mSelectedDate);
 
-                Data data=new Data(inamount,tmtype,tmnote,id,mDate);
+                Data data=new Data(inamount,tmtype,tmnote,id,mDate,0,0);
                 mIncomeDatabase.child(id).setValue(data);
                 finish();
             }
@@ -421,7 +421,7 @@ public class AddIncomeActivity extends AppCompatActivity {
             case 2:
                 return R.drawable.icon_shopping_2;
             case 3:
-                return R.drawable.icon_orther_1;
+                return R.drawable.icon_other_1;
             default:
                 return 0;
         }

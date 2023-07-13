@@ -24,12 +24,35 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class IconCatalogActivity extends AppCompatActivity {
+    private final int REQUEST_FROM_CREATE_ITEM_CATALOGS = 13;
     private LinearLayout linearLayoutMain;
     private ArrayList<String> mIconCategoryList;
     private ArrayList<LinearLayout> mLinearLayoutIcon;
     private int mSelectedIcon = 0;
     private LinearLayout mSelectedLinearLayoutIcon;
     private Button btnSelect;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_FROM_CREATE_ITEM_CATALOGS && resultCode == RESULT_OK) {
+            int currentResIcon = data.getIntExtra("CurrentResIcon", -1);
+            ArrayList<Integer> mIconCategory = new ArrayList<>();
+            mIconCategory = getImageResourcesFromDirectory("icon");
+            int position = mIconCategory.indexOf(currentResIcon);
+            if (position != -1) {
+                btnSelect.setAlpha(1f);
+                btnSelect.setEnabled(true);
+
+                setBackgroundPreviousSelectedIcon();
+
+                mSelectedIcon = currentResIcon;
+                mSelectedLinearLayoutIcon = mLinearLayoutIcon.get(position);
+
+                setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutIcon);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +163,7 @@ public class IconCatalogActivity extends AppCompatActivity {
             if (directoryName != null) {
                 mIconCategory = getImageResourcesFromDirectory(directoryName);
                 linearLayoutMain.addView(createGridViewItem(mIconCategory));
+                mIconCategoryList.clear();
             }
         }
     }

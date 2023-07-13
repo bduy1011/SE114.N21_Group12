@@ -3,8 +3,8 @@ package com.example.budget_management;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -23,12 +23,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class CreateItemCatalogsActivity extends AppCompatActivity {
     private final int AMOUNT_ITEM_CATALOG = 16;
-    private final int RESPONSE_CODE_ICON_CATALOG = 100;
+    private final int RESPONSE_CODE_ICON_CATALOG = 12;
+    private final int REQUEST_TO_ICON_CATEGORY = 13;
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeCategoryDatabase;
     private DatabaseReference mExpenseCategoryDatabase;
@@ -39,14 +39,17 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private GridLayout gridLayoutIcon;
     private ArrayList<LinearLayout> mLinearLayoutIcon;
 
+    private GridLayout gridLayoutColor;
+    private ArrayList<LinearLayout> mLinearLayoutColor;
+
     private ArrayList<Integer> mIconCatalog;
 
     private Button btnAddItemCategory;
 
     private LinearLayout mSelectedLinearLayoutCatalog;
 
-    private String mNameItemCatalog, mTypeItemCatalog, mColorItemCatalog;
-    private int mIconItemCatalog = 0;
+    private String mNameItemCatalog, mTypeItemCatalog;
+    private int mIconItemCatalog = 0, mColorItemCatalog = 0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -95,8 +98,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             }
         });
 
-        String directoryName = "icon";
-        mIconCatalog = getImageResourcesFromDirectory(directoryName);
+        mIconCatalog = getImageResourcesFromDirectory();
 
         createGridViewCatalog(mIconCatalog, AMOUNT_ITEM_CATALOG);
     }
@@ -104,7 +106,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private void init() {
         mLinearLayoutIcon = new ArrayList<>();
 
-        gridLayoutIcon = findViewById(R.id.gridLayout);
+        gridLayoutIcon = findViewById(R.id.gridLayoutIcon);
+
         rgTypeItem = findViewById(R.id.radioGroupType);
 
         mIconCatalog = new ArrayList<>();
@@ -217,9 +220,15 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Lấy vị trí của LinearLayout trong danh sách
-                        //int currentPosition = mLinearLayouts.indexOf(linearLayout) + 1;
-                        pushIntentToExpenseCatalogActivity(/*currentPosition*/);
+                        int currentResIcon = 0;
+                        Drawable drawable = imageButton.getDrawable();
+                        if (drawable != null) {
+                            Drawable.ConstantState constantState = drawable.getConstantState();
+                            if (constantState != null) {
+                                currentResIcon = constantState.hashCode();
+                            }
+                        }
+                        pushIntentToExpenseCatalogActivity(currentResIcon);
                     }
                 });
             }
@@ -266,8 +275,13 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         if (mNameItemCatalog != null && mNameItemCatalog.trim() != "") {
             if (mTypeItemCatalog != null && mTypeItemCatalog.trim() != "") {
                 if (mIconItemCatalog != 0) {
-                    // chưa check màu
-                    return true;
+                    if (mColorItemCatalog != 0) {
+                        return true;
+                    }
+                    else {
+                        Toast.makeText(this, "Bạn chưa chọn màu cho danh mục!", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                 }
                 else {
                     Toast.makeText(this, "Bạn chưa chọn icon cho danh mục!", Toast.LENGTH_SHORT).show();
@@ -284,33 +298,29 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             return false;
         }
     }
-    private ArrayList<Integer> getImageResourcesFromDirectory(String directoryName) {
+    private ArrayList<Integer> getImageResourcesFromDirectory() {
         ArrayList<Integer> resourceList = new ArrayList<>();
-        Resources resources = getResources(); // Lấy đối tượng Resources
+        resourceList.add(R.drawable.icon_other_1);
+        resourceList.add(R.drawable.icon_transportation_3);
+        resourceList.add(R.drawable.icon_shopping_19);
+        resourceList.add(R.drawable.icon_foodanddrink_4);
+        resourceList.add(R.drawable.icon_entertainment_10);
+        resourceList.add(R.drawable.icon_other_11);
+        resourceList.add(R.drawable.icon_transportation_5);
+        resourceList.add(R.drawable.icon_beauty_8);
+        resourceList.add(R.drawable.icon_finances_10);
+        resourceList.add(R.drawable.icon_finances_5);
+        resourceList.add(R.drawable.icon_family_11);
+        resourceList.add(R.drawable.icon_transportation_13);
+        resourceList.add(R.drawable.icon_family_5);
+        resourceList.add(R.drawable.icon_foodanddrink_2);
+        resourceList.add(R.drawable.icon_family_6);
 
-        Field[] fields = R.drawable.class.getFields();
-        for (Field field : fields) {
-            try {
-                String name = field.getName();
-                if (name.startsWith(directoryName + "_")) {
-                    int resourceId = resources.getIdentifier(name, "drawable", getPackageName());
-                    resourceList.add(resourceId);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         return resourceList;
     }
-    private void pushIntentToExpenseCatalogActivity(/*int currentPosition*/) {
-        //if (currentPosition == AMOUNT_ITEM_CATALOG) {
+    private void pushIntentToExpenseCatalogActivity(int currentResIcon) {
         Intent intent = new Intent(this, IconCatalogActivity.class);
-            /*if (mSelectedLinearLayoutCatalog != null) {
-                int previousPosition = mLinearLayouts.indexOf(mSelectedLinearLayoutCatalog);
-                intent.putExtra("PreviousSelectedIcon", previousPosition);
-            }*/
-        //startActivityForResult(intent, REQUEST_CODE_ICON_CATEGORY);
-        startActivity(intent);
-        //}
+        intent.putExtra("CurrentResIcon", currentResIcon);
+        startActivityForResult(intent, REQUEST_TO_ICON_CATEGORY);
     }
 }

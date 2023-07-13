@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.budget_management.Model.Catalog;
 import com.example.budget_management.Model.Data;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,7 +42,8 @@ public class AddExpenseActivity extends AppCompatActivity {
     private GridLayout gridLayout;
     private LinearLayout mSelectedLinearLayoutCatalog;
     private TextView mSelectedTextView;
-    private ArrayList<String> mCatalogExpense;
+    private Catalog mSelectedCatalog;
+    private ArrayList<Catalog> mCatalogExpense;
     private ArrayList<LinearLayout> mLinearLayouts;
     private LinearLayout linearLayout1, linearLayout2, linearLayout3;
     private TextView textDate1, textDate2, textDate3;
@@ -60,7 +62,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
         init();
 
-        ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+        ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
         createGridViewCatalog(tmpCatalogExpense, AMOUNT_ITEM_CATALOG);
 
         createLinearLayoutDate();
@@ -77,7 +79,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             int positionFromExpenseCatalogActivity = data.getIntExtra("SelectedExtendIcon", 10000);
             if (positionFromExpenseCatalogActivity < mCatalogExpense.size()) {
                 setBackgroundPreviousSelectedIcon();
-                ArrayList<String> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+                ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
                 createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG);
             }
         }
@@ -85,20 +87,22 @@ public class AddExpenseActivity extends AppCompatActivity {
     private void init() {
         mLinearLayouts = new ArrayList<>();
 
-        mCatalogExpense = new ArrayList<String>();
-        mCatalogExpense.add("Ăn uống");
-        mCatalogExpense.add("Đi lại");
-        mCatalogExpense.add("Quà tặng");
-        mCatalogExpense.add("Giải trí");
-        mCatalogExpense.add("Học tập");
-        mCatalogExpense.add("Sức khỏe");
-        mCatalogExpense.add("Quần áo");
-        mCatalogExpense.add("Quần áo1");
-        mCatalogExpense.add("Quần áo2");
-        mCatalogExpense.add("Quần áo3");
-        mCatalogExpense.add("Quần áo4");
-        mCatalogExpense.add("Quần áo5");
-        mCatalogExpense.add("Khác");
+        Catalog catalog = new Catalog("Ăn uống", getTintColor(0), "Chi phí", getImageResource(0));
+        Catalog catalog1 = new Catalog("Đi lại", getTintColor(1), "Chi phí", getImageResource(1));
+        Catalog catalog2 = new Catalog("Quà tặng", getTintColor(2), "Chi phí", getImageResource(2));
+        Catalog catalog3 = new Catalog("Giải trí", getTintColor(3), "Chi phí", getImageResource(3));
+        Catalog catalog4 = new Catalog("Học tập", getTintColor(4), "Chi phí", getImageResource(4));
+        Catalog catalog5 = new Catalog("Sức khỏe", getTintColor(5), "Chi phí", getImageResource(5));
+        Catalog catalog6 = new Catalog("Quần áo", getTintColor(6), "Chi phí", getImageResource(6));
+
+        mCatalogExpense = new ArrayList<Catalog>();
+        mCatalogExpense.add(catalog);
+        mCatalogExpense.add(catalog1);
+        mCatalogExpense.add(catalog2);
+        mCatalogExpense.add(catalog3);
+        mCatalogExpense.add(catalog4);
+        mCatalogExpense.add(catalog5);
+        mCatalogExpense.add(catalog6);
 
         gridLayout = findViewById(R.id.gridLayout);
 
@@ -144,7 +148,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
         mExpenseDatabase.keepSynced(true);
     }
-    private void createGridViewCatalog(ArrayList<String> mCatalogExpense, int amountItem) {
+    private void createGridViewCatalog(ArrayList<Catalog> mCatalogExpense, int amountItem) {
         // Thiết lập số cột của GridLayout là 4
         gridLayout.setColumnCount(4);
 
@@ -184,14 +188,14 @@ public class AddExpenseActivity extends AppCompatActivity {
             // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
             if (i != amountItem - 1) {
-                imageButton.setImageResource(getImageResource(i));
+                imageButton.setImageResource(mCatalogExpense.get(i).getIcon());
             }
             else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor;
             if (i != amountItem - 1) {
-                customColor = getTintColor(i);
+                customColor = mCatalogExpense.get(i).getColor();
             }
             else customColor = Color.LTGRAY;
 
@@ -209,15 +213,19 @@ public class AddExpenseActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         setBackgroundPreviousSelectedIcon();
 
-                        // Lấy màu của ImageButton được click
-                        int selectedColor = (int) v.getTag();
-
                         // Lấy tên topic của icon được chọn
                         ViewGroup viewGroup = (ViewGroup) v.getParent();
                         TextView textView = (TextView) viewGroup.getChildAt(1);
+                        // Lấy màu của ImageButton được click
+                        String tmp = textView.getText().toString();
+                        for (int i = 0; i < mCatalogExpense.size(); i++) {
+                            if (tmp == mCatalogExpense.get(i).getName()) {
+                                mSelectedCatalog = mCatalogExpense.get(i);
+                            }
+                        }
 
                         // Thiết lập Background cho topic đang chọn
-                        setBackgroundCurrentSelectedIcon(linearLayout, selectedColor, textView);
+                        setBackgroundCurrentSelectedIcon(linearLayout, mSelectedCatalog.getColor(), textView);
 
                         // Lấy vị trí của LinearLayout trong danh sách
                         int currentPosition = mLinearLayouts.indexOf(linearLayout) + 1;
@@ -257,7 +265,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             // Thêm TextView vào LinearLayout
             TextView textView = new TextView(this);
             if (i != amountItem - 1) {
-                textView.setText(mCatalogExpense.get(i));
+                textView.setText(mCatalogExpense.get(i).getName());
             }
             else textView.setText("Xem thêm");
             textView.setTextColor(Color.BLACK);
@@ -273,15 +281,15 @@ public class AddExpenseActivity extends AppCompatActivity {
                         setBackgroundPreviousSelectedIcon();
 
                         // Lấy màu của ImageButton được click
-                        int selectedColor = 100;
                         String tmp = textView.getText().toString();
                         for (int i = 0; i < mCatalogExpense.size(); i++) {
-                            if (tmp == mCatalogExpense.get(i))
-                                selectedColor = getTintColor(i);
+                            if (tmp == mCatalogExpense.get(i).getName()) {
+                                mSelectedCatalog = mCatalogExpense.get(i);
+                            }
                         }
 
                         // Thiết lập Background cho topic đang chọn
-                        setBackgroundCurrentSelectedIcon((LinearLayout) v, selectedColor, textView);
+                        setBackgroundCurrentSelectedIcon((LinearLayout) v, mSelectedCatalog.getColor(), textView);
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic((LinearLayout) v, textView);
@@ -456,15 +464,22 @@ public class AddExpenseActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String id = mExpenseDatabase.push().getKey();
 
-                String tmAmmount = mEditTextMoney.getText().toString().trim();
-                String tmtype = mSelectedTextView.getText().toString().trim();
-                String tmnote = mEditTextDescription.getText().toString().trim();
-                int inamount=Integer.parseInt(tmAmmount);
+                // Chư kt điều kiện
+                String tmpAmmount = mEditTextMoney.getText().toString().trim();
+                int amount = Integer.parseInt(tmpAmmount);
+
+                String type = mSelectedTextView.getText().toString().trim();
+
+                String note = mEditTextDescription.getText().toString().trim();
+
+                int colorCatalog = mSelectedCatalog.getColor();
+
+                int iconCatalog = mSelectedCatalog.getIcon();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 String mDate = sdf.format(mSelectedDate);
 
-                Data data=new Data(inamount,tmtype,tmnote,id,mDate);
+                Data data=new Data(amount,type,note,id,mDate, colorCatalog, iconCatalog);
                 mExpenseDatabase.child(id).setValue(data);
                 finish();
             }
@@ -487,7 +502,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             case 6:
                 return R.drawable.icon_shopping_1;
             case 7:
-                return R.drawable.icon_orther_1;
+                return R.drawable.icon_other_1;
             case 8:
                 return R.drawable.add_icon;
             default:
@@ -591,14 +606,12 @@ public class AddExpenseActivity extends AppCompatActivity {
             startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
         }
     }
-    public ArrayList<String> changedCatalogExpense(ArrayList<String> catalogExpense, int index) {
+    public ArrayList<Catalog> changedCatalogExpense(ArrayList<Catalog> catalogExpense, int index) {
         if (index >= 0 && index < catalogExpense.size()) {
-            // Lấy phần tử ở vị trí index
-            String item = catalogExpense.get(index);
             // Xóa phần tử tại vị trí index
             catalogExpense.remove(index);
             // Chèn phần tử vào vị trí đầu tiên
-            catalogExpense.add(0, item);
+            catalogExpense.add(0, catalogExpense.get(index));
         }
         return catalogExpense;
     }
