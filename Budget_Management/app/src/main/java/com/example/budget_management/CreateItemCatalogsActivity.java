@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -32,36 +34,34 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeCategoryDatabase;
     private DatabaseReference mExpenseCategoryDatabase;
-
+    private ImageView ivMainItemCreating;
     private TextView tvNameItem;
     private RadioGroup rgTypeItem;
-
     private GridLayout gridLayoutIcon;
-    private ArrayList<LinearLayout> mLinearLayoutIcon;
-
     private GridLayout gridLayoutColor;
-    private ArrayList<LinearLayout> mLinearLayoutColor;
-
-    private ArrayList<Integer> mIconCatalog;
-
     private Button btnAddItemCategory;
-
-    private LinearLayout mSelectedLinearLayoutCatalog;
-
-    private String mNameItemCatalog, mTypeItemCatalog;
-    private int mIconItemCatalog = 0, mColorItemCatalog = 0;
+    private ArrayList<LinearLayout> mLinearLayoutIcon;
+    private ArrayList<ImageButton> mImageButtonColor;
+    private ArrayList<Integer> mIconCatalog;
+    private LinearLayout mSelectedLinearLayoutIcon;
+    private ImageButton mSelectedImageButtonColor;
+    private String mNameSelectedItemCatalog, mTypeSelectedItemCatalog;
+    private int mIconSelectedItemCatalog = 0, mColorSelectedItemCatalog = 0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TO_ICON_CATEGORY && resultCode == RESULT_OK && data != null) {
             int selectedIcon = data.getIntExtra("SelectedIcon", 0);
-            mIconItemCatalog = selectedIcon;
+            mIconSelectedItemCatalog = selectedIcon;
             if (getImageResources().contains(selectedIcon)) {
                 setBackgroundPreviousSelectedIcon();
                 LinearLayout selectedLinearLayout = mLinearLayoutIcon.get(getImageResources().indexOf(selectedIcon));
                 setBackgroundCurrentSelectedIcon(selectedLinearLayout);
                 saveSelectedTopic(selectedLinearLayout);
+            }
+            else {
+                setBackgroundPreviousSelectedIcon();
             }
         }
     }
@@ -73,66 +73,44 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
         init();
 
-        rgTypeItem.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // Xử lý sự kiện khi có RadioButton được chọn
-                if (checkedId == R.id.radioButtonExpense) {
-                    mTypeItemCatalog = "Chi phí";
-                } else if (checkedId == R.id.radioButtonIncome) {
-                    mTypeItemCatalog = "Thu nhập";
-                }
-            }
-        });
-
-        btnAddItemCategory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isCheckFillFullInfor()) {
-                    String id = mIncomeCategoryDatabase.push().getKey();
-                    Catalog catalog = new Catalog(mNameItemCatalog, mColorItemCatalog, mTypeItemCatalog, mIconItemCatalog);
-                    if (catalog.getType() == "Chi phí")
-                        mExpenseCategoryDatabase.child(id).setValue(catalog);
-                    if (catalog.getType() == "Thu nhập")
-                        mIncomeCategoryDatabase.child(id).setValue(catalog);
-                }
-            }
-        });
-
         mIconCatalog = getImageResources();
 
-        createGridViewCatalog(mIconCatalog, AMOUNT_ITEM_CATALOG);
+        createMainItemCreating(R.drawable.ic_category, Color.parseColor("#a4b7b1"));
+
+        createGridViewIcon(mIconCatalog, AMOUNT_ITEM_CATALOG);
+
+        createGridViewColor();
+
+        createListenerControl();
     }
 
     private void init() {
-        mLinearLayoutIcon = new ArrayList<>();
-
-        gridLayoutIcon = findViewById(R.id.gridLayoutIcon);
-
+        ivMainItemCreating = findViewById(R.id.imageViewMainItemCreating);
+        tvNameItem = findViewById(R.id.textViewNameItem);
         rgTypeItem = findViewById(R.id.radioGroupType);
-
-        mIconCatalog = new ArrayList<>();
-
+        gridLayoutIcon = findViewById(R.id.gridLayoutIcon);
+        gridLayoutColor = findViewById(R.id.gridLayoutColor);
         btnAddItemCategory = findViewById(R.id.btnAddItemCategory);
 
+        mIconCatalog = new ArrayList<>();
+        mLinearLayoutIcon = new ArrayList<>();
+        mImageButtonColor = new ArrayList<>();
+
         mAuth = FirebaseAuth.getInstance();
-        //New fix
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = mUser.getUid();
-
         mIncomeCategoryDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeCatalogs").child(uid);
         mExpenseCategoryDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseCatalogs").child(uid);
-
         mIncomeCategoryDatabase.keepSynced(true);
         mExpenseCategoryDatabase.keepSynced(true);
     }
 
-    private void createGridViewCatalog(ArrayList<Integer> mIconCatalog, int amountItem) {
+    private void createGridViewIcon(ArrayList<Integer> mIconCatalog, int amountItem) {
         // Thiết lập số cột của GridLayout là 4
-        gridLayoutIcon.setColumnCount(4);
+        int countColumn = 4;
+        gridLayoutIcon.setColumnCount(countColumn);
 
         // Tính toán chiều rộng cột cho các thiết bị có độ rộng màn hình khác nhau
-        int countColumn = 4;
         int screenWidthPx = getResources().getDisplayMetrics().widthPixels - 50;
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
@@ -171,15 +149,15 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             if (i != amountItem - 1) {
                 imageButton.setImageResource(mIconCatalog.get(i));
             }
-            else imageButton.setImageResource(R.drawable.dots_icon);
+            else imageButton.setImageResource(R.drawable.ic_dots);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor;
             if (i != amountItem - 1) {
-                customColor = Color.LTGRAY;
+                customColor = Color.parseColor("#a4b7b1");
             }
             else {
-                customColor = Color.parseColor("#FFA500");
+                customColor = Color.parseColor("#fdc22a");
             }
 
             // Tạo một Drawable từ code Java với màu sắc mới
@@ -195,7 +173,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mIconItemCatalog = (int) ((ImageButton) v).getTag();
+                        mIconSelectedItemCatalog = (int) ((ImageButton) v).getTag();
 
                         setBackgroundPreviousSelectedIcon();
 
@@ -212,7 +190,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        sendIntent(mIconItemCatalog);
+                        sendIntent(mIconSelectedItemCatalog);
                     }
                 });
             }
@@ -236,6 +214,73 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             gridLayoutIcon.addView(linearLayout);
         }
     }
+    private void createGridViewColor() {
+        int countColumn = 8;
+
+        // Set the number of columns for the GridLayout to 4
+        gridLayoutColor.setColumnCount(countColumn);
+
+        // Calculate the column width for different screen widths
+        int screenWidthPx = getResources().getDisplayMetrics().widthPixels - 50;
+        int columnWidthPx = screenWidthPx / countColumn;
+        int widthItem = screenWidthPx / 6;
+
+        int amount = 8;
+
+        for (int i = 0; i < amount; i++) {
+            // Add ImageButton to LinearLayout
+            ImageButton imageButton = new ImageButton(this);
+            imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+            int customColor;
+            if (i != amount - 1) {
+                customColor = getColorByIndex(i);
+            } else {
+                customColor = getColorByIndex(1000);
+                imageButton.setImageResource(R.drawable.ic_add_1);
+            }
+
+            if (i != amount - 1) {
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(mSelectedImageButtonColor != null) {
+                            mSelectedImageButtonColor.setImageResource(0);
+                        }
+                        mColorSelectedItemCatalog = (int) ((ImageButton) v).getTag();
+                        mSelectedImageButtonColor = (ImageButton) v;
+                        mSelectedImageButtonColor.setImageResource(R.drawable.ic_tick);
+                    }
+                });
+            } else {
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+            }
+
+            // Thiết lập kích thước của ImageButton
+            float percent = 0.5f;
+            int with = (int) (widthItem * percent);
+            int marginH = (int) (widthItem * (percent / 4));
+            LinearLayout.LayoutParams paramsImageButton = new LinearLayout.LayoutParams(with, with);
+            paramsImageButton.setMargins(marginH, 20, marginH, 20);
+            imageButton.setLayoutParams(paramsImageButton);
+
+            // Create a Drawable from Java code with the new color
+            GradientDrawable drawableImageButton = new GradientDrawable();
+            drawableImageButton.setShape(GradientDrawable.OVAL);
+            drawableImageButton.setColor(customColor);
+            imageButton.setBackground(drawableImageButton);
+
+            imageButton.setTag(customColor);
+
+            mImageButtonColor.add(imageButton);
+
+            // Add ImageButton to LinearLayout
+            gridLayoutColor.addView(imageButton);
+        }
+    }
     private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout) {
         // Đặt màu nền cho tên Topic hiện tại
         GradientDrawable drawableLinearLayout = new GradientDrawable();
@@ -247,18 +292,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     }
     private void setBackgroundPreviousSelectedIcon() {
         // Đặt màu trắng cho LinearLayout đã chọn trước đó
-        if (mSelectedLinearLayoutCatalog != null) {
-            mSelectedLinearLayoutCatalog.setBackgroundColor(Color.WHITE);
+        if (mSelectedLinearLayoutIcon != null) {
+            mSelectedLinearLayoutIcon.setBackgroundColor(Color.WHITE);
         }
     }
     private void saveSelectedTopic(LinearLayout linearLayout) {
-        mSelectedLinearLayoutCatalog = linearLayout;
+        mSelectedLinearLayoutIcon = linearLayout;
     }
-    private boolean isCheckFillFullInfor() {
-        if (mNameItemCatalog != null && mNameItemCatalog.trim() != "") {
-            if (mTypeItemCatalog != null && mTypeItemCatalog.trim() != "") {
-                if (mIconItemCatalog != 0) {
-                    if (mColorItemCatalog != 0) {
+    private boolean isCheckFillFullInform() {
+        if (mNameSelectedItemCatalog != null && mNameSelectedItemCatalog.trim() != "") {
+            if (mTypeSelectedItemCatalog != null && mTypeSelectedItemCatalog.trim() != "") {
+                if (mIconSelectedItemCatalog != 0) {
+                    if (mColorSelectedItemCatalog != 0) {
                         return true;
                     }
                     else {
@@ -305,5 +350,76 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         Intent intent = new Intent(this, IconCatalogActivity.class);
         intent.putExtra("CurrentResIcon", currentResIcon);
         startActivityForResult(intent, REQUEST_TO_ICON_CATEGORY);
+    }
+    public int getColorByIndex(int index) {
+        int color;
+
+        switch (index) {
+            case 0:
+                color = Color.parseColor("#80cf5c");
+                break;
+            case 1:
+                color = Color.parseColor("#5162f6");
+                break;
+            case 2:
+                color = Color.parseColor("#f1b109");
+                break;
+            case 3:
+                color = Color.parseColor("#eb54c8");
+                break;
+            case 4:
+                color = Color.parseColor("#36d9d8");
+                break;
+            case 5:
+                color = Color.parseColor("#de2020");
+                break;
+            case 6:
+                color = Color.parseColor("#9d7ef3");
+                break;
+            default:
+                color = Color.parseColor("#a4b7b1");
+                break;
+        }
+        return color;
+    }
+    private void createListenerControl() {
+        rgTypeItem.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // Xử lý sự kiện khi có RadioButton được chọn
+                if (checkedId == R.id.radioButtonExpense) {
+                    mTypeSelectedItemCatalog = "Chi phí";
+                } else if (checkedId == R.id.radioButtonIncome) {
+                    mTypeSelectedItemCatalog = "Thu nhập";
+                }
+            }
+        });
+        btnAddItemCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isCheckFillFullInform()) {
+                    String id = mIncomeCategoryDatabase.push().getKey();
+                    Catalog catalog = new Catalog(mNameSelectedItemCatalog, mColorSelectedItemCatalog, mTypeSelectedItemCatalog, mIconSelectedItemCatalog);
+                    if (catalog.getType() == "Chi phí")
+                        mExpenseCategoryDatabase.child(id).setValue(catalog);
+                    if (catalog.getType() == "Thu nhập")
+                        mIncomeCategoryDatabase.child(id).setValue(catalog);
+                }
+            }
+        });
+    }
+    private void createMainItemCreating(int image, int color) {
+        // Create a circular background with the specified color
+        GradientDrawable background = new GradientDrawable();
+        background.setShape(GradientDrawable.OVAL);
+        background.setColor(color);
+        ivMainItemCreating.setBackground(background);
+        ivMainItemCreating.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+
+        ivMainItemCreating.setImageResource(image);
+    }
+    private void updateMainItemCreating(int image, int color) {
+        ivMainItemCreating.setImageResource(image);
+        ivMainItemCreating.setBackgroundColor(color);
     }
 }

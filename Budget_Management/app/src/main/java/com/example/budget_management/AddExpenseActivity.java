@@ -503,7 +503,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             case 7:
                 return R.drawable.icon_other_1;
             case 8:
-                return R.drawable.add_icon;
+                return R.drawable.ic_add;
             default:
                 return 0;
         }

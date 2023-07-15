@@ -42,7 +42,6 @@ public class IconCatalogActivity extends AppCompatActivity {
 
         receiveIntent();
     }
-
     private void init() {
         linearLayoutMain = findViewById(R.id.mainLinearLayout);
         btnSelect = findViewById(R.id.btnSelect);
@@ -76,7 +75,6 @@ public class IconCatalogActivity extends AppCompatActivity {
             btnSelect.setEnabled(true);
         }
     }
-
     private void createGridViewItemCategoryList(ArrayList<String> mIconCategoryList) {
         for (String category : mIconCategoryList) {
             TextView textView = new TextView(this);
@@ -136,7 +134,6 @@ public class IconCatalogActivity extends AppCompatActivity {
             }
         }
     }
-
     private GridLayout createGridViewItem(ArrayList<Integer> mIconCategory) {
         GridLayout gridLayoutIcon = new GridLayout(this);
         // Thiết lập số cột của GridLayout là 4
@@ -264,7 +261,6 @@ public class IconCatalogActivity extends AppCompatActivity {
         }
         return resourceList;
     }
-
     private void createButtonSelectClick() {
         btnSelect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,12 +277,10 @@ public class IconCatalogActivity extends AppCompatActivity {
             }
         });
     }
-
     private void receiveIntent() {
         Intent intent = getIntent();
         int currentResIcon = intent.getIntExtra("CurrentResIcon", -1);
-        Toast.makeText(this, currentResIcon, Toast.LENGTH_SHORT).show();
-        if (currentResIcon != -1) {
+        if (currentResIcon != -1 && currentResIcon != 0) {
             int position = mIconList.indexOf(currentResIcon);
             if (position != -1) {
                 btnSelect.setAlpha(1f);

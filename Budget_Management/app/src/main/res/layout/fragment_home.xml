@@ -307,7 +307,7 @@
                 android:layout_gravity="bottom|end"
                 android:backgroundTint="#07bca4"
                 android:elevation="6dp"
-                android:src="@drawable/add_icon"
+                android:src="@drawable/ic_add"
                 android:visibility="invisible"
                 app:fabSize="mini"
                 app:pressedTranslationZ="12dp" />
@@ -338,7 +338,7 @@
                 android:layout_gravity="bottom|end"
                 android:backgroundTint="#1ce10a"
                 android:elevation="6dp"
-                android:src="@drawable/add_icon"
+                android:src="@drawable/ic_add"
                 android:visibility="invisible"
                 app:fabSize="mini"
                 app:pressedTranslationZ="12dp" />
@@ -351,7 +351,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="16dp"
             android:backgroundTint="#6A1B9A"
-            android:src="@drawable/add_icon"
+            android:src="@drawable/ic_add"
             app:fabSize="normal" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </RelativeLayout>

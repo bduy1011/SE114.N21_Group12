@@ -16,16 +16,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tên danh mục"
-                android:textSize="20dp"
-                android:textColor="@color/black"
-                android:textStyle="bold"/>
+            <ImageView
+                android:id="@+id/imageViewMainItemCreating"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="10dp"/>
             <EditText
+                android:id="@+id/textViewNameItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:hint="Tên danh mục"/>
         </LinearLayout>
 
