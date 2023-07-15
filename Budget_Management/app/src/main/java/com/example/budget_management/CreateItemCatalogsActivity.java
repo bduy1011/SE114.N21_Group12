@@ -4,10 +4,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -63,6 +66,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             else {
                 setBackgroundPreviousSelectedIcon();
             }
+            updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
         }
     }
 
@@ -75,7 +79,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
         mIconCatalog = getImageResources();
 
-        createMainItemCreating(R.drawable.ic_category, Color.parseColor("#a4b7b1"));
+        createMainItemCreating(R.drawable.ic_category, "#a4b7b1");
 
         createGridViewIcon(mIconCatalog, AMOUNT_ITEM_CATALOG);
 
@@ -83,7 +87,6 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
         createListenerControl();
     }
-
     private void init() {
         ivMainItemCreating = findViewById(R.id.imageViewMainItemCreating);
         tvNameItem = findViewById(R.id.textViewNameItem);
@@ -104,7 +107,6 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         mIncomeCategoryDatabase.keepSynced(true);
         mExpenseCategoryDatabase.keepSynced(true);
     }
-
     private void createGridViewIcon(ArrayList<Integer> mIconCatalog, int amountItem) {
         // Thiết lập số cột của GridLayout là 4
         int countColumn = 4;
@@ -152,18 +154,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             else imageButton.setImageResource(R.drawable.ic_dots);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
-            int customColor;
+            String customColor;
             if (i != amountItem - 1) {
-                customColor = Color.parseColor("#a4b7b1");
+                customColor = "#a4b7b1";
             }
             else {
-                customColor = Color.parseColor("#fdc22a");
+                customColor = "#fdc22a";
             }
 
             // Tạo một Drawable từ code Java với màu sắc mới
             GradientDrawable drawableImageButton = new GradientDrawable();
             drawableImageButton.setShape(GradientDrawable.OVAL);
-            drawableImageButton.setColor(customColor);
+            drawableImageButton.setColor(Color.parseColor(customColor));
             imageButton.setBackground(drawableImageButton);
             if (i != amountItem - 1)
                 imageButton.setTag(getImageResources().get(i));
@@ -182,6 +184,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic(linearLayout);
+
+                        updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
                     }
                 });
             }
@@ -231,11 +235,11 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             // Add ImageButton to LinearLayout
             ImageButton imageButton = new ImageButton(this);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
-            int customColor;
+            String customColor;
             if (i != amount - 1) {
-                customColor = Color.parseColor(getColorByIndex(i));
+                customColor = getColorByIndex(i);
             } else {
-                customColor = Color.parseColor(getColorByIndex(1000));
+                customColor = getColorByIndex(1000);
                 imageButton.setImageResource(R.drawable.ic_add_1);
             }
 
@@ -249,6 +253,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                         mColorSelectedItemCatalog = (String) ((ImageButton) v).getTag();
                         mSelectedImageButtonColor = (ImageButton) v;
                         mSelectedImageButtonColor.setImageResource(R.drawable.ic_tick);
+                        updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
                     }
                 });
             } else {
@@ -270,7 +275,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             // Create a Drawable from Java code with the new color
             GradientDrawable drawableImageButton = new GradientDrawable();
             drawableImageButton.setShape(GradientDrawable.OVAL);
-            drawableImageButton.setColor(customColor);
+            drawableImageButton.setColor(Color.parseColor(customColor));
             imageButton.setBackground(drawableImageButton);
 
             imageButton.setTag(customColor);
@@ -408,18 +413,72 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             }
         });
     }
-    private void createMainItemCreating(int image, int color) {
-        // Create a circular background with the specified color
+    private void createMainItemCreating(int image, String color) {
         GradientDrawable background = new GradientDrawable();
         background.setShape(GradientDrawable.OVAL);
-        background.setColor(color);
+        background.setColor(Color.parseColor(color));
         ivMainItemCreating.setBackground(background);
         ivMainItemCreating.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
         ivMainItemCreating.setImageResource(image);
     }
-    private void updateMainItemCreating(int image, int color) {
-        ivMainItemCreating.setImageResource(image);
-        ivMainItemCreating.setBackgroundColor(color);
+    private Drawable imageChangedSize(int image) {
+        Drawable drawable = getResources().getDrawable(image);
+
+        // Kích thước gốc của ảnh
+        int originalWidth = drawable.getIntrinsicWidth();
+        int originalHeight = drawable.getIntrinsicHeight();
+
+        // Kích thước mới sau khi thay đổi
+        int newWidth, newHeight;
+
+        // Tính toán kích thước mới
+        if (originalWidth >= originalHeight) {
+            // Khi chiều rộng lớn hơn hoặc bằng chiều cao
+            newWidth = 70;
+            newHeight = (int) (originalHeight * (70.0f / originalWidth));
+        } else {
+            // Khi chiều cao lớn hơn chiều rộng
+            newWidth = (int) (originalWidth * (70.0f / originalHeight));
+            newHeight = 70;
+        }
+
+        // Thay đổi kích thước ảnh
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                drawableToBitmap(drawable),
+                newWidth,
+                newHeight,
+                true
+        );
+
+        return new BitmapDrawable(getResources(), resizedBitmap);
+    }
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(
+                drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888
+        );
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
+    private void updateMainItemCreating(int image, String color) {
+        GradientDrawable background = new GradientDrawable();
+        background.setShape(GradientDrawable.OVAL);
+        if (image != 0) {
+            ivMainItemCreating.setImageDrawable(imageChangedSize(image));
+        }
+        if (color != null) {
+            background.setColor(Color.parseColor(color));
+        }
+        else background.setColor(Color.parseColor("#a4b7b1"));
+
+        ivMainItemCreating.setBackground(background);
     }
 }
