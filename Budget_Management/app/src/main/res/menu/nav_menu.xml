@@ -16,6 +16,11 @@
             android:id="@+id/nav_share"
             android:icon="@drawable/baseline_share_24"
             android:title="Share"/>
+        <item
+            android:id="@+id/nav_export"
+            android:icon="@drawable/baseline_table_view_24"
+            android:title="Export"/>
+
 
         <item
             android:id="@+id/nav_about"
