@@ -2,7 +2,7 @@ package com.example.budget_management.Model;
 
 public class Catalog {
     private String name;
-    private int color;
+    private String color;
     private String type;
     private int icon;
 
@@ -10,7 +10,7 @@ public class Catalog {
 
     }
 
-    public Catalog(String name, int color, String type, int icon) {
+    public Catalog(String name, String color, String type, int icon) {
         this.name = name;
         this.color = color;
         this.type = type;
@@ -23,11 +23,11 @@ public class Catalog {
 
     public void setName(String name) { this.name = name; }
 
-    public int getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(int color) {
+    public void setColor(String color) {
         this.color = color;
     }
 

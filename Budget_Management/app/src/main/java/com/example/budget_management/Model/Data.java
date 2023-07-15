@@ -6,11 +6,11 @@ public class Data {
     private String note;
     private String id;
     private String date;
-    private int color;
+    private String color;
     private int icon;
-    public int getColor() { return color; }
+    public String getColor() { return color; }
 
-    public void setColor(int color) { this.color = color; }
+    public void setColor(String color) { this.color = color; }
 
     public int getIcon() { return icon; }
 
@@ -60,7 +60,7 @@ public class Data {
 
     }
 
-    public Data(int amount, String type, String note, String id, String date, int color, int icon) {
+    public Data(int amount, String type, String note, String id, String date, String color, int icon) {
         this.amount = amount;
         this.type = type;
         this.note = note;

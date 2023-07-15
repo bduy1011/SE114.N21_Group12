@@ -45,8 +45,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private ArrayList<Integer> mIconCatalog;
     private LinearLayout mSelectedLinearLayoutIcon;
     private ImageButton mSelectedImageButtonColor;
-    private String mNameSelectedItemCatalog, mTypeSelectedItemCatalog;
-    private int mIconSelectedItemCatalog = 0, mColorSelectedItemCatalog = 0;
+    private String mNameSelectedItemCatalog, mTypeSelectedItemCatalog, mColorSelectedItemCatalog;
+    private int mIconSelectedItemCatalog = 0;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -233,9 +233,9 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
             int customColor;
             if (i != amount - 1) {
-                customColor = getColorByIndex(i);
+                customColor = Color.parseColor(getColorByIndex(i));
             } else {
-                customColor = getColorByIndex(1000);
+                customColor = Color.parseColor(getColorByIndex(1000));
                 imageButton.setImageResource(R.drawable.ic_add_1);
             }
 
@@ -246,7 +246,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                         if(mSelectedImageButtonColor != null) {
                             mSelectedImageButtonColor.setImageResource(0);
                         }
-                        mColorSelectedItemCatalog = (int) ((ImageButton) v).getTag();
+                        mColorSelectedItemCatalog = (String) ((ImageButton) v).getTag();
                         mSelectedImageButtonColor = (ImageButton) v;
                         mSelectedImageButtonColor.setImageResource(R.drawable.ic_tick);
                     }
@@ -303,7 +303,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         if (mNameSelectedItemCatalog != null && mNameSelectedItemCatalog.trim() != "") {
             if (mTypeSelectedItemCatalog != null && mTypeSelectedItemCatalog.trim() != "") {
                 if (mIconSelectedItemCatalog != 0) {
-                    if (mColorSelectedItemCatalog != 0) {
+                    if (mColorSelectedItemCatalog != null && mColorSelectedItemCatalog.trim() != "") {
                         return true;
                     }
                     else {
@@ -351,33 +351,33 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         intent.putExtra("CurrentResIcon", currentResIcon);
         startActivityForResult(intent, REQUEST_TO_ICON_CATEGORY);
     }
-    public int getColorByIndex(int index) {
-        int color;
+    public String getColorByIndex(int index) {
+        String color;
 
         switch (index) {
             case 0:
-                color = Color.parseColor("#80cf5c");
+                color = "#80cf5c";
                 break;
             case 1:
-                color = Color.parseColor("#5162f6");
+                color = "#5162f6";
                 break;
             case 2:
-                color = Color.parseColor("#f1b109");
+                color = "#f1b109";
                 break;
             case 3:
-                color = Color.parseColor("#eb54c8");
+                color = "#eb54c8";
                 break;
             case 4:
-                color = Color.parseColor("#36d9d8");
+                color = "#36d9d8";
                 break;
             case 5:
-                color = Color.parseColor("#de2020");
+                color = "#de2020";
                 break;
             case 6:
-                color = Color.parseColor("#9d7ef3");
+                color = "#9d7ef3";
                 break;
             default:
-                color = Color.parseColor("#a4b7b1");
+                color = "#a4b7b1";
                 break;
         }
         return color;

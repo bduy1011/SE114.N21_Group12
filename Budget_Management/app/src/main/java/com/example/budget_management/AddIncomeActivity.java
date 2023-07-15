@@ -406,7 +406,7 @@ public class AddIncomeActivity extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 String mDate = sdf.format(mSelectedDate);
 
-                Data data=new Data(inamount,tmtype,tmnote,id,mDate,0,0);
+                Data data=new Data(inamount,tmtype,tmnote,id,mDate,"",0);
                 mIncomeDatabase.child(id).setValue(data);
                 finish();
             }

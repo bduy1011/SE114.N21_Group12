@@ -234,7 +234,7 @@ public class IncomeFragment extends Fragment {
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 String mDate = sdf.format(date);
 
-                Data data=new Data(myAmmount,type,note,post_key,mDate,0,0);
+                Data data=new Data(myAmmount,type,note,post_key,mDate,"",0);
                 mIncomeDatabase.child(post_key).setValue(data);
                 dialog.dismiss();
             }

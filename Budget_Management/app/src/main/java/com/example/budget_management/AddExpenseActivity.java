@@ -86,13 +86,13 @@ public class AddExpenseActivity extends AppCompatActivity {
     private void init() {
         mLinearLayouts = new ArrayList<>();
 
-        Catalog catalog = new Catalog("Ăn uống", getTintColor(0), "Chi phí", getImageResource(0));
-        Catalog catalog1 = new Catalog("Đi lại", getTintColor(1), "Chi phí", getImageResource(1));
-        Catalog catalog2 = new Catalog("Quà tặng", getTintColor(2), "Chi phí", getImageResource(2));
-        Catalog catalog3 = new Catalog("Giải trí", getTintColor(3), "Chi phí", getImageResource(3));
-        Catalog catalog4 = new Catalog("Học tập", getTintColor(4), "Chi phí", getImageResource(4));
-        Catalog catalog5 = new Catalog("Sức khỏe", getTintColor(5), "Chi phí", getImageResource(5));
-        Catalog catalog6 = new Catalog("Quần áo", getTintColor(6), "Chi phí", getImageResource(6));
+        Catalog catalog = new Catalog("Ăn uống", "#FFC107", "Chi phí", getImageResource(0));
+        Catalog catalog1 = new Catalog("Đi lại", "#2196F3", "Chi phí", getImageResource(1));
+        Catalog catalog2 = new Catalog("Quà tặng", "#673AB7", "Chi phí", getImageResource(2));
+        Catalog catalog3 = new Catalog("Giải trí", "#F44336", "Chi phí", getImageResource(3));
+        Catalog catalog4 = new Catalog("Học tập", "#4CAF50", "Chi phí", getImageResource(4));
+        Catalog catalog5 = new Catalog("Sức khỏe", "#9C27B0", "Chi phí", getImageResource(5));
+        Catalog catalog6 = new Catalog("Quần áo", "#FF5722", "Chi phí", getImageResource(6));
 
         mCatalogExpense = new ArrayList<Catalog>();
         mCatalogExpense.add(catalog);
@@ -194,7 +194,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
             int customColor;
             if (i != amountItem - 1) {
-                customColor = mCatalogExpense.get(i).getColor();
+                customColor = Color.parseColor(mCatalogExpense.get(i).getColor());
             }
             else customColor = Color.LTGRAY;
 
@@ -300,7 +300,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             gridLayout.addView(linearLayout);
         }
     }
-    private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout, int selectedColor, TextView textView) {
+    private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout, String selectedColor, TextView textView) {
         // Đặt màu cho tên Topic hiện tại
         textView.setTextColor(Color.WHITE);
 
@@ -308,7 +308,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         GradientDrawable drawableLinearLayout = new GradientDrawable();
         drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
         drawableLinearLayout.setCornerRadii(new float[]{25, 25, 25, 25, 25, 25, 25, 25});
-        drawableLinearLayout.setColor(selectedColor);
+        drawableLinearLayout.setColor(Color.parseColor(selectedColor));
         linearLayout.setBackground(drawableLinearLayout);
     }
     private void setBackgroundPreviousSelectedIcon() {
@@ -471,7 +471,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
                 String note = mEditTextDescription.getText().toString().trim();
 
-                int colorCatalog = mSelectedCatalog.getColor();
+                String colorCatalog = mSelectedCatalog.getColor();
 
                 int iconCatalog = mSelectedCatalog.getIcon();
 

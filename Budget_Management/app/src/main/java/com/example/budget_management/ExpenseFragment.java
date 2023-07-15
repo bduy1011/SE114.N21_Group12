@@ -235,7 +235,7 @@ public class ExpenseFragment extends Fragment {
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 String mDate = sdf.format(date);
 
-                Data data = new Data(myAmount,type,note,post_key,mDate,0,0);
+                Data data = new Data(myAmount,type,note,post_key,mDate,"",0);
                 mExpenseDatabase.child(post_key).setValue(data);
                 dialog.dismiss();
 
