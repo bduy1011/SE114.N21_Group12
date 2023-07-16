@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".CreateItemCatalogsActivity"
     android:orientation="vertical"
-    android:layout_marginHorizontal="10dp">
+    android:layout_marginHorizontal="10dp"
+    android:id="@+id/parentRelative">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,57 +28,70 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:inputType="text"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:hint="Tên danh mục"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp">
-            <RadioGroup
-                android:id="@+id/radioGroupType"
-                android:layout_width="wrap_content"
+        <com.example.budget_management.Other.TouchableWrapper
+            android:id="@+id/touchableWrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <RadioButton
-                    android:id="@+id/radioButtonExpense"
+                android:orientation="vertical">
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chi phí"
-                    android:textSize="20dp"
-                    android:layout_marginRight="40dp"/>
-                <RadioButton
-                    android:id="@+id/radioButtonIncome"
+                    android:layout_marginTop="20dp">
+                    <RadioGroup
+                        android:id="@+id/radioGroupType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/radioButtonExpense"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chi phí"
+                            android:textSize="20dp"
+                            android:layout_marginRight="40dp"/>
+                        <RadioButton
+                            android:id="@+id/radioButtonIncome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Thu nhập"
+                            android:textSize="20dp"/>
+                    </RadioGroup>
+                </LinearLayout>
+
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thu nhập"
-                    android:textSize="20dp"/>
-            </RadioGroup>
-        </LinearLayout>
+                    android:text="Biểu tượng"
+                    android:layout_marginTop="20dp"
+                    android:textSize="18dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Biểu tượng"
-            android:layout_marginTop="20dp"
-            android:textSize="18dp"/>
+                <GridLayout
+                    android:id="@+id/gridLayoutIcon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-        <GridLayout
-            android:id="@+id/gridLayoutIcon"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Màu sắc"
+                    android:layout_marginTop="20dp"
+                    android:textSize="18dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Màu sắc"
-            android:layout_marginTop="20dp"
-            android:textSize="18dp"/>
-
-        <GridLayout
-            android:id="@+id/gridLayoutColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+                <GridLayout
+                    android:id="@+id/gridLayoutColor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </com.example.budget_management.Other.TouchableWrapper>
     </LinearLayout>
 
     <Button
@@ -91,6 +105,7 @@
         android:text="Select"
         android:textColor="#000000"
         android:textSize="16sp"
+        android:enabled="false"
         android:background="@drawable/button_background_yellow"/>
 
 </RelativeLayout>

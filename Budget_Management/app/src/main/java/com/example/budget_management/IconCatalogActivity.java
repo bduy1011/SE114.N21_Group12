@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class IconCatalogActivity extends AppCompatActivity {
-    private final int REQUEST_FROM_CREATE_ITEM_CATALOGS = 13;
     private LinearLayout linearLayoutMain;
     private ArrayList<String> mIconCategoryList;
     private ArrayList<LinearLayout> mLinearLayoutIcon;
@@ -180,7 +179,7 @@ public class IconCatalogActivity extends AppCompatActivity {
             imageButton.setTag(mIconCategory.get(i));
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
-            int customColor = Color.LTGRAY;
+            int customColor = Color.parseColor("#a4b7b1");
 
             // Tạo một Drawable từ code Java với màu sắc mới
             GradientDrawable drawableImageButton = new GradientDrawable();

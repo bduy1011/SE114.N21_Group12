@@ -3,6 +3,7 @@ package com.example.budget_management;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -11,8 +12,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
@@ -23,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.budget_management.Model.Catalog;
+import com.example.budget_management.Other.TouchableWrapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -32,8 +39,7 @@ import java.util.ArrayList;
 
 public class CreateItemCatalogsActivity extends AppCompatActivity {
     private final int AMOUNT_ITEM_CATALOG = 16;
-    private final int RESPONSE_CODE_ICON_CATALOG = 12;
-    private final int REQUEST_TO_ICON_CATEGORY = 13;
+    private final int REQUEST_TO_ICON_CATEGORY = 10;
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeCategoryDatabase;
     private DatabaseReference mExpenseCategoryDatabase;
@@ -47,6 +53,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private ArrayList<ImageButton> mImageButtonColor;
     private ArrayList<Integer> mIconCatalog;
     private LinearLayout mSelectedLinearLayoutIcon;
+    private ImageButton mSelectedImageButtonIcon;
     private ImageButton mSelectedImageButtonColor;
     private String mNameSelectedItemCatalog, mTypeSelectedItemCatalog, mColorSelectedItemCatalog;
     private int mIconSelectedItemCatalog = 0;
@@ -60,13 +67,13 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             if (getImageResources().contains(selectedIcon)) {
                 setBackgroundPreviousSelectedIcon();
                 LinearLayout selectedLinearLayout = mLinearLayoutIcon.get(getImageResources().indexOf(selectedIcon));
-                setBackgroundCurrentSelectedIcon(selectedLinearLayout);
-                saveSelectedTopic(selectedLinearLayout);
+                setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
             }
             else {
                 setBackgroundPreviousSelectedIcon();
             }
             updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
+            checkEnableButton();
         }
     }
 
@@ -179,13 +186,15 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
                         setBackgroundPreviousSelectedIcon();
 
-                        // Thiết lập Background cho topic đang chọn
-                        setBackgroundCurrentSelectedIcon(linearLayout);
+                        mSelectedImageButtonIcon = (ImageButton) v;
+                        mSelectedLinearLayoutIcon = linearLayout;
 
-                        // Lưu trữ topic được chọn
-                        saveSelectedTopic(linearLayout);
+                        // Thiết lập Background cho topic đang chọn
+                        setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
 
                         updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
+
+                        checkEnableButton();
                     }
                 });
             }
@@ -254,6 +263,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                         mSelectedImageButtonColor = (ImageButton) v;
                         mSelectedImageButtonColor.setImageResource(R.drawable.ic_tick);
                         updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
+                        setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
+                        checkEnableButton();
                     }
                 });
             } else {
@@ -286,29 +297,41 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             gridLayoutColor.addView(imageButton);
         }
     }
-    private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout) {
-        // Đặt màu nền cho tên Topic hiện tại
-        GradientDrawable drawableLinearLayout = new GradientDrawable();
-        drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
-        drawableLinearLayout.setCornerRadius(20);
-        drawableLinearLayout.setColor(Color.WHITE);
-        drawableLinearLayout.setStroke(4, Color.DKGRAY);
-        linearLayout.setBackground(drawableLinearLayout);
+    private void setBackgroundCurrentSelectedIcon(String color) {
+        if (mSelectedLinearLayoutIcon != null) {
+            GradientDrawable drawableLinearLayout = new GradientDrawable();
+            drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
+            drawableLinearLayout.setCornerRadius(20);
+            drawableLinearLayout.setColor(Color.WHITE);
+            drawableLinearLayout.setStroke(4, Color.DKGRAY);
+            mSelectedLinearLayoutIcon.setBackground(drawableLinearLayout);
+
+            GradientDrawable drawableImageButton = new GradientDrawable();
+            drawableImageButton.setShape(GradientDrawable.OVAL);
+            if (!TextUtils.isEmpty(color))
+                drawableImageButton.setColor(Color.parseColor(color));
+            else
+                drawableImageButton.setColor(Color.parseColor("#a4b7b1"));
+            mSelectedImageButtonIcon.setBackground(drawableImageButton);
+        }
     }
     private void setBackgroundPreviousSelectedIcon() {
         // Đặt màu trắng cho LinearLayout đã chọn trước đó
         if (mSelectedLinearLayoutIcon != null) {
             mSelectedLinearLayoutIcon.setBackgroundColor(Color.WHITE);
         }
-    }
-    private void saveSelectedTopic(LinearLayout linearLayout) {
-        mSelectedLinearLayoutIcon = linearLayout;
+        if (mSelectedImageButtonIcon != null) {
+            GradientDrawable drawableImageButton = new GradientDrawable();
+            drawableImageButton.setShape(GradientDrawable.OVAL);
+            drawableImageButton.setColor(Color.parseColor("#a4b7b1"));
+            mSelectedImageButtonIcon.setBackground(drawableImageButton);
+        }
     }
     private boolean isCheckFillFullInform() {
-        if (mNameSelectedItemCatalog != null && mNameSelectedItemCatalog.trim() != "") {
-            if (mTypeSelectedItemCatalog != null && mTypeSelectedItemCatalog.trim() != "") {
+        if (!TextUtils.isEmpty(mNameSelectedItemCatalog)) {
+            if (!TextUtils.isEmpty(mTypeSelectedItemCatalog)) {
                 if (mIconSelectedItemCatalog != 0) {
-                    if (mColorSelectedItemCatalog != null && mColorSelectedItemCatalog.trim() != "") {
+                    if (!TextUtils.isEmpty(mColorSelectedItemCatalog)) {
                         return true;
                     }
                     else {
@@ -330,6 +353,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             Toast.makeText(this, "Bạn chưa nhập tên danh mục!", Toast.LENGTH_SHORT).show();
             return false;
         }
+    }
+    private void checkEnableButton() {
+        if (!TextUtils.isEmpty(mNameSelectedItemCatalog))
+            if (!TextUtils.isEmpty(mTypeSelectedItemCatalog))
+                if (mIconSelectedItemCatalog != 0)
+                    if (!TextUtils.isEmpty(mColorSelectedItemCatalog)) {
+                        btnAddItemCategory.setAlpha(1f);
+                        btnAddItemCategory.setEnabled(true);
+                        return;
+                    }
+        btnAddItemCategory.setAlpha(0.5f);
+        btnAddItemCategory.setEnabled(false);
     }
     private ArrayList<Integer> getImageResources() {
         ArrayList<Integer> resourceList = new ArrayList<>();
@@ -388,6 +423,39 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         return color;
     }
     private void createListenerControl() {
+        TouchableWrapper touchableWrapper = findViewById(R.id.touchableWrapper);
+        touchableWrapper.setTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction();
+                if (action == MotionEvent.ACTION_DOWN) {
+                    // Thực hiện xử lý khi người dùng chạm vào vùng khác ngoài EditText
+                    tvNameItem.clearFocus(); // Xóa focus của EditText1
+                    hideKeyboard(); // Ẩn bàn phím ảo
+                }
+                return false;
+            }
+        });
+        tvNameItem.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Không cần thực hiện gì trước khi thay đổi văn bản
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Thực hiện hành động khi văn bản đang được thay đổi
+                mNameSelectedItemCatalog = s.toString();
+                checkEnableButton();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Không cần thực hiện gì sau khi thay đổi văn bản
+                mNameSelectedItemCatalog = s.toString();
+                checkEnableButton();
+            }
+        });
         rgTypeItem.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -397,6 +465,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 } else if (checkedId == R.id.radioButtonIncome) {
                     mTypeSelectedItemCatalog = "Thu nhập";
                 }
+                checkEnableButton();
             }
         });
         btnAddItemCategory.setOnClickListener(new View.OnClickListener() {
@@ -405,10 +474,10 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 if (isCheckFillFullInform()) {
                     String id = mIncomeCategoryDatabase.push().getKey();
                     Catalog catalog = new Catalog(mNameSelectedItemCatalog, mColorSelectedItemCatalog, mTypeSelectedItemCatalog, mIconSelectedItemCatalog);
-                    if (catalog.getType() == "Chi phí")
-                        mExpenseCategoryDatabase.child(id).setValue(catalog);
-                    if (catalog.getType() == "Thu nhập")
-                        mIncomeCategoryDatabase.child(id).setValue(catalog);
+                    if (catalog.getType() == "Chi phí");
+                    mExpenseCategoryDatabase.child(id).setValue(catalog);
+                    if (catalog.getType() == "Thu nhập");
+                    mIncomeCategoryDatabase.child(id).setValue(catalog);
                 }
             }
         });
@@ -480,5 +549,9 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         else background.setColor(Color.parseColor("#a4b7b1"));
 
         ivMainItemCreating.setBackground(background);
+    }
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(tvNameItem.getWindowToken(), 0);
     }
 }

@@ -14,50 +14,66 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.budget_management.Model.Catalog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 
 public class ExpenseCatalogActivity extends AppCompatActivity {
-    private final int REQUEST_CODE_EXPENSE_CATALOG = 10;
-    private final int REQUEST_CODE_CREATE_ITEM_CATALOG = 11;
+    private final int REQUEST_TO_CREATE_ITEM_CATALOG = 10;
     private GridLayout gridLayout;
-    private ArrayList<String> mCatalogExpense;
+    private ArrayList<Catalog> mCatalogExpense;
     private ArrayList<LinearLayout> mLinearLayouts;
     private LinearLayout mSelectedLinearLayoutCatalog;
     private TextView mSelectedTextView;
-    private int mPositionIconFromExpenseCatalog;
-
+    private Catalog mCatalogFromExpenseCatalog;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mExpenseCategoryDatabase;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_expense_catalog);
 
         init();
-
-        createGridViewCatalog(mCatalogExpense);
     }
 
     private void init() {
         mLinearLayouts = new ArrayList<>();
 
-        mCatalogExpense = new ArrayList<String>();
-        mCatalogExpense.add("Ăn uống");
-        mCatalogExpense.add("Đi lại");
-        mCatalogExpense.add("Quà tặng");
-        mCatalogExpense.add("Giải trí");
-        mCatalogExpense.add("Học tập");
-        mCatalogExpense.add("Sức khỏe");
-        mCatalogExpense.add("Quần áo");
-        mCatalogExpense.add("Quần áo1");
-        mCatalogExpense.add("Quần áo2");
-        mCatalogExpense.add("Quần áo3");
-        mCatalogExpense.add("Quần áo4");
-        mCatalogExpense.add("Quần áo5");
-        mCatalogExpense.add("Khác");
+        mCatalogExpense = new ArrayList<>();
 
         gridLayout = findViewById(R.id.gridLayout);
-    }
 
-    private void createGridViewCatalog(ArrayList<String> mCatalogExpense) {
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        String uid = mUser.getUid();
+        mExpenseCategoryDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseCatalogs").child(uid);
+        mExpenseCategoryDatabase.keepSynced(true);
+
+        mExpenseCategoryDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mCatalogExpense.clear();
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    Catalog catalog = data.getValue(Catalog.class);
+                    mCatalogExpense.add(catalog);
+                }
+                createGridViewCatalog(mCatalogExpense);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Xử lý lỗi nếu có
+            }
+        });
+    }
+    private void createGridViewCatalog(ArrayList<Catalog> mCatalogExpense) {
         // Thiết lập số cột của GridLayout là 4
         gridLayout.setColumnCount(4);
 
@@ -99,16 +115,16 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
             ImageButton imageButton = new ImageButton(this);
 
             if (i != mCatalogExpense.size()) {
-                imageButton.setImageResource(getImageResource(i));
+                imageButton.setImageResource(mCatalogExpense.get(i).getIcon());
             }
             else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor;
             if (i != mCatalogExpense.size()) {
-                customColor = getTintColor(i);
+                customColor = Color.parseColor(mCatalogExpense.get(i).getColor());
             }
-            else customColor = Color.LTGRAY;
+            else customColor = Color.parseColor("#a4b7b1");
 
             // Tạo một Drawable từ code Java với màu sắc mới
             GradientDrawable drawableImageButton = new GradientDrawable();
@@ -143,7 +159,6 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                             intent.putExtra("SelectedExtendIcon", position);
                             setResult(RESULT_OK, intent);
                         }
-
                         finish();
                     }
                 });
@@ -152,9 +167,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Lấy vị trí của LinearLayout trong danh sách
-                        int currentPosition = mLinearLayouts.indexOf(linearLayout);
-                        pushIntentToExpenseCatalogActivity(currentPosition);
+                        sendIntent();
                     }
                 });
             }
@@ -177,7 +190,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
             // Thêm TextView vào LinearLayout
             TextView textView = new TextView(this);
             if (i != mCatalogExpense.size()) {
-                textView.setText(mCatalogExpense.get(i));
+                textView.setText(mCatalogExpense.get(i).getName());
             }
             else textView.setText("Tạo");
             textView.setTextColor(Color.BLACK);
@@ -198,8 +211,8 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                             int selectedColor = 100;
                             String tmp = textView.getText().toString();
                             for (int i = 0; i < mCatalogExpense.size(); i++) {
-                                if (tmp == mCatalogExpense.get(i))
-                                    selectedColor = getTintColor(i);
+                                if (tmp == mCatalogExpense.get(i).getName())
+                                    selectedColor = Color.parseColor(mCatalogExpense.get(i).getColor());
                             }
 
                             // Thiết lập Background cho topic đang chọn
@@ -215,10 +228,6 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                                 setResult(RESULT_OK, intent);
                                 finish();
                             }
-                            else {
-                                Intent intent = new Intent(v.getContext(), CreateItemCatalogsActivity.class);
-                                startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
-                            }
                         }
                     }
                 });
@@ -227,15 +236,24 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
             // Thêm LinearLayout vào GridLayout
             gridLayout.addView(linearLayout);
         }
-
+        int position = -1;
         // Set background cho topic được chọn trước đó
-        mPositionIconFromExpenseCatalog = getPositionIconFromExpenseCatalog();
-        if (mPositionIconFromExpenseCatalog <= mCatalogExpense.size()) {
+        mCatalogFromExpenseCatalog = receiveIntent();
+        for (int i = 0; i < mCatalogExpense.size(); i++) {
+            if (mCatalogExpense.get(i).getName().equals(mCatalogFromExpenseCatalog.getName())
+                    && mCatalogExpense.get(i).getColor().equals(mCatalogFromExpenseCatalog.getColor())
+                    && mCatalogExpense.get(i).getType().equals(mCatalogFromExpenseCatalog.getType())
+                    && mCatalogExpense.get(i).getIcon() == mCatalogFromExpenseCatalog.getIcon()) {
+                position = i;
+                break;
+            }
+        }
+        if (position != -1 && position <= mCatalogExpense.size()) {
             if(mSelectedLinearLayoutCatalog != null) {
                 setBackgroundPreviousSelectedIcon();
             }
-            mSelectedLinearLayoutCatalog = mLinearLayouts.get(mPositionIconFromExpenseCatalog);
-            int selectedColor = getTintColor(mPositionIconFromExpenseCatalog);
+            mSelectedLinearLayoutCatalog = mLinearLayouts.get(position);
+            int selectedColor = Color.parseColor(mCatalogExpense.get(position).getColor());
             mSelectedTextView = (TextView) mSelectedLinearLayoutCatalog.getTag();
             setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, selectedColor, mSelectedTextView);
         }
@@ -265,69 +283,17 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
         mSelectedLinearLayoutCatalog = linearLayout;
         mSelectedTextView = textView;
     }
-    private int getImageResource(int index) {
-        switch (index) {
-            case 0:
-                return R.drawable.icon_foodanddrink_1;
-            case 1:
-                return R.drawable.icon_transportation_1;
-            case 2:
-                return R.drawable.icon_shopping_2;
-            case 3:
-                return R.drawable.icon_shopping_3;
-            case 4:
-                return R.drawable.icon_education_1;
-            case 5:
-                return R.drawable.icon_health_1;
-            case 6:
-                return R.drawable.icon_shopping_1;
-            case 7:
-                return R.drawable.icon_other_1;
-            case 8:
-                return R.drawable.icon_accounts_1;
-            case 9:
-                return R.drawable.icon_shopping_5;
-            case 10:
-                return R.drawable.icon_accounts_5;
-            case 11:
-                return R.drawable.icon_shopping_9;
-            case 12:
-                return R.drawable.icon_shopping_13;
-            default:
-                return 0;
-        }
-    }
-    private int getTintColor(int index) {
-        switch (index) {
-            case 0:
-                return Color.parseColor("#FFC107");
-            case 1:
-                return Color.parseColor("#2196F3");
-            case 2:
-                return Color.parseColor("#673AB7");
-            case 3:
-                return Color.parseColor("#F44336");
-            case 4:
-                return Color.parseColor("#4CAF50");
-            case 5:
-                return Color.parseColor("#9C27B0");
-            case 6:
-                return Color.parseColor("#FF5722");
-            case 7:
-                return Color.parseColor("#607D80");
-            default:
-                return Color.parseColor("#607D8B");
-        }
-    }
-    private int getPositionIconFromExpenseCatalog() {
+    private Catalog receiveIntent() {
         Intent intent = getIntent();
-        int position = intent.getIntExtra("PreviousSelectedIcon", 10000);
-        return position;
+        String name = intent.getStringExtra("name");
+        String color = intent.getStringExtra("color");
+        String type = intent.getStringExtra("type");
+        int icon = intent.getIntExtra("icon", 10000);
+        Catalog catalog = new Catalog(name, color, type, icon);
+        return catalog;
     }
-    private void pushIntentToExpenseCatalogActivity(int currentPosition) {
-        if (currentPosition == mCatalogExpense.size()) {
-            Intent intent = new Intent(this, CreateItemCatalogsActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_CREATE_ITEM_CATALOG);
-        }
+    private void sendIntent() {
+        Intent intent = new Intent(this, CreateItemCatalogsActivity.class);
+        startActivityForResult(intent, REQUEST_TO_CREATE_ITEM_CATALOG);
     }
 }

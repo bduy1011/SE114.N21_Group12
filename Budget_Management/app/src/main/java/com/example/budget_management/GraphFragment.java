@@ -159,7 +159,7 @@ public class GraphFragment extends Fragment {
             String typeOfPieChart = "";
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot mysnap: snapshot.getChildren()){
+                for(DataSnapshot mysnap : snapshot.getChildren()){
 
                     Data data= mysnap.getValue(Data.class);
 
@@ -192,20 +192,20 @@ public class GraphFragment extends Fragment {
                 mExpenseDatabase.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for(DataSnapshot mysnap: snapshot.getChildren()){
+                        for(DataSnapshot mysnap : snapshot.getChildren()){
                             Data data= mysnap.getValue(Data.class);
                             SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                             try {
                                 Date date = dateFormat.parse(data.getDate());
 
                                 Calendar calendar = Calendar.getInstance();
-                                int currentYear = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm hiá»‡n táº¡i
-                                int currentMonth = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng hiá»‡n táº¡i
-                                int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y hiá»‡n táº¡i
+                                int currentYear = calendar.get(Calendar.YEAR);
+                                int currentMonth = calendar.get(Calendar.MONTH);
+                                int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
                                 calendar.setTime(date);
-                                int year = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm cá»§a ngÃ y nháº­p thÃ´ng tin
-                                int month = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng cá»§a ngÃ y nháº­p thÃ´ng tin
-                                int day = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y cá»§a ngÃ y nháº­p thÃ´ng tin
+                                int year = calendar.get(Calendar.YEAR);
+                                int month = calendar.get(Calendar.MONTH);
+                                int day = calendar.get(Calendar.DAY_OF_MONTH);
                                 if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                                     expense += data.getAmount();
                                 } else if (month == currentMonth && year == currentYear && isMonthClick) {
@@ -223,14 +223,13 @@ public class GraphFragment extends Fragment {
 
                         ArrayList<PieEntry> entries = new ArrayList<>();
                         entries.add(new PieEntry((float) expense, "Doanh thu"));
-                        entries.add(new PieEntry((float) income, "Chi phÃ­"));
+                        entries.add(new PieEntry((float) income, "Chi phí"));
 
                         PieDataSet dataSet = new PieDataSet(entries, typeOfPieChart);
 
                         dataSet.setValueFormatter(new PercentFormatter(pieChart));
                         dataSet.setValueTextSize(16f);
 
-                        // Thiáº¿t láº­p mÃ u cho cÃ¡c pháº§n tá»­ trong biá»ƒu Ä‘á»“ trÃ²n
                         ArrayList<Integer> colors = new ArrayList<>();
 
                         int incomeColor = Color.parseColor("#F91115"); //Green but lighter
@@ -239,10 +238,8 @@ public class GraphFragment extends Fragment {
                         colors.add(incomeColor);
                         dataSet.setColors(colors);
 
-                        // Táº¡o PieData tá»« PieDataSet
                         PieData pieData = new PieData(dataSet);
 
-                        // Thiáº¿t láº­p cÃ¡c thuá»™c tÃ­nh cho PieChart
                         pieChart.setData(pieData);
                         pieChart.getDescription().setEnabled(false);
                         pieChart.setUsePercentValues(true);
