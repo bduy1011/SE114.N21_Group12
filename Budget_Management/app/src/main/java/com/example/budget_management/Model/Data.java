@@ -59,7 +59,6 @@ public class Data {
     public Data(){
 
     }
-
     public Data(int amount, String type, String note, String id, String date, String color, int icon) {
         this.amount = amount;
         this.type = type;

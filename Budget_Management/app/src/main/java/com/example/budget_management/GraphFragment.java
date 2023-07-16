@@ -160,19 +160,21 @@ public class GraphFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot mysnap: snapshot.getChildren()){
+
                     Data data= mysnap.getValue(Data.class);
+
                     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                     try {
                         Date date = dateFormat.parse(data.getDate());
 
                         Calendar calendar = Calendar.getInstance();
-                        int currentYear = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm hiá»‡n táº¡i
-                        int currentMonth = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng hiá»‡n táº¡i
-                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y hiá»‡n táº¡i
+                        int currentYear = calendar.get(Calendar.YEAR);
+                        int currentMonth = calendar.get(Calendar.MONTH);
+                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
                         calendar.setTime(date);
-                        int year = calendar.get(Calendar.YEAR); // Láº¥y nÄƒm cá»§a ngÃ y nháº­p thÃ´ng tin
-                        int month = calendar.get(Calendar.MONTH); // Láº¥y thÃ¡ng cá»§a ngÃ y nháº­p thÃ´ng tin
-                        int day = calendar.get(Calendar.DAY_OF_MONTH); // Láº¥y ngÃ y cá»§a ngÃ y nháº­p thÃ´ng tin
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                             income += data.getAmount();
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
