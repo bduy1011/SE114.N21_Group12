@@ -103,6 +103,9 @@ public class HomeFragment extends Fragment {
     private Map<String, Float> typeExpenseAmountMap;
     private Map<String, Integer> typeExpenseColorMap;
     private Map<String, Integer> typeExpenseIconMap;
+    private Map<String, Integer> typeIncomeColorMap;
+    private Map<String, Integer> typeIncomeIconMap;
+
     private int totalIncomeSum = 0;
     private int totalExpenseSum = 0;
     //Boolean
@@ -111,6 +114,10 @@ public class HomeFragment extends Fragment {
     //Date
     private Date sDate = null;
     private Date eDate = null;
+
+    public HomeFragment() {
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -290,6 +297,9 @@ public class HomeFragment extends Fragment {
                     Random random = new Random();
                     totalIncomeSum = 0;
                     dataList = new ArrayList<>();
+                    incomeColorList = new ArrayList<>();
+                    typeIncomeIconMap = new HashMap<>();
+                    typeIncomeColorMap = new HashMap<>();
                     typeIncomeAmountMap = new HashMap<>();
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         Data data = dataSnapshot.getValue(Data.class);
@@ -327,24 +337,31 @@ public class HomeFragment extends Fragment {
                             throw new RuntimeException(e);
                         }
                     }
-                    for (Data data : dataList) {
-                        String type = data.getType();
-                        float amount = data.getAmount();
-                        if (typeIncomeAmountMap.containsKey(type)) {
-                            amount += typeIncomeAmountMap.get(type);
-                        }
-                        typeIncomeAmountMap.put(type, amount);
-                    }
 
                     List<PieEntry> entries = new ArrayList<>();
                     PieDataSet dataSet = new PieDataSet(null, "Biểu đồ tròn");
+                    for (Data data : dataList) {
+                        String type = data.getType();
+                        int color = Color.parseColor(data.getColor());
+                        int icon = data.getIcon();
+                        float amount = data.getAmount();
+                        if (typeIncomeAmountMap.containsKey(type)) {
+                            amount += typeExpenseAmountMap.get(type);
+                        }
+                        typeIncomeColorMap.put(type, color);
+                        typeIncomeAmountMap.put(type, amount);
+                        typeIncomeIconMap.put(type, icon);
+                    }
+
                     for (Map.Entry<String, Float> entry : typeIncomeAmountMap.entrySet()) {
                         String type = entry.getKey();
                         float amount = entry.getValue();
+                        incomeColorList.add(typeIncomeColorMap.get(type));
+                        dataSet.addColor(typeIncomeColorMap.get(type));
                         entries.add(new PieEntry(amount, type));
                     }
+                    dataSet.setColors(incomeColorList);
                     dataSet.setValues(entries);
-
                     PieData incomeData = new PieData(dataSet);
                     incomeData.setValueTextSize(12f);
                     incomeData.setValueTextColor(Color.BLACK);
@@ -499,6 +516,16 @@ public class HomeFragment extends Fragment {
     public class ItemData{
         private String itemType;
         private Float sumOfMoney;
+        private int itemIcon;
+        private int color;
+
+        public int getColor() {
+            return color;
+        }
+
+        public void setColor(int color) {
+            this.color = color;
+        }
 
         public String getItemType() {
             return itemType;
@@ -514,6 +541,10 @@ public class HomeFragment extends Fragment {
 
         public void setSumOfMoney(Float sumOfMoney) {
             this.sumOfMoney = sumOfMoney;
+        }
+        public int getItemIcon(){return this.itemIcon;}
+        public void setItemIcon(int itemIcon){
+            this.itemIcon = itemIcon;
         }
     }
 
@@ -547,7 +578,9 @@ public class HomeFragment extends Fragment {
             ItemData itemData = new ItemData();
             String type = (String) typeIncomeAmountMap.keySet().toArray()[position];
             Float sumOfMoney = typeIncomeAmountMap.get(type);
+            int iconItem = typeIncomeIconMap.get(type);
 
+            itemData.setItemIcon(iconItem);
             itemData.setItemType(type);
             itemData.setSumOfMoney(sumOfMoney);
             return itemData;
@@ -586,7 +619,10 @@ public class HomeFragment extends Fragment {
             ItemData itemData = new ItemData();
             String type = (String) typeExpenseAmountMap.keySet().toArray()[position];
             Float sumOfMoney = typeExpenseAmountMap.get(type);
-
+            int icon = typeExpenseIconMap.get(type);
+            int color = typeExpenseColorMap.get(type);
+            itemData.setColor(color);
+            itemData.setItemIcon(icon);
             itemData.setItemType(type);
             itemData.setSumOfMoney(sumOfMoney);
 
@@ -615,6 +651,68 @@ public class HomeFragment extends Fragment {
             DecimalFormat decimalFormat = new DecimalFormat("#");
             String stammount= decimalFormat.format(ammount);
             mAmmount.setText(stammount);
+        }
+        private void setIcon(int image, int color) {
+            ImageView imageView = mView.findViewById(R.id.icon_imageview);
+            GradientDrawable background = new GradientDrawable();
+            background.setShape(GradientDrawable.OVAL);
+            imageView.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+            if (image != 0) {
+                imageView.setImageDrawable(imageChangedSize(image));
+            }
+            if (color != 0) {
+                background.setColor(color);
+            }
+            else background.setColor(Color.parseColor("#a4b7b1"));
+
+            imageView.setBackground(background);
+
+        }
+        private Drawable imageChangedSize(int image) {
+            Drawable drawable = getResources().getDrawable(image);
+
+            // Kích thước gốc của ảnh
+            int originalWidth = drawable.getIntrinsicWidth();
+            int originalHeight = drawable.getIntrinsicHeight();
+
+            // Kích thước mới sau khi thay đổi
+            int newWidth, newHeight;
+
+            // Tính toán kích thước mới
+            if (originalWidth >= originalHeight) {
+                // Khi chiều rộng lớn hơn hoặc bằng chiều cao
+                newWidth = 70;
+                newHeight = (int) (originalHeight * (70.0f / originalWidth));
+            } else {
+                // Khi chiều cao lớn hơn chiều rộng
+                newWidth = (int) (originalWidth * (70.0f / originalHeight));
+                newHeight = 70;
+            }
+
+            // Thay đổi kích thước ảnh
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                    drawableToBitmap(drawable),
+                    newWidth,
+                    newHeight,
+                    true
+            );
+
+            return new BitmapDrawable(getResources(), resizedBitmap);
+        }
+        private Bitmap drawableToBitmap(Drawable drawable) {
+            if (drawable instanceof BitmapDrawable) {
+                return ((BitmapDrawable) drawable).getBitmap();
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(
+                    drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(),
+                    Bitmap.Config.ARGB_8888
+            );
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
         }
 
         @Override
@@ -727,6 +825,8 @@ public class HomeFragment extends Fragment {
 
                 Bundle arg = new Bundle();
                 arg.putString("type",myItemData.getItemType());
+                arg.putInt("icon", myItemData.getItemIcon());
+                arg.putInt("color", myItemData.getColor());
 
                 expenseFragment.setArguments(arg);
                 FragmentManager fragmentManager = ((AppCompatActivity) itemView.getContext()).getSupportFragmentManager();

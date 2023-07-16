@@ -1,6 +1,12 @@
 package com.example.budget_management;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.budget_management.Model.Data;
@@ -61,6 +69,10 @@ public class ExpenseFragment extends Fragment {
     private String post_key;
     //Recycle adapter
     FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder> adapter;
+    private Bundle arg;
+    private String myType;
+    private int myIcon;
+    private int myColor;
     public ExpenseFragment() {
         // Required empty public constructor
     }
@@ -68,10 +80,10 @@ public class ExpenseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
-        Bundle arg = getArguments();
-        String myType = arg.getString("type");
-
+        arg = getArguments();
+        myType = arg.getString("type");
+        myIcon = arg.getInt("icon");
+        myColor = arg.getInt("color");
         View myview =  inflater.inflate(R.layout.fragment_expense, container, false);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
@@ -123,6 +135,7 @@ public class ExpenseFragment extends Fragment {
                 holder.setNote(model.getNote());
                 holder.setDate(model.getDate());
                 holder.setAmmount(model.getAmount());
+                holder.setIcon(myIcon,myColor);
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -159,7 +172,7 @@ public class ExpenseFragment extends Fragment {
         adapter.stopListening();
     }
 
-    private static class MyViewHolder extends RecyclerView.ViewHolder{
+    private class MyViewHolder extends RecyclerView.ViewHolder{
         View mView;
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -181,6 +194,68 @@ public class ExpenseFragment extends Fragment {
             TextView mAmmount=mView.findViewById(R.id.ammount_txt_expense);
             String stammount=String.valueOf(ammount);
             mAmmount.setText(stammount);
+        }
+        private void setIcon(int image, int color) {
+            ImageView imageView = mView.findViewById(R.id.expense_icon);
+            GradientDrawable background = new GradientDrawable();
+            background.setShape(GradientDrawable.OVAL);
+            imageView.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+            if (image != 0) {
+                imageView.setImageDrawable(imageChangedSize(image));
+            }
+            if (color != 0) {
+                background.setColor(color);
+            }
+            else background.setColor(Color.parseColor("#a4b7b1"));
+
+            imageView.setBackground(background);
+
+        }
+        private Drawable imageChangedSize(int image) {
+            Drawable drawable = getResources().getDrawable(image);
+
+            // Kích thước gốc của ảnh
+            int originalWidth = drawable.getIntrinsicWidth();
+            int originalHeight = drawable.getIntrinsicHeight();
+
+            // Kích thước mới sau khi thay đổi
+            int newWidth, newHeight;
+
+            // Tính toán kích thước mới
+            if (originalWidth >= originalHeight) {
+                // Khi chiều rộng lớn hơn hoặc bằng chiều cao
+                newWidth = 70;
+                newHeight = (int) (originalHeight * (70.0f / originalWidth));
+            } else {
+                // Khi chiều cao lớn hơn chiều rộng
+                newWidth = (int) (originalWidth * (70.0f / originalHeight));
+                newHeight = 70;
+            }
+
+            // Thay đổi kích thước ảnh
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                    drawableToBitmap(drawable),
+                    newWidth,
+                    newHeight,
+                    true
+            );
+
+            return new BitmapDrawable(getResources(), resizedBitmap);
+        }
+        private Bitmap drawableToBitmap(Drawable drawable) {
+            if (drawable instanceof BitmapDrawable) {
+                return ((BitmapDrawable) drawable).getBitmap();
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(
+                    drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(),
+                    Bitmap.Config.ARGB_8888
+            );
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
         }
     }
 
@@ -235,7 +310,7 @@ public class ExpenseFragment extends Fragment {
                 SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                 String mDate = sdf.format(date);
 
-                Data data = new Data(myAmount,type,note,post_key,mDate,"",0);
+                Data data = new Data(myAmount,type,note,post_key,mDate,"#"+Integer.toHexString(myColor),myIcon);
                 mExpenseDatabase.child(post_key).setValue(data);
                 dialog.dismiss();
 

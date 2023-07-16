@@ -12,11 +12,20 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_margin="5dp">
+
+        <RelativeLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp">
+            <ImageView
+                android:id="@+id/expense_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </ImageView>
+        </RelativeLayout>
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-
             <TextView
                 android:id="@+id/date_txt_expense"
                 android:layout_width="match_parent"
