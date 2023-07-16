@@ -1,14 +1,20 @@
 package com.example.budget_management;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -16,12 +22,14 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.budget_management.Model.Catalog;
 import com.example.budget_management.Model.Data;
+import com.example.budget_management.Other.TouchableWrapper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,9 +45,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class AddExpenseActivity extends AppCompatActivity {
-    private final int AMOUNT_ITEM_CATALOG = 8;
+    private final int AMOUNT_ITEM_CATALOG = 12;
     private final int REQUEST_CODE_EXPENSE_CATALOG = 10;
-    //Firebase
     private FirebaseAuth mAuth;
     private DatabaseReference mExpenseDatabase;
     private DatabaseReference mCatalogExpenseDatabase;
@@ -78,19 +85,38 @@ public class AddExpenseActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
             int positionFromExpenseCatalogActivity = data.getIntExtra("SelectedExtendIcon", 10000);
-            if (positionFromExpenseCatalogActivity < mCatalogExpense.size()) {
-                setBackgroundPreviousSelectedIcon();
-                ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
-                createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG);
+            setBackgroundPreviousSelectedIcon();
+            ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+            createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG);
+            saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
+            setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
 
-                saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-
-                setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
-            }
+            checkEnableButton();
         }
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String name = intent.getStringExtra("name");
+        String color = intent.getStringExtra("color");
+        String type = intent.getStringExtra("type");
+        int icon = intent.getIntExtra("icon", 10000);
+        Catalog catalog = new Catalog(name, color, type, icon);
+
+        int position = mCatalogExpense.size() - 1;
+        setBackgroundPreviousSelectedIcon();
+        ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+        createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
+        saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
+        setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+
+        checkEnableButton();
+    }
+
     private void init() {
         mLinearLayouts = new ArrayList<>();
 
@@ -118,6 +144,8 @@ public class AddExpenseActivity extends AppCompatActivity {
         mEditTextMoney.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         btnAdd = findViewById(R.id.btnAddNoteExpense);
+        btnAdd.setAlpha(0.5f);
+        btnAdd.setEnabled(false);
 
         // Chọn ngày hôm nay
         setSelectedLinearLayoutDate(1);
@@ -139,21 +167,51 @@ public class AddExpenseActivity extends AppCompatActivity {
 
         mCatalogExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseCatalogs").child(uid);
         mCatalogExpenseDatabase.keepSynced(true);
-
         mCatalogExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mCatalogExpense.clear();
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     Catalog catalog = data.getValue(Catalog.class);
+                    catalog.setIcon(catalog.getIcon());
                     mCatalogExpense.add(catalog);
                 }
                 createGridViewCatalog(mCatalogExpense, AMOUNT_ITEM_CATALOG);
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Xử lý lỗi nếu có
+            }
+        });
+        TouchableWrapper touchableWrapper = findViewById(R.id.touchableWrapper);
+        touchableWrapper.setTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                int action = motionEvent.getAction();
+                if (action == MotionEvent.ACTION_DOWN) {
+                    mEditTextDescription.clearFocus();
+                    mEditTextMoney.clearFocus();
+                    hideKeyboard();
+                }
+                return false;
+            }
+        });
+        mEditTextMoney.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Không cần thực hiện gì trước khi thay đổi văn bản
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Thực hiện hành động khi văn bản đang được thay đổi
+                checkEnableButton();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Không cần thực hiện gì sau khi thay đổi văn bản
+                checkEnableButton();
             }
         });
     }
@@ -240,6 +298,8 @@ public class AddExpenseActivity extends AppCompatActivity {
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic(linearLayout, textView);
+
+                        checkEnableButton();
                     }
                 });
             }
@@ -300,6 +360,8 @@ public class AddExpenseActivity extends AppCompatActivity {
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic((LinearLayout) v, textView);
+
+                        checkEnableButton();
                     }
                 });
             }
@@ -469,35 +531,35 @@ public class AddExpenseActivity extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String id = mExpenseDatabase.push().getKey();
+                if (isCheckFillFullInform()) {
+                    String id = mExpenseDatabase.push().getKey();
 
-                // Chư kt điều kiện
-                String tmpAmmount = mEditTextMoney.getText().toString().trim();
-                int amount = Integer.parseInt(tmpAmmount);
+                    String tmpAmmount = mEditTextMoney.getText().toString().trim();
+                    int amount = Integer.parseInt(tmpAmmount);
 
-                String type = mSelectedTextView.getText().toString().trim();
+                    String type = mSelectedTextView.getText().toString().trim();
 
-                String note = mEditTextDescription.getText().toString().trim();
+                    String note = mEditTextDescription.getText().toString().trim();
 
-                String colorCatalog = mSelectedCatalog.getColor();
+                    String colorCatalog = mSelectedCatalog.getColor();
 
-                int iconCatalog = mSelectedCatalog.getIcon();
+                    int iconCatalog = mSelectedCatalog.getIcon();
 
-                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-                String mDate = sdf.format(mSelectedDate);
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+                    String mDate = sdf.format(mSelectedDate);
 
-                Data data=new Data(amount,type,note,id,mDate, colorCatalog, iconCatalog);
-                mExpenseDatabase.child(id).setValue(data);
-                finish();
+                    Data data=new Data(amount,type,note,id,mDate, colorCatalog, iconCatalog);
+                    mExpenseDatabase.child(id).setValue(data);
+                    finish();
+                }
             }
         });
     }
     private GradientDrawable getGradientDrawableLinearLayoutDate() {
-        // Tạo một GradientDrawable với góc bo và màu nền tùy chỉnh
         GradientDrawable gradientDrawable = new GradientDrawable();
         gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-        gradientDrawable.setCornerRadius(16); // Độ cong của góc bo, thay đổi giá trị radius theo nhu cầu
-        gradientDrawable.setColor(Color.parseColor("#2E6930")); // Màu nền, thay đổi mã màu theo nhu cầu
+        gradientDrawable.setCornerRadius(16);
+        gradientDrawable.setColor(Color.parseColor("#2E6930"));
         return gradientDrawable;
     }
     private void setSelectedLinearLayoutDate(int index) {
@@ -583,5 +645,35 @@ public class AddExpenseActivity extends AppCompatActivity {
             mSelectedCatalog = catalogExpense.get(0);
         }
         return catalogExpense;
+    }
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mEditTextDescription.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mEditTextMoney.getWindowToken(), 0);
+    }
+    private boolean isCheckFillFullInform() {
+        if (!TextUtils.isEmpty(mEditTextMoney.getText())) {
+            if (mSelectedCatalog != null) {
+                return true;
+            }
+            else {
+                Toast.makeText(this, "Bạn chưa chọn loại danh mục!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        else {
+            Toast.makeText(this, "Bạn chưa nhập số tiền!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+    private void checkEnableButton() {
+        if (!TextUtils.isEmpty(mEditTextMoney.getText()))
+            if (mSelectedCatalog != null) {
+                btnAdd.setAlpha(1f);
+                btnAdd.setEnabled(true);
+                return;
+            }
+        btnAdd.setAlpha(0.5f);
+        btnAdd.setEnabled(false);
     }
 }

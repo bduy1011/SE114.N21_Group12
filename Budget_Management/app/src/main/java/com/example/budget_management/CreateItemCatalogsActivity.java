@@ -3,6 +3,7 @@ package com.example.budget_management;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -39,7 +40,8 @@ import java.util.ArrayList;
 
 public class CreateItemCatalogsActivity extends AppCompatActivity {
     private final int AMOUNT_ITEM_CATALOG = 16;
-    private final int REQUEST_TO_ICON_CATEGORY = 10;
+    private final int REQUEST_CODE_ICON_CATEGORY = 12;
+    private final int REQUEST_CODE_COLOR_CATEGORY = 13;
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeCategoryDatabase;
     private DatabaseReference mExpenseCategoryDatabase;
@@ -61,20 +63,33 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_TO_ICON_CATEGORY && resultCode == RESULT_OK && data != null) {
+        if (requestCode == REQUEST_CODE_ICON_CATEGORY && resultCode == RESULT_OK) {
             int selectedIcon = data.getIntExtra("SelectedIcon", 0);
             mIconSelectedItemCatalog = selectedIcon;
-            if (getImageResources().contains(selectedIcon)) {
+            boolean flag = false;
+            for (int i : getImageResources())
+                if (i == mIconSelectedItemCatalog) {
+                    flag = true;
+                    break;
+                }
+            if (flag) {
                 setBackgroundPreviousSelectedIcon();
-                LinearLayout selectedLinearLayout = mLinearLayoutIcon.get(getImageResources().indexOf(selectedIcon));
+                mSelectedLinearLayoutIcon = mLinearLayoutIcon.get(getImageResources().indexOf(selectedIcon));
+                mSelectedImageButtonIcon = (ImageButton) mSelectedLinearLayoutIcon.getTag();
                 setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
             }
             else {
                 setBackgroundPreviousSelectedIcon();
+                mSelectedImageButtonIcon = null;
+                mSelectedLinearLayoutIcon = null;
             }
-            updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
-            checkEnableButton();
+        } else if (requestCode == REQUEST_CODE_COLOR_CATEGORY && resultCode == RESULT_OK) {
+            String selectedColor = data.getStringExtra("SelectedColor");
+            mColorSelectedItemCatalog = selectedColor;
+            setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
         }
+        updateMainItemCreating(mIconSelectedItemCatalog, mColorSelectedItemCatalog);
+        checkEnableButton();
     }
 
     @Override
@@ -101,6 +116,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         gridLayoutIcon = findViewById(R.id.gridLayoutIcon);
         gridLayoutColor = findViewById(R.id.gridLayoutColor);
         btnAddItemCategory = findViewById(R.id.btnAddItemCategory);
+        btnAddItemCategory.setAlpha(0.5f);
+        btnAddItemCategory.setEnabled(false);
 
         mIconCatalog = new ArrayList<>();
         mLinearLayoutIcon = new ArrayList<>();
@@ -149,11 +166,10 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             linearLayout.setLayoutParams(params);
             linearLayout.setPadding(0, 20, 0, 20);
 
-            // Thêm LinearLayout vào danh sách mLinearLayouts
-            mLinearLayoutIcon.add(linearLayout);
-
-            // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
+
+            linearLayout.setTag(imageButton);
+            mLinearLayoutIcon.add(linearLayout);
 
             if (i != amountItem - 1) {
                 imageButton.setImageResource(mIconCatalog.get(i));
@@ -230,10 +246,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private void createGridViewColor() {
         int countColumn = 8;
 
-        // Set the number of columns for the GridLayout to 4
         gridLayoutColor.setColumnCount(countColumn);
 
-        // Calculate the column width for different screen widths
         int screenWidthPx = getResources().getDisplayMetrics().widthPixels - 50;
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
@@ -241,7 +255,6 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         int amount = 8;
 
         for (int i = 0; i < amount; i++) {
-            // Add ImageButton to LinearLayout
             ImageButton imageButton = new ImageButton(this);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
             String customColor;
@@ -271,11 +284,15 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Intent intent = new Intent(v.getContext(), ColorCatalogActivity.class);
+                        if (mColorSelectedItemCatalog != null) {
+                            intent.putExtra("CurrentResColor", mColorSelectedItemCatalog);
+                        }
+                        startActivityForResult(intent, REQUEST_CODE_COLOR_CATEGORY);
                     }
                 });
             }
 
-            // Thiết lập kích thước của ImageButton
             float percent = 0.5f;
             int with = (int) (widthItem * percent);
             int marginH = (int) (widthItem * (percent / 4));
@@ -283,7 +300,6 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             paramsImageButton.setMargins(marginH, 20, marginH, 20);
             imageButton.setLayoutParams(paramsImageButton);
 
-            // Create a Drawable from Java code with the new color
             GradientDrawable drawableImageButton = new GradientDrawable();
             drawableImageButton.setShape(GradientDrawable.OVAL);
             drawableImageButton.setColor(Color.parseColor(customColor));
@@ -293,12 +309,11 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
 
             mImageButtonColor.add(imageButton);
 
-            // Add ImageButton to LinearLayout
             gridLayoutColor.addView(imageButton);
         }
     }
     private void setBackgroundCurrentSelectedIcon(String color) {
-        if (mSelectedLinearLayoutIcon != null) {
+        if (mSelectedLinearLayoutIcon != null && mSelectedImageButtonIcon != null) {
             GradientDrawable drawableLinearLayout = new GradientDrawable();
             drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
             drawableLinearLayout.setCornerRadius(20);
@@ -389,7 +404,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private void sendIntent(int currentResIcon) {
         Intent intent = new Intent(this, IconCatalogActivity.class);
         intent.putExtra("CurrentResIcon", currentResIcon);
-        startActivityForResult(intent, REQUEST_TO_ICON_CATEGORY);
+        startActivityForResult(intent, REQUEST_CODE_ICON_CATEGORY);
     }
     public String getColorByIndex(int index) {
         String color;
@@ -429,9 +444,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 int action = motionEvent.getAction();
                 if (action == MotionEvent.ACTION_DOWN) {
-                    // Thực hiện xử lý khi người dùng chạm vào vùng khác ngoài EditText
-                    tvNameItem.clearFocus(); // Xóa focus của EditText1
-                    hideKeyboard(); // Ẩn bàn phím ảo
+                    tvNameItem.clearFocus();
+                    hideKeyboard();
                 }
                 return false;
             }
@@ -478,6 +492,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                     mExpenseCategoryDatabase.child(id).setValue(catalog);
                     if (catalog.getType() == "Thu nhập");
                     mIncomeCategoryDatabase.child(id).setValue(catalog);
+
+                    Intent intent = new Intent(view.getContext(), AddExpenseActivity.class);
+                    String name = catalog.getName();
+                    String color = catalog.getColor();
+                    String type = catalog.getType();
+                    int icon = catalog.getIcon();
+                    intent.putExtra("name", name);
+                    intent.putExtra("color", color);
+                    intent.putExtra("type", type);
+                    intent.putExtra("icon", icon);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
                 }
             }
         });

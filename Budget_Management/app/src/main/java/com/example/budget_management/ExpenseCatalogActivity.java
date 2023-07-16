@@ -226,8 +226,8 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                                 Intent intent = new Intent();
                                 intent.putExtra("SelectedExtendIcon", position);
                                 setResult(RESULT_OK, intent);
-                                finish();
                             }
+                            finish();
                         }
                     }
                 });

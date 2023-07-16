@@ -135,30 +135,25 @@ public class IconCatalogActivity extends AppCompatActivity {
     }
     private GridLayout createGridViewItem(ArrayList<Integer> mIconCategory) {
         GridLayout gridLayoutIcon = new GridLayout(this);
-        // Thiết lập số cột của GridLayout là 4
         gridLayoutIcon.setColumnCount(4);
 
-        // Tính toán chiều rộng cột cho các thiết bị có độ rộng màn hình khác nhau
         int countColumn = 4;
         int screenWidthPx = getResources().getDisplayMetrics().widthPixels - 50;
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
 
         for (int i = 0; i < mIconCategory.size(); i++) {
-            // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setGravity(Gravity.CENTER);
             linearLayout.setClickable(true);
             linearLayout.setBackgroundColor(Color.WHITE);
 
-            // Tạo một GradientDrawable mới với góc bo tròn
             GradientDrawable drawableLinearLayout = new GradientDrawable();
             drawableLinearLayout.setShape(GradientDrawable.RECTANGLE);
             drawableLinearLayout.setCornerRadii(new float[]{25, 25, 25, 25, 25, 25, 25, 25});
             drawableLinearLayout.setColor(Color.WHITE);
 
-            // Thiết lập GradientDrawable làm nền cho LinearLayout
             linearLayout.setBackground(drawableLinearLayout);
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -169,10 +164,8 @@ public class IconCatalogActivity extends AppCompatActivity {
             linearLayout.setLayoutParams(params);
             linearLayout.setPadding(0, 25, 0, 25);
 
-            // Thêm LinearLayout vào danh sách mLinearLayouts
             mLinearLayoutIcon.add(linearLayout);
 
-            // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
 
             imageButton.setImageResource(mIconCategory.get(i));
@@ -181,13 +174,11 @@ public class IconCatalogActivity extends AppCompatActivity {
 
             int customColor = Color.parseColor("#a4b7b1");
 
-            // Tạo một Drawable từ code Java với màu sắc mới
             GradientDrawable drawableImageButton = new GradientDrawable();
             drawableImageButton.setShape(GradientDrawable.OVAL);
             drawableImageButton.setColor(customColor);
             imageButton.setBackground(drawableImageButton);
 
-            // Thêm sự kiện click cho ImageButton
             imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -198,23 +189,16 @@ public class IconCatalogActivity extends AppCompatActivity {
 
                     setBackgroundPreviousSelectedIcon();
 
-                    // Thiết lập Background cho topic đang chọn
                     setBackgroundCurrentSelectedIcon(linearLayout);
-
-                    // Lưu trữ topic được chọn
-                    saveSelectedTopic(linearLayout);
                 }
             });
 
-            // Thiết lập kích thước của ImageButton
             LinearLayout.LayoutParams paramsImageButton = new LinearLayout.LayoutParams(widthItem, widthItem);
             paramsImageButton.setMargins(0, 25, 0, 25);
             imageButton.setLayoutParams(paramsImageButton);
 
-            // Thêm ImageButton vào LinearLayout
             linearLayout.addView(imageButton);
 
-            // Thêm LinearLayout vào GridLayout
             gridLayoutIcon.addView(linearLayout);
         }
 
@@ -232,19 +216,17 @@ public class IconCatalogActivity extends AppCompatActivity {
         drawableLinearLayout.setColor(Color.WHITE);
         drawableLinearLayout.setStroke(4, Color.DKGRAY);
         linearLayout.setBackground(drawableLinearLayout);
+
+        mSelectedLinearLayoutIcon = linearLayout;
     }
     private void setBackgroundPreviousSelectedIcon() {
-        // Đặt màu trắng cho LinearLayout đã chọn trước đó
         if (mSelectedLinearLayoutIcon != null) {
             mSelectedLinearLayoutIcon.setBackgroundColor(Color.WHITE);
         }
     }
-    private void saveSelectedTopic(LinearLayout linearLayout) {
-        mSelectedLinearLayoutIcon = linearLayout;
-    }
     private ArrayList<Integer> getImageResourcesFromDirectory(String directoryName) {
         ArrayList<Integer> resourceList = new ArrayList<>();
-        Resources resources = getResources(); // Lấy đối tượng Resources
+        Resources resources = getResources();
 
         Field[] fields = R.drawable.class.getFields();
         for (Field field : fields) {
@@ -269,9 +251,6 @@ public class IconCatalogActivity extends AppCompatActivity {
                     intent.putExtra("SelectedIcon", mSelectedIcon);
                     setResult(RESULT_OK, intent);
                     finish();
-                }
-                else {
-                    Toast.makeText(IconCatalogActivity.this, "Bạn chưa chọn icon!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
