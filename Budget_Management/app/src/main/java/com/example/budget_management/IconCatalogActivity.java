@@ -24,7 +24,7 @@ public class IconCatalogActivity extends AppCompatActivity {
     private ArrayList<String> mIconCategoryList;
     private ArrayList<LinearLayout> mLinearLayoutIcon;
     private ArrayList<Integer> mIconList;
-    private int mSelectedIcon = 0;
+    private String mSelectedIcon;
     private LinearLayout mSelectedLinearLayoutIcon;
     private Button btnSelect;
 
@@ -169,7 +169,7 @@ public class IconCatalogActivity extends AppCompatActivity {
             ImageButton imageButton = new ImageButton(this);
 
             imageButton.setImageResource(mIconCategory.get(i));
-            imageButton.setTag(mIconCategory.get(i));
+            imageButton.setTag(getFileNameFromResourceId(mIconCategory.get(i)));
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor = Color.parseColor("#a4b7b1");
@@ -185,7 +185,7 @@ public class IconCatalogActivity extends AppCompatActivity {
                     btnSelect.setAlpha(1f);
                     btnSelect.setEnabled(true);
 
-                    mSelectedIcon = (int) ((ImageButton) v).getTag();
+                    mSelectedIcon = (String) ((ImageButton) v).getTag();
 
                     setBackgroundPreviousSelectedIcon();
 
@@ -246,7 +246,7 @@ public class IconCatalogActivity extends AppCompatActivity {
         btnSelect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mSelectedIcon != 0) {
+                if (mSelectedIcon != null) {
                     Intent intent = new Intent();
                     intent.putExtra("SelectedIcon", mSelectedIcon);
                     setResult(RESULT_OK, intent);
@@ -257,9 +257,9 @@ public class IconCatalogActivity extends AppCompatActivity {
     }
     private void receiveIntent() {
         Intent intent = getIntent();
-        int currentResIcon = intent.getIntExtra("CurrentResIcon", -1);
-        if (currentResIcon != -1 && currentResIcon != 0) {
-            int position = mIconList.indexOf(currentResIcon);
+        String currentResIcon = intent.getStringExtra("NameIcon");
+        if (currentResIcon != null) {
+            int position = mIconList.indexOf(getFileFromDrawable(currentResIcon));
             if (position != -1) {
                 btnSelect.setAlpha(1f);
                 btnSelect.setEnabled(true);
@@ -272,5 +272,17 @@ public class IconCatalogActivity extends AppCompatActivity {
                 setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutIcon);
             }
         }
+    }
+    private int getFileFromDrawable(String fileName) {
+        int drawableId = getResources().getIdentifier(fileName, "drawable", getPackageName());
+        return drawableId;
+    }
+    private String getFileNameFromResourceId(int resourceId) {
+        String resourceTypeName = getResources().getResourceTypeName(resourceId);
+        if (!resourceTypeName.equals("drawable")) {
+            return null;
+        }
+        String fileName = getResources().getResourceEntryName(resourceId);
+        return fileName;
     }
 }

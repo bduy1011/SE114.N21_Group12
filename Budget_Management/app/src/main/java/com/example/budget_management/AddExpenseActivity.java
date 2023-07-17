@@ -87,11 +87,11 @@ public class AddExpenseActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
             int position = data.getIntExtra("SelectedExtendIcon", 10000);
-            setBackgroundPreviousSelectedIcon();
+            setBackgroundPreviousSelectedCatalog();
             ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
             createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
             saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-            setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+            setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
 
             checkEnableButton();
         }
@@ -104,15 +104,15 @@ public class AddExpenseActivity extends AppCompatActivity {
         String name = intent.getStringExtra("name");
         String color = intent.getStringExtra("color");
         String type = intent.getStringExtra("type");
-        int icon = intent.getIntExtra("icon", 10000);
+        String icon = intent.getStringExtra("icon");
         Catalog catalog = new Catalog(name, color, type, icon);
 
         int position = mCatalogExpense.size() - 1;
-        setBackgroundPreviousSelectedIcon();
+        setBackgroundPreviousSelectedCatalog();
         ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
         createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
         saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-        setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+        setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
 
         checkEnableButton();
     }
@@ -173,7 +173,6 @@ public class AddExpenseActivity extends AppCompatActivity {
                 mCatalogExpense.clear();
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
                     Catalog catalog = data.getValue(Catalog.class);
-                    catalog.setIcon(catalog.getIcon());
                     mCatalogExpense.add(catalog);
                 }
                 createGridViewCatalog(mCatalogExpense, AMOUNT_ITEM_CATALOG);
@@ -257,7 +256,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
             if (i != amountItem - 1) {
-                imageButton.setImageResource(mCatalogExpense.get(i).getIcon());
+                imageButton.setImageResource(getFileFromDrawable(mCatalogExpense.get(i).getIcon()));
             }
             else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
@@ -280,7 +279,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        setBackgroundPreviousSelectedIcon();
+                        setBackgroundPreviousSelectedCatalog();
 
                         // Lấy tên topic của icon được chọn
                         ViewGroup viewGroup = (ViewGroup) v.getParent();
@@ -288,13 +287,13 @@ public class AddExpenseActivity extends AppCompatActivity {
                         // Lấy màu của ImageButton được click
                         String tmp = textView.getText().toString();
                         for (int i = 0; i < mCatalogExpense.size(); i++) {
-                            if (tmp == mCatalogExpense.get(i).getName()) {
+                            if (tmp.equals(mCatalogExpense.get(i).getName())) {
                                 mSelectedCatalog = mCatalogExpense.get(i);
                             }
                         }
 
                         // Thiết lập Background cho topic đang chọn
-                        setBackgroundCurrentSelectedIcon(linearLayout, mSelectedCatalog.getColor(), textView);
+                        setBackgroundCurrentSelectedCatalog(linearLayout, mSelectedCatalog.getColor(), textView);
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic(linearLayout, textView);
@@ -345,7 +344,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 linearLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        setBackgroundPreviousSelectedIcon();
+                        setBackgroundPreviousSelectedCatalog();
 
                         // Lấy màu của ImageButton được click
                         String tmp = textView.getText().toString();
@@ -356,7 +355,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                         }
 
                         // Thiết lập Background cho topic đang chọn
-                        setBackgroundCurrentSelectedIcon((LinearLayout) v, mSelectedCatalog.getColor(), textView);
+                        setBackgroundCurrentSelectedCatalog((LinearLayout) v, mSelectedCatalog.getColor(), textView);
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic((LinearLayout) v, textView);
@@ -370,7 +369,7 @@ public class AddExpenseActivity extends AppCompatActivity {
             gridLayout.addView(linearLayout);
         }
     }
-    private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout, String selectedColor, TextView textView) {
+    private void setBackgroundCurrentSelectedCatalog(LinearLayout linearLayout, String selectedColor, TextView textView) {
         // Đặt màu cho tên Topic hiện tại
         textView.setTextColor(Color.WHITE);
 
@@ -381,7 +380,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         drawableLinearLayout.setColor(Color.parseColor(selectedColor));
         linearLayout.setBackground(drawableLinearLayout);
     }
-    private void setBackgroundPreviousSelectedIcon() {
+    private void setBackgroundPreviousSelectedCatalog() {
         // Đặt màu trắng cho LinearLayout đã chọn trước đó
         if (mSelectedLinearLayoutCatalog != null) {
             mSelectedLinearLayoutCatalog.setBackgroundColor(Color.WHITE);
@@ -515,8 +514,6 @@ public class AddExpenseActivity extends AppCompatActivity {
                 });
 
                 Button btnCancel = dialog.findViewById(R.id.btnCancel);
-                btnCancel.setTextColor(Color.parseColor("#008000"));
-                btnCancel.setBackgroundResource(R.drawable.button_background);
                 btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -543,7 +540,7 @@ public class AddExpenseActivity extends AppCompatActivity {
 
                     String colorCatalog = mSelectedCatalog.getColor();
 
-                    int iconCatalog = mSelectedCatalog.getIcon();
+                    String iconCatalog = mSelectedCatalog.getIcon();
 
                     SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                     String mDate = sdf.format(mSelectedDate);
@@ -627,7 +624,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                 String name = mSelectedCatalog.getName();
                 String color = mSelectedCatalog.getColor();
                 String type = mSelectedCatalog.getType();
-                int icon = mSelectedCatalog.getIcon();
+                String icon = mSelectedCatalog.getIcon();
                 intent.putExtra("name", name);
                 intent.putExtra("color", color);
                 intent.putExtra("type", type);
@@ -675,5 +672,9 @@ public class AddExpenseActivity extends AppCompatActivity {
             }
         btnAdd.setAlpha(0.5f);
         btnAdd.setEnabled(false);
+    }
+    private int getFileFromDrawable(String fileName) {
+        int drawableId = getResources().getIdentifier(fileName, "drawable", getPackageName());
+        return drawableId;
     }
 }

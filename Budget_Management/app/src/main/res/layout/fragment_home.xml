@@ -271,7 +271,7 @@
                     android:id="@+id/main_recycleview"
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
-                    android:scrollbars="vertical"></androidx.recyclerview.widget.RecyclerView>
+                    android:scrollbars="vertical"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
@@ -352,7 +352,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="#6A1B9A"
+            android:backgroundTint="@color/lavender"
             android:src="@drawable/ic_add"
             app:fabSize="normal" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

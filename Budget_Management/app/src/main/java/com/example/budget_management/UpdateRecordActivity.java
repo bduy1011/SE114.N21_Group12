@@ -21,6 +21,8 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,23 +40,27 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class AddIncomeActivity extends AppCompatActivity {
+public class UpdateRecordActivity extends AppCompatActivity {
     private final int AMOUNT_ITEM_CATALOG = 12;
-    private final int REQUEST_CODE_INCOME_CATALOG = 9;
+    private final int REQUEST_CODE_EXPENSE_CATALOG = 10;
     private FirebaseAuth mAuth;
+    private DatabaseReference mExpenseDatabase;
+    private DatabaseReference mCatalogExpenseDatabase;
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mCatalogIncomeDatabase;
     private GridLayout gridLayout;
+    private RadioGroup rgTypeItem;
     private LinearLayout mSelectedLinearLayoutCatalog;
     private TextView mSelectedTextView;
     private Catalog mSelectedCatalog;
-    private ArrayList<Catalog> mCatalogIncome;
+    private ArrayList<Catalog> mCatalogList;
     private ArrayList<LinearLayout> mLinearLayouts;
     private LinearLayout linearLayout1, linearLayout2, linearLayout3;
     private TextView textDate1, textDate2, textDate3;
@@ -64,65 +70,52 @@ public class AddIncomeActivity extends AppCompatActivity {
     private Date date3;
     private EditText mEditTextDescription;
     private EditText mEditTextMoney;
-    private Button btnAdd;
+    private Button btnUpdate;
+    private String amount;
+    private String description;
+    private String date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_income);
+        setContentView(R.layout.activity_update_record);
 
         init();
-
-        ArrayList<Catalog> tmpCatalogIncome = new ArrayList<>(mCatalogIncome);
-        createGridViewCatalog(tmpCatalogIncome, AMOUNT_ITEM_CATALOG);
 
         createLinearLayoutDate();
 
         createImageButtonCalendar();
 
-        createButtonAddClick();
+        receiveIntent();
+
+        handleIntent();
+
+        //createButtonAddClick();
+
+
     }
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_INCOME_CATALOG && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
             int position = data.getIntExtra("SelectedExtendIcon", 10000);
-            setBackgroundPreviousSelectedCatalog();
-            ArrayList<Catalog> tmpCatalogIncome = new ArrayList<>(mCatalogIncome);
-            createGridViewCatalog(changedCatalogIncome(tmpCatalogIncome, position), AMOUNT_ITEM_CATALOG);
+            setBackgroundPreviousSelectedIcon();
+            ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
+            createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
             saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-            setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+            setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
 
             checkEnableButton();
         }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        String name = intent.getStringExtra("name");
-        String color = intent.getStringExtra("color");
-        String type = intent.getStringExtra("type");
-        String icon = intent.getStringExtra("icon");
-        Catalog catalog = new Catalog(name, color, type, icon);
-
-        int position = mCatalogIncome.size() - 1;
-        setBackgroundPreviousSelectedCatalog();
-        ArrayList<Catalog> tmpCatalogIncome = new ArrayList<>(mCatalogIncome);
-        createGridViewCatalog(changedCatalogIncome(tmpCatalogIncome, position), AMOUNT_ITEM_CATALOG);
-        saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-        setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
-
-        checkEnableButton();
-    }
+    }*/
 
     private void init() {
         mLinearLayouts = new ArrayList<>();
-
-        mCatalogIncome = new ArrayList<Catalog>();
+        mCatalogList = new ArrayList<Catalog>();
 
         gridLayout = findViewById(R.id.gridLayout);
+
+        rgTypeItem = findViewById(R.id.radioUpdateGroupType);
 
         linearLayout1 = findViewById(R.id.linearLayout1);
         linearLayout2 = findViewById(R.id.linearLayout2);
@@ -143,9 +136,9 @@ public class AddIncomeActivity extends AppCompatActivity {
         mEditTextMoney = findViewById(R.id.editMoney);
         mEditTextMoney.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-        btnAdd = findViewById(R.id.btnAddNote);
-        btnAdd.setAlpha(0.5f);
-        btnAdd.setEnabled(false);
+        btnUpdate = findViewById(R.id.btnUpdateNote);
+        btnUpdate.setAlpha(0.5f);
+        btnUpdate.setEnabled(false);
 
         // Chọn ngày hôm nay
         setSelectedLinearLayoutDate(1);
@@ -160,28 +153,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         date3 = previousDate2;
 
         mAuth= FirebaseAuth.getInstance();
-        FirebaseUser mUser=mAuth.getCurrentUser();
-        String uid=mUser.getUid();
-        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
-        mIncomeDatabase.keepSynced(true);
 
-        mCatalogIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeCatalogs").child(uid);
-        mCatalogIncomeDatabase.keepSynced(true);
-        mCatalogIncomeDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mCatalogIncome.clear();
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    Catalog catalog = data.getValue(Catalog.class);
-                    mCatalogIncome.add(catalog);
-                }
-                createGridViewCatalog(mCatalogIncome, AMOUNT_ITEM_CATALOG);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Xử lý lỗi nếu có
-            }
-        });
         TouchableWrapper touchableWrapper = findViewById(R.id.touchableWrapper);
         touchableWrapper.setTouchListener(new View.OnTouchListener() {
             @Override
@@ -195,6 +167,7 @@ public class AddIncomeActivity extends AppCompatActivity {
                 return false;
             }
         });
+
         mEditTextMoney.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -213,10 +186,35 @@ public class AddIncomeActivity extends AppCompatActivity {
                 checkEnableButton();
             }
         });
+
+        rgTypeItem.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.radioButtonExpense) {
+                    //mSelectedType = "Chi phí";
+                    getCatalogResource("Chi phí", false);
+                } else if (checkedId == R.id.radioButtonIncome) {
+                    //mSelectedType = "Thu nhập";
+                    createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
+                    getCatalogResource("Thu nhập", false);
+                }
+                checkEnableButton();
+            }
+        });
     }
-    private void createGridViewCatalog(ArrayList<Catalog> mCatalogIncome, int amountItem) {
+    private void createGridViewCatalog(ArrayList<Catalog> catalogList, int amountItem) {
         // Thiết lập số cột của GridLayout là 4
         gridLayout.setColumnCount(4);
+
+        int childCount = gridLayout.getChildCount();
+        if (childCount != 0) {
+            for (int i = 0; i < childCount; i++) {
+                View child = gridLayout.getChildAt(0);
+                gridLayout.removeView(child);
+            }
+        }
+
+        mLinearLayouts.clear();
 
         // Tính toán chiều rộng cột cho các thiết bị có độ rộng màn hình khác nhau
         int countColumn = 4;
@@ -224,9 +222,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
 
-        mLinearLayouts.clear();
-
-        if (amountItem > mCatalogIncome.size() + 1) amountItem = mCatalogIncome.size() + 1;
+        if (amountItem > catalogList.size() + 1) amountItem = catalogList.size() + 1;
 
         for (int i = 0; i < amountItem; i++) {
             // Tạo LinearLayout mới
@@ -251,19 +247,17 @@ public class AddIncomeActivity extends AppCompatActivity {
             linearLayout.setLayoutParams(params);
             linearLayout.setPadding(0, 10, 0, 20);
 
-            mLinearLayouts.add(linearLayout);
-
             // Thêm ImageButton vào LinearLayout
             ImageButton imageButton = new ImageButton(this);
             if (i != amountItem - 1) {
-                imageButton.setImageResource(getFileFromDrawable(mCatalogIncome.get(i).getIcon()));
+                imageButton.setImageResource(getFileFromDrawable(catalogList.get(i).getIcon()));
             }
             else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
 
             int customColor;
             if (i != amountItem - 1) {
-                customColor = Color.parseColor(mCatalogIncome.get(i).getColor());
+                customColor = Color.parseColor(catalogList.get(i).getColor());
             }
             else customColor = Color.LTGRAY;
 
@@ -286,9 +280,9 @@ public class AddIncomeActivity extends AppCompatActivity {
                         TextView textView = (TextView) viewGroup.getChildAt(1);
                         // Lấy màu của ImageButton được click
                         String tmp = textView.getText().toString();
-                        for (int i = 0; i < mCatalogIncome.size(); i++) {
-                            if (tmp == mCatalogIncome.get(i).getName()) {
-                                mSelectedCatalog = mCatalogIncome.get(i);
+                        for (int i = 0; i < catalogList.size(); i++) {
+                            if (tmp == catalogList.get(i).getName()) {
+                                mSelectedCatalog = catalogList.get(i);
                             }
                         }
 
@@ -331,7 +325,7 @@ public class AddIncomeActivity extends AppCompatActivity {
             // Thêm TextView vào LinearLayout
             TextView textView = new TextView(this);
             if (i != amountItem - 1) {
-                textView.setText(mCatalogIncome.get(i).getName());
+                textView.setText(catalogList.get(i).getName());
             }
             else textView.setText("Xem thêm");
             textView.setTextColor(Color.BLACK);
@@ -348,9 +342,9 @@ public class AddIncomeActivity extends AppCompatActivity {
 
                         // Lấy màu của ImageButton được click
                         String tmp = textView.getText().toString();
-                        for (int i = 0; i < mCatalogIncome.size(); i++) {
-                            if (tmp.equals(mCatalogIncome.get(i).getName())) {
-                                mSelectedCatalog = mCatalogIncome.get(i);
+                        for (int i = 0; i < catalogList.size(); i++) {
+                            if (tmp == catalogList.get(i).getName()) {
+                                mSelectedCatalog = catalogList.get(i);
                             }
                         }
 
@@ -365,7 +359,8 @@ public class AddIncomeActivity extends AppCompatActivity {
                 });
             }
 
-            // Thêm LinearLayout vào GridLayout
+            mLinearLayouts.add(linearLayout);
+
             gridLayout.addView(linearLayout);
         }
     }
@@ -416,9 +411,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         // Thiết lập sự kiện click cho LinearLayout 1
         linearLayout1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                setSelectedLinearLayoutDate(1);
-            }
+            public void onClick(View v) { setSelectedLinearLayoutDate(1); }
         });
 
         // Thiết lập sự kiện click cho LinearLayout 2
@@ -441,7 +434,7 @@ public class AddIncomeActivity extends AppCompatActivity {
         imageButtonCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog dialog = new Dialog(AddIncomeActivity.this);
+                Dialog dialog = new Dialog(UpdateRecordActivity.this);
                 dialog.setContentView(R.layout.dialog_calendar);
 
                 // Định nghĩa giao diện bo góc
@@ -525,11 +518,11 @@ public class AddIncomeActivity extends AppCompatActivity {
         });
     }
     private void createButtonAddClick() {
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isCheckFillFullInform()) {
-                    String id = mIncomeDatabase.push().getKey();
+                    String id = mExpenseDatabase.push().getKey();
 
                     String tmpAmmount = mEditTextMoney.getText().toString().trim();
                     int amount = Integer.parseInt(tmpAmmount);
@@ -546,7 +539,7 @@ public class AddIncomeActivity extends AppCompatActivity {
                     String mDate = sdf.format(mSelectedDate);
 
                     Data data=new Data(amount,type,note,id,mDate, colorCatalog, iconCatalog);
-                    mIncomeDatabase.child(id).setValue(data);
+                    mExpenseDatabase.child(id).setValue(data);
                     finish();
                 }
             }
@@ -616,10 +609,10 @@ public class AddIncomeActivity extends AppCompatActivity {
     }
     private void sendIntent(int currentPosition) {
         int flag = 0;
-        if (AMOUNT_ITEM_CATALOG > mCatalogIncome.size() + 1) flag = mCatalogIncome.size() + 1;
+        if (AMOUNT_ITEM_CATALOG > mCatalogList.size() + 1) flag = mCatalogList.size() + 1;
         else flag = AMOUNT_ITEM_CATALOG;
         if (currentPosition == flag) {
-            Intent intent = new Intent(this, IncomeCatalogActivity.class);
+            Intent intent = new Intent(this, ExpenseCatalogActivity.class);
             if (mSelectedCatalog != null) {
                 String name = mSelectedCatalog.getName();
                 String color = mSelectedCatalog.getColor();
@@ -630,18 +623,16 @@ public class AddIncomeActivity extends AppCompatActivity {
                 intent.putExtra("type", type);
                 intent.putExtra("icon", icon);
             }
-            startActivityForResult(intent, REQUEST_CODE_INCOME_CATALOG);
+            startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
         }
     }
-    public ArrayList<Catalog> changedCatalogIncome(ArrayList<Catalog> catalogIncome, int index) {
-        if (index >= 0 && index < catalogIncome.size()) {
-            // Xóa phần tử tại vị trí index
-            catalogIncome.remove(index);
-            // Chèn phần tử vào vị trí đầu tiên
-            catalogIncome.add(0, mCatalogIncome.get(index));
-            mSelectedCatalog = catalogIncome.get(0);
+    public ArrayList<Catalog> changedCatalogExpense(ArrayList<Catalog> catalogExpense, int index) {
+        if (index >= 0 && index < catalogExpense.size()) {
+            catalogExpense.remove(index);
+            catalogExpense.add(0, mCatalogList.get(index));
+            mSelectedCatalog = catalogExpense.get(0);
         }
-        return catalogIncome;
+        return catalogExpense;
     }
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -666,13 +657,168 @@ public class AddIncomeActivity extends AppCompatActivity {
     private void checkEnableButton() {
         if (!TextUtils.isEmpty(mEditTextMoney.getText()))
             if (mSelectedCatalog != null) {
-                btnAdd.setAlpha(1f);
-                btnAdd.setEnabled(true);
+                btnUpdate.setAlpha(1f);
+                btnUpdate.setEnabled(true);
                 return;
             }
-        btnAdd.setAlpha(0.5f);
-        btnAdd.setEnabled(false);
+        btnUpdate.setAlpha(0.5f);
+        btnUpdate.setEnabled(false);
     }
+
+    private void getCatalogResource(String type, boolean flag) {
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        String uid = mUser.getUid();
+        mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+        mExpenseDatabase.keepSynced(true);
+
+        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
+        mIncomeDatabase.keepSynced(true);
+
+        if (type.equals("Chi phí")) {
+            mCatalogExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseCatalogs").child(uid);
+            mCatalogExpenseDatabase.keepSynced(true);
+            mCatalogExpenseDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mCatalogList.clear();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        Catalog catalog = data.getValue(Catalog.class);
+                        mCatalogList.add(catalog);
+                    }
+                    if (flag) {
+                        setCatalogOfRecord();
+                    } else {
+                        createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Xử lý lỗi nếu có
+                }
+            });
+        }
+        else if (type.equals("Thu nhập")) {
+            mCatalogIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeCatalogs").child(uid);
+            mCatalogIncomeDatabase.keepSynced(true);
+            mCatalogIncomeDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mCatalogList.clear();
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        Catalog catalog = data.getValue(Catalog.class);
+                        mCatalogList.add(catalog);
+                    }
+                    if (flag) {
+                        setCatalogOfRecord();
+                    } else {
+                        createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Xử lý lỗi nếu có
+                }
+            });
+        }
+    }
+
+    private void receiveIntent() {
+        Intent intent = getIntent();
+
+        amount = intent.getStringExtra("amount");
+        description = intent.getStringExtra("description");
+        date = intent.getStringExtra("date");
+        mSelectedDate = getDateFormat(date);
+        setFormatDate(date);
+
+        String name = intent.getStringExtra("catalogName");
+        int color = intent.getIntExtra("catalogColor", 0);
+        String type = intent.getStringExtra("type");
+        String icon = intent.getStringExtra("catalogIcon");
+
+        String hexColor = String.format("#%06X", (0xFFFFFF & color));
+        Catalog catalog = new Catalog(name, hexColor.toLowerCase(), type, icon);
+        mSelectedCatalog = catalog;
+    }
+
+    private void handleIntent() {
+        mEditTextMoney.setText(amount);
+
+        if (mSelectedCatalog.getType().equals("Chi phí")) {
+            RadioButton radioButtonExpense = findViewById(R.id.radioButtonExpense);
+            radioButtonExpense.setChecked(true);
+            getCatalogResource(mSelectedCatalog.getType(), true);
+
+        } else if (mSelectedCatalog.getType().equals("Thu nhập")) {
+            RadioButton radioButtonIncome = findViewById(R.id.radioButtonIncome);
+            radioButtonIncome.setChecked(true);
+            getCatalogResource(mSelectedCatalog.getType(), true);
+        }
+
+        if (date.equals(textDate1.getText().toString())) {
+            setSelectedLinearLayoutDate(1);
+        }
+        else if (date.equals(textDate2.getText().toString())) {
+            setSelectedLinearLayoutDate(2);
+        }
+        else if (date.equals(textDate3.getText().toString())) {
+            setSelectedLinearLayoutDate(3);
+        } else {
+            textDate3.setText(date);
+            Date tmpDate = mSelectedDate;
+            setSelectedLinearLayoutDate(3);
+            mSelectedDate = tmpDate;
+        }
+
+        mEditTextDescription.setText(description);
+
+        checkEnableButton();
+    }
+
+    private Date getDateFormat(String d){
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+
+        Date tmpDate = null;
+        try {
+            tmpDate = sdf.parse(d);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return tmpDate;
+    }
+
+    private void setFormatDate(String d){
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+
+        Date tmpDate = null;
+        try {
+            tmpDate = sdf.parse(d);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM", Locale.getDefault());
+        date = dateFormat.format(tmpDate);
+    }
+
+    private void setCatalogOfRecord() {
+        int position = -1;
+        for (int i = 0; i < mCatalogList.size(); i++) {
+            if (mCatalogList.get(i).getName().equals(mSelectedCatalog.getName())
+                    && mCatalogList.get(i).getColor().equals(mSelectedCatalog.getColor())
+                    && mCatalogList.get(i).getType().equals(mSelectedCatalog.getType())
+                    && mCatalogList.get(i).getIcon().equals(mSelectedCatalog.getIcon())) {
+                position = i;
+                break;
+            }
+        }
+
+        ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogList);
+        createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
+        saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
+        setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+    }
+
     private int getFileFromDrawable(String fileName) {
         int drawableId = getResources().getIdentifier(fileName, "drawable", getPackageName());
         return drawableId;

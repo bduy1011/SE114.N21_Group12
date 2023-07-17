@@ -4,13 +4,13 @@ public class Catalog {
     private String name;
     private String color;
     private String type;
-    private int icon;
+    private String icon;
 
     Catalog() {
 
     }
 
-    public Catalog(String name, String color, String type, int icon) {
+    public Catalog(String name, String color, String type, String icon) {
         this.name = name;
         this.color = color;
         this.type = type;
@@ -39,11 +39,11 @@ public class Catalog {
         this.type = type;
     }
 
-    public int getIcon() {
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(int icon) {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 }

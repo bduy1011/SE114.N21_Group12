@@ -58,7 +58,7 @@ public class ExportDialogFragment extends DialogFragment {
         Button btnExport=dialogView.findViewById(R.id.btnExport);
         Button btnCancel=dialogView.findViewById(R.id.btnCancel);
         filePath = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Data.xls");
-        filePath=new File(requireActivity().getExternalFilesDir(null),"Data.xls");
+        //filePath=new File(requireActivity().getExternalFilesDir(null),"Data.xls");
         //Set click listener
         btnExport.setOnClickListener(new View.OnClickListener() {
             @Override

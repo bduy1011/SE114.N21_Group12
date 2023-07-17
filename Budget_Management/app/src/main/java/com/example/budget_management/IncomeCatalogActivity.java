@@ -115,7 +115,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
             ImageButton imageButton = new ImageButton(this);
 
             if (i != mCatalogIncome.size()) {
-                imageButton.setImageResource(mCatalogIncome.get(i).getIcon());
+                imageButton.setImageResource(getFileFromDrawable(mCatalogIncome.get(i).getIcon()));
             }
             else imageButton.setImageResource(R.drawable.ic_extend_catalog);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
@@ -138,7 +138,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        setBackgroundPreviousSelectedIcon();
+                        setBackgroundPreviousSelectedCatalog();
 
                         // Lấy màu của ImageButton được click
                         int selectedColor = (int) v.getTag();
@@ -148,7 +148,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
                         TextView textView = (TextView) viewGroup.getChildAt(1);
 
                         // Thiết lập Background cho topic đang chọn
-                        setBackgroundCurrentSelectedIcon(linearLayout, selectedColor, textView);
+                        setBackgroundCurrentSelectedCatalog(linearLayout, selectedColor, textView);
 
                         // Lưu trữ topic được chọn
                         saveSelectedTopic(linearLayout, textView);
@@ -205,7 +205,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         // Nếu LinearLayout đã chọn trước đó khác với LinearLayout hiện tại
                         if (mSelectedLinearLayoutCatalog != v) {
-                            setBackgroundPreviousSelectedIcon();
+                            setBackgroundPreviousSelectedCatalog();
 
                             // Lấy màu của ImageButton được click
                             int selectedColor = 100;
@@ -216,7 +216,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
                             }
 
                             // Thiết lập Background cho topic đang chọn
-                            setBackgroundCurrentSelectedIcon((LinearLayout) v, selectedColor, textView);
+                            setBackgroundCurrentSelectedCatalog((LinearLayout) v, selectedColor, textView);
 
                             // Lưu trữ topic được chọn
                             saveSelectedTopic((LinearLayout) v, textView);
@@ -243,22 +243,22 @@ public class IncomeCatalogActivity extends AppCompatActivity {
             if (mCatalogIncome.get(i).getName().equals(mCatalogFromIncomeCatalog.getName())
                     && mCatalogIncome.get(i).getColor().equals(mCatalogFromIncomeCatalog.getColor())
                     && mCatalogIncome.get(i).getType().equals(mCatalogFromIncomeCatalog.getType())
-                    && mCatalogIncome.get(i).getIcon() == mCatalogFromIncomeCatalog.getIcon()) {
+                    && mCatalogIncome.get(i).getIcon().equals(mCatalogFromIncomeCatalog.getIcon())) {
                 position = i;
                 break;
             }
         }
         if (position != -1 && position <= mCatalogIncome.size()) {
             if(mSelectedLinearLayoutCatalog != null) {
-                setBackgroundPreviousSelectedIcon();
+                setBackgroundPreviousSelectedCatalog();
             }
             mSelectedLinearLayoutCatalog = mLinearLayouts.get(position);
             int selectedColor = Color.parseColor(mCatalogIncome.get(position).getColor());
             mSelectedTextView = (TextView) mSelectedLinearLayoutCatalog.getTag();
-            setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, selectedColor, mSelectedTextView);
+            setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, selectedColor, mSelectedTextView);
         }
     }
-    private void setBackgroundCurrentSelectedIcon(LinearLayout linearLayout, int selectedColor, TextView textView) {
+    private void setBackgroundCurrentSelectedCatalog(LinearLayout linearLayout, int selectedColor, TextView textView) {
         // Đặt màu cho tên Topic hiện tại
         textView.setTextColor(Color.WHITE);
 
@@ -269,7 +269,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
         drawableLinearLayout.setColor(selectedColor);
         linearLayout.setBackground(drawableLinearLayout);
     }
-    private void setBackgroundPreviousSelectedIcon() {
+    private void setBackgroundPreviousSelectedCatalog() {
         // Đặt màu trắng cho LinearLayout đã chọn trước đó
         if (mSelectedLinearLayoutCatalog != null) {
             mSelectedLinearLayoutCatalog.setBackgroundColor(Color.WHITE);
@@ -288,12 +288,17 @@ public class IncomeCatalogActivity extends AppCompatActivity {
         String name = intent.getStringExtra("name");
         String color = intent.getStringExtra("color");
         String type = intent.getStringExtra("type");
-        int icon = intent.getIntExtra("icon", 10000);
+        String icon = intent.getStringExtra("icon");
         Catalog catalog = new Catalog(name, color, type, icon);
         return catalog;
     }
     private void sendIntent() {
         Intent intent = new Intent(this, CreateItemCatalogsActivity.class);
+        intent.putExtra("type", "Income");
         startActivityForResult(intent, REQUEST_TO_CREATE_ITEM_CATALOG);
+    }
+    private int getFileFromDrawable(String fileName) {
+        int drawableId = getResources().getIdentifier(fileName, "drawable", getPackageName());
+        return drawableId;
     }
 }

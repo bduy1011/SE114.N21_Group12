@@ -25,6 +25,7 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,27 +55,27 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private ArrayList<LinearLayout> mLinearLayoutIcon;
     private ArrayList<ImageButton> mImageButtonColor;
     private ArrayList<Integer> mIconCatalog;
+    private ArrayList<String> mColorCatalog;
     private LinearLayout mSelectedLinearLayoutIcon;
     private ImageButton mSelectedImageButtonIcon;
     private ImageButton mSelectedImageButtonColor;
-    private String mNameSelectedItemCatalog, mTypeSelectedItemCatalog, mColorSelectedItemCatalog;
-    private int mIconSelectedItemCatalog = 0;
+    private String mNameSelectedItemCatalog, mTypeSelectedItemCatalog, mColorSelectedItemCatalog, mIconSelectedItemCatalog;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_ICON_CATEGORY && resultCode == RESULT_OK) {
-            int selectedIcon = data.getIntExtra("SelectedIcon", 0);
+            String selectedIcon = data.getStringExtra("SelectedIcon");
             mIconSelectedItemCatalog = selectedIcon;
             boolean flag = false;
-            for (int i : getImageResources())
-                if (i == mIconSelectedItemCatalog) {
+            for (String s : getNameImageResources())
+                if (s.equals(mIconSelectedItemCatalog)) {
                     flag = true;
                     break;
                 }
             if (flag) {
                 setBackgroundPreviousSelectedIcon();
-                mSelectedLinearLayoutIcon = mLinearLayoutIcon.get(getImageResources().indexOf(selectedIcon));
+                mSelectedLinearLayoutIcon = mLinearLayoutIcon.get(getNameImageResources().indexOf(selectedIcon));
                 mSelectedImageButtonIcon = (ImageButton) mSelectedLinearLayoutIcon.getTag();
                 setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
             }
@@ -85,6 +86,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             }
         } else if (requestCode == REQUEST_CODE_COLOR_CATEGORY && resultCode == RESULT_OK) {
             String selectedColor = data.getStringExtra("SelectedColor");
+            if (mColorCatalog.contains(selectedColor)) {
+                int position = mColorCatalog.indexOf(selectedColor);
+                if (mSelectedImageButtonColor != null) mSelectedImageButtonColor.setImageResource(0);
+                mSelectedImageButtonColor = mImageButtonColor.get(position);
+            }
+            else {
+                mColorCatalog.remove(mColorCatalog.size() - 1);
+                mColorCatalog.add(0, selectedColor);
+                createGridViewColor(mColorCatalog);
+                mSelectedImageButtonColor = mImageButtonColor.get(0);
+            }
+            mSelectedImageButtonColor.setImageResource(R.drawable.ic_tick);
             mColorSelectedItemCatalog = selectedColor;
             setBackgroundCurrentSelectedIcon(mColorSelectedItemCatalog);
         }
@@ -100,14 +113,17 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         init();
 
         mIconCatalog = getImageResources();
+        mColorCatalog = getColorResource();
 
         createMainItemCreating(R.drawable.ic_category, "#a4b7b1");
 
         createGridViewIcon(mIconCatalog, AMOUNT_ITEM_CATALOG);
 
-        createGridViewColor();
+        createGridViewColor(mColorCatalog);
 
         createListenerControl();
+
+        receiveIntent();
     }
     private void init() {
         ivMainItemCreating = findViewById(R.id.imageViewMainItemCreating);
@@ -120,6 +136,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         btnAddItemCategory.setEnabled(false);
 
         mIconCatalog = new ArrayList<>();
+        mColorCatalog = new ArrayList<>();
         mLinearLayoutIcon = new ArrayList<>();
         mImageButtonColor = new ArrayList<>();
 
@@ -198,7 +215,8 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mIconSelectedItemCatalog = (int) ((ImageButton) v).getTag();
+                        int tmp = (int) ((ImageButton) v).getTag();
+                        mIconSelectedItemCatalog = getFileNameFromResourceId(tmp);
 
                         setBackgroundPreviousSelectedIcon();
 
@@ -243,8 +261,18 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
             gridLayoutIcon.addView(linearLayout);
         }
     }
-    private void createGridViewColor() {
+    private void createGridViewColor(ArrayList<String> mColorCatalog) {
         int countColumn = 8;
+
+        int childCount = gridLayoutColor.getChildCount();
+        if (childCount != 0) {
+            for (int i = 0; i < childCount; i++) {
+                View child = gridLayoutColor.getChildAt(0);
+                gridLayoutColor.removeView(child);
+            }
+        }
+
+        mImageButtonColor.clear();
 
         gridLayoutColor.setColumnCount(countColumn);
 
@@ -252,16 +280,16 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
 
-        int amount = 8;
+        int amount = mColorCatalog.size();
 
         for (int i = 0; i < amount; i++) {
             ImageButton imageButton = new ImageButton(this);
             imageButton.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
             String customColor;
             if (i != amount - 1) {
-                customColor = getColorByIndex(i);
+                customColor = mColorCatalog.get(i);
             } else {
-                customColor = getColorByIndex(1000);
+                customColor = "#a4b7b1";
                 imageButton.setImageResource(R.drawable.ic_add_1);
             }
 
@@ -345,7 +373,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private boolean isCheckFillFullInform() {
         if (!TextUtils.isEmpty(mNameSelectedItemCatalog)) {
             if (!TextUtils.isEmpty(mTypeSelectedItemCatalog)) {
-                if (mIconSelectedItemCatalog != 0) {
+                if (!TextUtils.isEmpty(mIconSelectedItemCatalog)) {
                     if (!TextUtils.isEmpty(mColorSelectedItemCatalog)) {
                         return true;
                     }
@@ -372,7 +400,7 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private void checkEnableButton() {
         if (!TextUtils.isEmpty(mNameSelectedItemCatalog))
             if (!TextUtils.isEmpty(mTypeSelectedItemCatalog))
-                if (mIconSelectedItemCatalog != 0)
+                if (!TextUtils.isEmpty(mIconSelectedItemCatalog))
                     if (!TextUtils.isEmpty(mColorSelectedItemCatalog)) {
                         btnAddItemCategory.setAlpha(1f);
                         btnAddItemCategory.setEnabled(true);
@@ -381,61 +409,50 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         btnAddItemCategory.setAlpha(0.5f);
         btnAddItemCategory.setEnabled(false);
     }
-    private ArrayList<Integer> getImageResources() {
-        ArrayList<Integer> resourceList = new ArrayList<>();
-        resourceList.add(R.drawable.icon_other_1);
-        resourceList.add(R.drawable.icon_transportation_3);
-        resourceList.add(R.drawable.icon_shopping_19);
-        resourceList.add(R.drawable.icon_foodanddrink_4);
-        resourceList.add(R.drawable.icon_entertainment_10);
-        resourceList.add(R.drawable.icon_other_11);
-        resourceList.add(R.drawable.icon_transportation_5);
-        resourceList.add(R.drawable.icon_beauty_8);
-        resourceList.add(R.drawable.icon_finances_10);
-        resourceList.add(R.drawable.icon_finances_5);
-        resourceList.add(R.drawable.icon_family_11);
-        resourceList.add(R.drawable.icon_transportation_13);
-        resourceList.add(R.drawable.icon_family_5);
-        resourceList.add(R.drawable.icon_foodanddrink_2);
-        resourceList.add(R.drawable.icon_family_6);
+    private ArrayList<String> getNameImageResources() {
+        ArrayList<String> resourceList = new ArrayList<>();
+        resourceList.add("icon_other_1");
+        resourceList.add("icon_transportation_3");
+        resourceList.add("icon_shopping_19");
+        resourceList.add("icon_foodanddrink_4");
+        resourceList.add("icon_entertainment_10");
+        resourceList.add("icon_other_11");
+        resourceList.add("icon_transportation_5");
+        resourceList.add("icon_beauty_8");
+        resourceList.add("icon_finances_10");
+        resourceList.add("icon_finances_5");
+        resourceList.add("icon_family_11");
+        resourceList.add("icon_transportation_13");
+        resourceList.add("icon_family_5");
+        resourceList.add("icon_foodanddrink_2");
+        resourceList.add("icon_family_6");
 
         return resourceList;
     }
-    private void sendIntent(int currentResIcon) {
+    private ArrayList<Integer> getImageResources() {
+        ArrayList<Integer> resourceList = new ArrayList<>();
+        for (String nameImage : getNameImageResources()) {
+            resourceList.add(getFileFromDrawable(nameImage));
+        }
+        return resourceList;
+    }
+    private void sendIntent(String nameCurrentIcon) {
         Intent intent = new Intent(this, IconCatalogActivity.class);
-        intent.putExtra("CurrentResIcon", currentResIcon);
+        intent.putExtra("NameIcon", nameCurrentIcon);
         startActivityForResult(intent, REQUEST_CODE_ICON_CATEGORY);
     }
-    public String getColorByIndex(int index) {
-        String color;
+    public ArrayList<String> getColorResource() {
+        ArrayList<String> colors = new ArrayList<>();
+        colors.add("#80cf5c");
+        colors.add("#5162f6");
+        colors.add("#f1b109");
+        colors.add("#eb54c8");
+        colors.add("#36d9d8");
+        colors.add("#de2020");
+        colors.add("#9d7ef3");
+        colors.add("#a4b7b1");
 
-        switch (index) {
-            case 0:
-                color = "#80cf5c";
-                break;
-            case 1:
-                color = "#5162f6";
-                break;
-            case 2:
-                color = "#f1b109";
-                break;
-            case 3:
-                color = "#eb54c8";
-                break;
-            case 4:
-                color = "#36d9d8";
-                break;
-            case 5:
-                color = "#de2020";
-                break;
-            case 6:
-                color = "#9d7ef3";
-                break;
-            default:
-                color = "#a4b7b1";
-                break;
-        }
-        return color;
+        return colors;
     }
     private void createListenerControl() {
         TouchableWrapper touchableWrapper = findViewById(R.id.touchableWrapper);
@@ -488,16 +505,21 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                 if (isCheckFillFullInform()) {
                     String id = mIncomeCategoryDatabase.push().getKey();
                     Catalog catalog = new Catalog(mNameSelectedItemCatalog, mColorSelectedItemCatalog, mTypeSelectedItemCatalog, mIconSelectedItemCatalog);
-                    if (catalog.getType() == "Chi phí");
-                    mExpenseCategoryDatabase.child(id).setValue(catalog);
-                    if (catalog.getType() == "Thu nhập");
-                    mIncomeCategoryDatabase.child(id).setValue(catalog);
+                    Intent intent = null;
+                    if (catalog.getType() == "Chi phí") {
+                        mExpenseCategoryDatabase.child(id).setValue(catalog);
+                        intent = new Intent(view.getContext(), AddExpenseActivity.class);
+                    }
 
-                    Intent intent = new Intent(view.getContext(), AddExpenseActivity.class);
+                    else if (catalog.getType() == "Thu nhập") {
+                        mIncomeCategoryDatabase.child(id).setValue(catalog);
+                        intent = new Intent(view.getContext(), AddIncomeActivity.class);
+                    }
+
                     String name = catalog.getName();
                     String color = catalog.getColor();
                     String type = catalog.getType();
-                    int icon = catalog.getIcon();
+                    String icon = catalog.getIcon();
                     intent.putExtra("name", name);
                     intent.putExtra("color", color);
                     intent.putExtra("type", type);
@@ -563,11 +585,11 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
         drawable.draw(canvas);
         return bitmap;
     }
-    private void updateMainItemCreating(int image, String color) {
+    private void updateMainItemCreating(String image, String color) {
         GradientDrawable background = new GradientDrawable();
         background.setShape(GradientDrawable.OVAL);
-        if (image != 0) {
-            ivMainItemCreating.setImageDrawable(imageChangedSize(image));
+        if (image != null) {
+            ivMainItemCreating.setImageDrawable(imageChangedSize(getFileFromDrawable(image)));
         }
         if (color != null) {
             background.setColor(Color.parseColor(color));
@@ -579,5 +601,28 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(tvNameItem.getWindowToken(), 0);
+    }
+    private void receiveIntent() {
+        Intent intent = getIntent();
+        String type = intent.getStringExtra("type");
+        if ("Expense".equals(type)) {
+            RadioButton radioButtonExpense = findViewById(R.id.radioButtonExpense);
+            radioButtonExpense.setChecked(true);
+        } else if ("Income".equals(type)) {
+            RadioButton radioButtonIncome = findViewById(R.id.radioButtonIncome);
+            radioButtonIncome.setChecked(true);
+        }
+    }
+    private int getFileFromDrawable(String fileName) {
+        int drawableId = getResources().getIdentifier(fileName, "drawable", getPackageName());
+        return drawableId;
+    }
+    private String getFileNameFromResourceId(int resourceId) {
+        String resourceTypeName = getResources().getResourceTypeName(resourceId);
+        if (!resourceTypeName.equals("drawable")) {
+            return null;
+        }
+        String fileName = getResources().getResourceEntryName(resourceId);
+        return fileName;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.budget_management;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -44,8 +45,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class ExpenseFragment extends Fragment {
-
-
+    private final int REQUEST_CODE_UPDATE_RECORD = 8;
     //Firebase database
     private FirebaseAuth mAuth;
     private DatabaseReference mExpenseDatabase;
@@ -71,7 +71,7 @@ public class ExpenseFragment extends Fragment {
     FirebaseRecyclerAdapter<Data, ExpenseFragment.MyViewHolder> adapter;
     private Bundle arg;
     private String myType;
-    private int myIcon;
+    private String myIcon;
     private int myColor;
     public ExpenseFragment() {
         // Required empty public constructor
@@ -82,7 +82,7 @@ public class ExpenseFragment extends Fragment {
         // Inflate the layout for this fragment
         arg = getArguments();
         myType = arg.getString("type");
-        myIcon = arg.getInt("icon");
+        myIcon = arg.getString("icon");
         myColor = arg.getInt("color");
         View myview =  inflater.inflate(R.layout.fragment_expense, container, false);
         mAuth = FirebaseAuth.getInstance();
@@ -135,7 +135,7 @@ public class ExpenseFragment extends Fragment {
                 holder.setNote(model.getNote());
                 holder.setDate(model.getDate());
                 holder.setAmmount(model.getAmount());
-                holder.setIcon(myIcon,myColor);
+                holder.setIcon(getFileFromDrawable(myIcon),myColor);
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -260,70 +260,81 @@ public class ExpenseFragment extends Fragment {
     }
 
     private void updateDataItem(){
-        AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        Intent intent = new Intent(getContext(), UpdateRecordActivity.class);
+        intent.putExtra("amount", String.valueOf(amount));
+        intent.putExtra("catalogName", myType);
+        intent.putExtra("catalogColor", myColor);
+        intent.putExtra("catalogIcon", myIcon);
+        intent.putExtra("date", theDay);
+        intent.putExtra("description", note);
+        intent.putExtra("type", "Chi phí");
 
-        View myview = inflater.inflate(R.layout.update_data_item, null);
-        myDialog.setView(myview);
+        startActivityForResult(intent, REQUEST_CODE_UPDATE_RECORD);
 
-        edtAmmount = myview.findViewById(R.id.ammount_edt);
-        edtType = myview.findViewById(R.id.type_edt);
-        edtNote = myview.findViewById(R.id.note_edt);
-
-        //Set data to editText
-
-        edtType.setText(type);
-        edtType.setSelection(type.length());
-
-        edtNote.setText(note);
-        edtNote.setSelection(note.length());
-
-        edtAmmount.setText(String.valueOf(amount));
-        edtAmmount.setSelection(String.valueOf(amount).length());
-
-        btnUpdate = myview.findViewById(R.id.btn_upd_Update);
-        btnDelete = myview.findViewById(R.id.btn_upd_Delete);
-
-        datePicker = myview.findViewById(R.id.datePicker_update);
-        setDatePicker(theDay);
-
-        AlertDialog dialog = myDialog.create();
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type = edtType.getText().toString().trim();
-                note = edtNote.getText().toString().trim();
-                String mdAmount = String.valueOf(amount);
-
-                mdAmount = edtAmmount.getText().toString().trim();
-
-                int myAmount = Integer.parseInt(mdAmount);
-
-                Calendar calendar = Calendar.getInstance();
-                int year = datePicker.getYear();
-                int month = datePicker.getMonth();
-                int day = datePicker.getDayOfMonth();
-
-                calendar.set(year,month,day);
-                Date date = calendar.getTime();
-
-                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-                String mDate = sdf.format(date);
-
-                Data data = new Data(myAmount,type,note,post_key,mDate,"#"+Integer.toHexString(myColor),myIcon);
-                mExpenseDatabase.child(post_key).setValue(data);
-                dialog.dismiss();
-
-            }
-        });
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mExpenseDatabase.child(post_key).removeValue();
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
+//        AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
+//        LayoutInflater inflater = LayoutInflater.from(getActivity());
+//
+//        View myview = inflater.inflate(R.layout.update_data_item, null);
+//        myDialog.setView(myview);
+//
+//        edtAmmount = myview.findViewById(R.id.ammount_edt);
+//        edtType = myview.findViewById(R.id.type_edt);
+//        edtNote = myview.findViewById(R.id.note_edt);
+//
+//        //Set data to editText
+//
+//        edtType.setText(type);
+//        edtType.setSelection(type.length());
+//
+//        edtNote.setText(note);
+//        edtNote.setSelection(note.length());
+//
+//        edtAmmount.setText(String.valueOf(amount));
+//        edtAmmount.setSelection(String.valueOf(amount).length());
+//
+//        btnUpdate = myview.findViewById(R.id.btn_upd_Update);
+//        btnDelete = myview.findViewById(R.id.btn_upd_Delete);
+//
+//        datePicker = myview.findViewById(R.id.datePicker_update);
+//        setDatePicker(theDay);
+//
+//        AlertDialog dialog = myDialog.create();
+//        btnUpdate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                type = edtType.getText().toString().trim();
+//                note = edtNote.getText().toString().trim();
+//                String mdAmount = String.valueOf(amount);
+//
+//                mdAmount = edtAmmount.getText().toString().trim();
+//
+//                int myAmount = Integer.parseInt(mdAmount);
+//
+//                Calendar calendar = Calendar.getInstance();
+//                int year = datePicker.getYear();
+//                int month = datePicker.getMonth();
+//                int day = datePicker.getDayOfMonth();
+//
+//                calendar.set(year,month,day);
+//                Date date = calendar.getTime();
+//
+//                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+//                String mDate = sdf.format(date);
+//
+//                Data data = new Data(myAmount,type,note,post_key,mDate,"#"+Integer.toHexString(myColor),myIcon);
+//                mExpenseDatabase.child(post_key).setValue(data);
+//                dialog.dismiss();
+//
+//            }
+//        });
+//        btnDelete.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mExpenseDatabase.child(post_key).removeValue();
+//                dialog.dismiss();
+//            }
+//        });
+//        dialog.show();
     }
     public void setDatePicker(String thisDay){
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
@@ -337,5 +348,9 @@ public class ExpenseFragment extends Fragment {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+    private int getFileFromDrawable(String fileName) {
+        int drawableId = getResources().getIdentifier(fileName, "drawable", getContext().getPackageName());
+        return drawableId;
     }
 }

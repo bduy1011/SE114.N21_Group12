@@ -293,112 +293,109 @@ public class HomeFragment extends Fragment {
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //if(isIncome){
-                    Random random = new Random();
-                    totalIncomeSum = 0;
-                    dataList = new ArrayList<>();
-                    incomeColorList = new ArrayList<>();
-                    typeIncomeIconMap = new HashMap<>();
-                    typeIncomeColorMap = new HashMap<>();
-                    typeIncomeAmountMap = new HashMap<>();
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        Data data = dataSnapshot.getValue(Data.class);
-                        DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-                        try {
-                            Date date = dateFormat.parse(data.getDate());
+                Random random = new Random();
+                totalIncomeSum = 0;
+                dataList = new ArrayList<>();
+                incomeColorList = new ArrayList<>();
+                typeIncomeIconMap = new HashMap<>();
+                typeIncomeColorMap = new HashMap<>();
+                typeIncomeAmountMap = new HashMap<>();
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Data data = dataSnapshot.getValue(Data.class);
+                    DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+                    try {
+                        Date date = dateFormat.parse(data.getDate());
 
-                            Calendar calendar = Calendar.getInstance();
-                            int currentYear = calendar.get(Calendar.YEAR);
-                            int currentMonth = calendar.get(Calendar.MONTH);
-                            int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-                            calendar.setTime(date);
-                            int year = calendar.get(Calendar.YEAR);
-                            int month = calendar.get(Calendar.MONTH);
-                            int day = calendar.get(Calendar.DAY_OF_MONTH);
-                            if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
-                                totalIncomeSum += data.getAmount();
-                                totalIncomeResult.setText(formatCurrency(totalIncomeSum));
-                                dataList.add(data);
-                            } else if (month == currentMonth && year == currentYear && isMonthClick) {
-                                totalIncomeSum +=data.getAmount();
-                                totalIncomeResult.setText(formatCurrency(totalIncomeSum));
-                                dataList.add(data);
-                            } else if (year == currentYear && isYearClick) {
-                                totalIncomeSum += data.getAmount();
-                                totalIncomeResult.setText(formatCurrency(totalIncomeSum));
-                                dataList.add(data);
-                            }
-                            else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
-                                totalIncomeSum += data.getAmount();
-                                totalIncomeResult.setText(formatCurrency(totalIncomeSum));
-                                dataList.add(data);
-                            }
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
+                        Calendar calendar = Calendar.getInstance();
+                        int currentYear = calendar.get(Calendar.YEAR);
+                        int currentMonth = calendar.get(Calendar.MONTH);
+                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+                        calendar.setTime(date);
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
+                            totalIncomeSum += data.getAmount();
+                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            dataList.add(data);
+                        } else if (month == currentMonth && year == currentYear && isMonthClick) {
+                            totalIncomeSum +=data.getAmount();
+                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            dataList.add(data);
+                        } else if (year == currentYear && isYearClick) {
+                            totalIncomeSum += data.getAmount();
+                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            dataList.add(data);
                         }
-                    }
-
-                    List<PieEntry> entries = new ArrayList<>();
-                    PieDataSet dataSet = new PieDataSet(null, "Biểu đồ tròn");
-                    for (Data data : dataList) {
-                        String type = data.getType();
-                        int color = Color.parseColor(data.getColor());
-                        int icon = data.getIcon();
-                        float amount = data.getAmount();
-                        if (typeIncomeAmountMap.containsKey(type)) {
-                            amount += typeExpenseAmountMap.get(type);
+                        else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
+                            totalIncomeSum += data.getAmount();
+                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            dataList.add(data);
                         }
-                        typeIncomeColorMap.put(type, color);
-                        typeIncomeAmountMap.put(type, amount);
-                        typeIncomeIconMap.put(type, icon);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
-
-                    for (Map.Entry<String, Float> entry : typeIncomeAmountMap.entrySet()) {
-                        String type = entry.getKey();
-                        float amount = entry.getValue();
-                        incomeColorList.add(typeIncomeColorMap.get(type));
-                        dataSet.addColor(typeIncomeColorMap.get(type));
-                        entries.add(new PieEntry(amount, type));
-                    }
-                    dataSet.setColors(incomeColorList);
-                    dataSet.setValues(entries);
-                    PieData incomeData = new PieData(dataSet);
-                    incomeData.setValueTextSize(12f);
-                    incomeData.setValueTextColor(Color.BLACK);
-
-                    dataSet.setValueFormatter(new PercentFormatter(mainChart));
-                    dataSet.setSliceSpace(2f);
-                    dataSet.setValues(entries);
-                    dataSet.setDrawValues(false);
-
-
-                    mainChart.setCenterText("\tIncome Money\n"+totalIncomeSum + "đ");
-                    mainChart.setCenterTextColor(Color.GREEN);
-                    mainChart.setCenterTextSize(20f);
-                    mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
-
-
-                    mainChart.setDrawHoleEnabled(true);
-                    mainChart.setHoleColor(Color.TRANSPARENT);
-                    mainChart.setTransparentCircleRadius(40f);
-
-                    mainChart.setEntryLabelColor(Color.BLACK);
-                    mainChart.setEntryLabelTextSize(14f);
-                    mainChart.setHoleRadius(65f);
-
-                    mainChart.animateY(1000, Easing.EaseInOutQuad);
-                    mainChart.getDescription().setEnabled(false);
-                    mainChart.getLegend().setEnabled(false);
-                    mainChart.setData(incomeData);
-
-                    mainChart.setDrawEntryLabels(false);
-                    mainChart.invalidate();
-
-                    incomeAdapter = new IncomeAdapter();
-                    mainRecycleView.setAdapter(incomeAdapter);
-
                 }
-            //}
+
+                List<PieEntry> entries = new ArrayList<>();
+                PieDataSet dataSet = new PieDataSet(null, "Biểu đồ tròn");
+                for (Data data : dataList) {
+                    String type = data.getType();
+                    int color = Color.parseColor(data.getColor());
+                    int icon = getFileFromDrawable(data.getIcon());
+                    float amount = data.getAmount();
+                    if (typeIncomeAmountMap.containsKey(type)) {
+                        amount += typeExpenseAmountMap.get(type);
+                    }
+                    typeIncomeColorMap.put(type, color);
+                    typeIncomeAmountMap.put(type, amount);
+                    typeIncomeIconMap.put(type, icon);
+                }
+
+                for (Map.Entry<String, Float> entry : typeIncomeAmountMap.entrySet()) {
+                    String type = entry.getKey();
+                    float amount = entry.getValue();
+                    incomeColorList.add(typeIncomeColorMap.get(type));
+                    dataSet.addColor(typeIncomeColorMap.get(type));
+                    entries.add(new PieEntry(amount, type));
+                }
+                dataSet.setColors(incomeColorList);
+                dataSet.setValues(entries);
+                PieData incomeData = new PieData(dataSet);
+                incomeData.setValueTextSize(12f);
+                incomeData.setValueTextColor(Color.BLACK);
+
+                dataSet.setValueFormatter(new PercentFormatter(mainChart));
+                dataSet.setSliceSpace(2f);
+                dataSet.setValues(entries);
+                dataSet.setDrawValues(false);
+
+
+                mainChart.setCenterText("\tIncome Money\n"+totalIncomeSum + "đ");
+                mainChart.setCenterTextColor(Color.GREEN);
+                mainChart.setCenterTextSize(20f);
+                mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
+
+
+                mainChart.setDrawHoleEnabled(true);
+                mainChart.setHoleColor(Color.TRANSPARENT);
+                mainChart.setTransparentCircleRadius(40f);
+
+                mainChart.setEntryLabelColor(Color.BLACK);
+                mainChart.setEntryLabelTextSize(14f);
+                mainChart.setHoleRadius(65f);
+
+                mainChart.animateY(1000, Easing.EaseInOutQuad);
+                mainChart.getDescription().setEnabled(false);
+                mainChart.getLegend().setEnabled(false);
+                mainChart.setData(incomeData);
+
+                mainChart.setDrawEntryLabels(false);
+                mainChart.invalidate();
+
+                incomeAdapter = new IncomeAdapter();
+                mainRecycleView.setAdapter(incomeAdapter);
+            }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
@@ -409,105 +406,103 @@ public class HomeFragment extends Fragment {
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //if(isExpense){
-                    Random random = new Random();
-                    dataList = new ArrayList<>();
-                    typeExpenseAmountMap = new HashMap<>();
-                    expenseColorList = new ArrayList<>();
-                    typeExpenseColorMap = new HashMap<>();
-                    typeExpenseIconMap = new HashMap<>();
-                    totalExpenseSum = 0;
-                    List<PieEntry> entries = new ArrayList<>();
-                    PieDataSet dataSet = new PieDataSet(null, "");
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        Data data = dataSnapshot.getValue(Data.class);
-                        DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-                        try {
-                            Date date = dateFormat.parse(data.getDate());
-                            Calendar calendar = Calendar.getInstance();
-                            int currentYear = calendar.get(Calendar.YEAR);
-                            int currentMonth = calendar.get(Calendar.MONTH);
-                            int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-                            calendar.setTime(date);
-                            int year = calendar.get(Calendar.YEAR);
-                            int month = calendar.get(Calendar.MONTH);
-                            int day = calendar.get(Calendar.DAY_OF_MONTH);
-                            if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
-                                totalExpenseSum += data.getAmount();
-                                totalExpenseResult.setText(formatCurrency(totalExpenseSum));
-                                dataList.add(data);
-                            } else if (month == currentMonth && year == currentYear && isMonthClick) {
-                                totalExpenseSum += data.getAmount();
-                                totalExpenseResult.setText(formatCurrency(totalExpenseSum));
-                                dataList.add(data);
-                            } else if (year == currentYear && isYearClick) {
-                                totalExpenseSum += data.getAmount();
-                                totalExpenseResult.setText(formatCurrency(totalExpenseSum));
-                                dataList.add(data);
-                            }
-                            else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
-                                totalExpenseSum += data.getAmount();
-                                totalExpenseResult.setText(formatCurrency(totalExpenseSum));
-                                dataList.add(data);
-                            }
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
+                Random random = new Random();
+                dataList = new ArrayList<>();
+                typeExpenseAmountMap = new HashMap<>();
+                expenseColorList = new ArrayList<>();
+                typeExpenseColorMap = new HashMap<>();
+                typeExpenseIconMap = new HashMap<>();
+                totalExpenseSum = 0;
+                List<PieEntry> entries = new ArrayList<>();
+                PieDataSet dataSet = new PieDataSet(null, "");
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Data data = dataSnapshot.getValue(Data.class);
+                    DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+                    try {
+                        Date date = dateFormat.parse(data.getDate());
+                        Calendar calendar = Calendar.getInstance();
+                        int currentYear = calendar.get(Calendar.YEAR);
+                        int currentMonth = calendar.get(Calendar.MONTH);
+                        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+                        calendar.setTime(date);
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
+                            totalExpenseSum += data.getAmount();
+                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            dataList.add(data);
+                        } else if (month == currentMonth && year == currentYear && isMonthClick) {
+                            totalExpenseSum += data.getAmount();
+                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            dataList.add(data);
+                        } else if (year == currentYear && isYearClick) {
+                            totalExpenseSum += data.getAmount();
+                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            dataList.add(data);
                         }
-                    }
-                    for (Data data : dataList) {
-                        String type = data.getType();
-                        int color = Color.parseColor(data.getColor());
-                        int icon = data.getIcon();
-                        float amount = data.getAmount();
-                        if (typeExpenseAmountMap.containsKey(type)) {
-                            amount += typeExpenseAmountMap.get(type);
+                        else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
+                            totalExpenseSum += data.getAmount();
+                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            dataList.add(data);
                         }
-                        typeExpenseColorMap.put(type, color);
-                        typeExpenseAmountMap.put(type, amount);
-                        typeExpenseIconMap.put(type, icon);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
                     }
-                    for (Map.Entry<String, Float> entry : typeExpenseAmountMap.entrySet()) {
-                        String type = entry.getKey();
-                        float amount = entry.getValue();
-                        expenseColorList.add(typeExpenseColorMap.get(type));
-                        dataSet.addColor(typeExpenseColorMap.get(type));
-                        entries.add(new PieEntry(amount, type));
-                    }
-                    dataSet.setColors(expenseColorList);
-                    dataSet.setValues(entries);
-                    dataSet.setSliceSpace(2f);
-                    dataSet.setDrawValues(false);
-
-                    PieData expenseData = new PieData(dataSet);
-                    expenseData.setValueTextSize(12f);
-                    expenseData.setValueTextColor(Color.BLACK);
-
-                    mainChart.setCenterText("\tExpense Money\n"+totalExpenseSum + "đ");
-                    mainChart.setCenterTextColor(Color.RED);
-                    mainChart.setCenterTextSize(20f);
-                    mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
-
-
-                    mainChart.setDrawHoleEnabled(true);
-                    mainChart.setHoleColor(Color.TRANSPARENT);
-                    mainChart.setTransparentCircleRadius(40f);
-
-                    mainChart.setEntryLabelColor(Color.BLACK);
-                    mainChart.setEntryLabelTextSize(14f);
-                    mainChart.setHoleRadius(65f);
-
-                    mainChart.animateY(1000, Easing.EaseInOutQuad);
-                    mainChart.getDescription().setEnabled(false);
-                    mainChart.getLegend().setEnabled(false);
-                    mainChart.setData(expenseData);
-                    mainChart.setDrawEntryLabels(false);
-                    mainChart.invalidate();
-
-                    expenseAdapter = new ExpenseAdapter();
-                    mainRecycleView.setAdapter(expenseAdapter);
-
                 }
-            //}
+                for (Data data : dataList) {
+                    String type = data.getType();
+                    int color = Color.parseColor(data.getColor());
+                    int icon = getFileFromDrawable(data.getIcon());
+                    float amount = data.getAmount();
+                    if (typeExpenseAmountMap.containsKey(type)) {
+                        amount += typeExpenseAmountMap.get(type);
+                    }
+                    typeExpenseColorMap.put(type, color);
+                    typeExpenseAmountMap.put(type, amount);
+                    typeExpenseIconMap.put(type, icon);
+                }
+                for (Map.Entry<String, Float> entry : typeExpenseAmountMap.entrySet()) {
+                    String type = entry.getKey();
+                    float amount = entry.getValue();
+                    expenseColorList.add(typeExpenseColorMap.get(type));
+                    dataSet.addColor(typeExpenseColorMap.get(type));
+                    entries.add(new PieEntry(amount, type));
+                }
+                dataSet.setColors(expenseColorList);
+                dataSet.setValues(entries);
+                dataSet.setSliceSpace(2f);
+                dataSet.setDrawValues(false);
+
+                PieData expenseData = new PieData(dataSet);
+                expenseData.setValueTextSize(12f);
+                expenseData.setValueTextColor(Color.BLACK);
+
+                mainChart.setCenterText("\tExpense Money\n"+totalExpenseSum + "đ");
+                mainChart.setCenterTextColor(Color.RED);
+                mainChart.setCenterTextSize(20f);
+                mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
+
+
+                mainChart.setDrawHoleEnabled(true);
+                mainChart.setHoleColor(Color.TRANSPARENT);
+                mainChart.setTransparentCircleRadius(40f);
+
+                mainChart.setEntryLabelColor(Color.BLACK);
+                mainChart.setEntryLabelTextSize(14f);
+                mainChart.setHoleRadius(65f);
+
+                mainChart.animateY(1000, Easing.EaseInOutQuad);
+                mainChart.getDescription().setEnabled(false);
+                mainChart.getLegend().setEnabled(false);
+                mainChart.setData(expenseData);
+                mainChart.setDrawEntryLabels(false);
+                mainChart.invalidate();
+
+                expenseAdapter = new ExpenseAdapter();
+                mainRecycleView.setAdapter(expenseAdapter);
+
+            }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
@@ -825,7 +820,7 @@ public class HomeFragment extends Fragment {
 
                 Bundle arg = new Bundle();
                 arg.putString("type",myItemData.getItemType());
-                arg.putInt("icon", myItemData.getItemIcon());
+                arg.putString("icon", getFileNameFromResourceId(myItemData.getItemIcon()));
                 arg.putInt("color", myItemData.getColor());
 
                 expenseFragment.setArguments(arg);
@@ -837,5 +832,16 @@ public class HomeFragment extends Fragment {
             }
         }
     }
-
+    private int getFileFromDrawable(String fileName) {
+        int drawableId = getResources().getIdentifier(fileName, "drawable", getContext().getPackageName());
+        return drawableId;
+    }
+    private String getFileNameFromResourceId(int resourceId) {
+        String resourceTypeName = getResources().getResourceTypeName(resourceId);
+        if (!resourceTypeName.equals("drawable")) {
+            return null;
+        }
+        String fileName = getResources().getResourceEntryName(resourceId);
+        return fileName;
+    }
 }

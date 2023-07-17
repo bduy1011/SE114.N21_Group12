@@ -7,14 +7,14 @@ public class Data {
     private String id;
     private String date;
     private String color;
-    private int icon;
+    private String icon;
     public String getColor() { return color; }
 
     public void setColor(String color) { this.color = color; }
 
-    public int getIcon() { return icon; }
+    public String getIcon() { return icon; }
 
-    public void setIcon(int icon) { this.icon = icon; }
+    public void setIcon(String icon) { this.icon = icon; }
 
     public int getAmount() {
         return amount;
@@ -59,7 +59,7 @@ public class Data {
     public Data(){
 
     }
-    public Data(int amount, String type, String note, String id, String date, String color, int icon) {
+    public Data(int amount, String type, String note, String id, String date, String color, String icon) {
         this.amount = amount;
         this.type = type;
         this.note = note;

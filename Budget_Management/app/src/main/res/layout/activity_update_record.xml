@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".AddExpenseActivity">
+    tools:context=".UpdateRecordActivity">
     <com.example.budget_management.Other.TouchableWrapper
         android:id="@+id/touchableWrapper"
         android:layout_width="match_parent"
@@ -38,6 +38,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp">
+                    <RadioGroup
+                        android:id="@+id/radioUpdateGroupType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <RadioButton
+                            android:id="@+id/radioButtonExpense"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chi phí"
+                            android:textSize="16sp"
+                            android:layout_marginRight="40dp"/>
+                        <RadioButton
+                            android:id="@+id/radioButtonIncome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Thu nhập"
+                            android:textSize="16sp"/>
+                    </RadioGroup>
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -142,19 +170,22 @@
                     android:layout_height="50dp"
                     android:layout_marginHorizontal="20dp"
                     android:inputType="textMultiLine"
+                    android:imeOptions="actionDone"
+                    android:minLines="1"
+                    android:maxLines="5"
                     android:hint="Ghi chú"/>
             </LinearLayout>
         </LinearLayout>
     </com.example.budget_management.Other.TouchableWrapper>
     <Button
-        android:id="@+id/btnAddNote"
+        android:id="@+id/btnUpdateNote"
         android:layout_width="230dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
         android:elevation="10dp"
-        android:text="Thêm"
+        android:text="Cập nhật"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:backgroundTint="@color/lavender"
