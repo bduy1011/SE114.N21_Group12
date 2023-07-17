@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     HomeFragment homeFragment;
     IncomeFragment incomeFragment;
     ExpenseFragment expenseFragment;
-    ExportFragment exportFragment;
     FirebaseAuth mAuth;
     TextView tvemail;
     NavigationView navigationView;
@@ -51,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //NavigationView navigationView = findViewById(R.id.navView);
         navigationView = findViewById(R.id.navView);
         navigationView.setNavigationItemSelectedListener(this);
-        exportFragment= new ExportFragment();
         homeFragment=new HomeFragment();
         incomeFragment=new IncomeFragment();
         expenseFragment=new ExpenseFragment();
@@ -114,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment=new GraphFragment();
                 break;
             case R.id.nav_export:
-                fragment=new ExportFragment();
+                ExportDialogFragment.showExportDialog(getSupportFragmentManager());
                 break;
             case R.id.nav_logout:
                 mAuth.signOut();

@@ -1,20 +1,22 @@
 package com.example.budget_management;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 
 import com.example.budget_management.Model.Data;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,25 +36,31 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExportFragment extends Fragment {
-    private File filePath;
-    private Button btnExportExcel;
+public class ExportDialogFragment extends DialogFragment {
+
     private static final int PERMISSION_REQUEST_CODE = 1;
     private FirebaseAuth mAuth;
-    @Nullable
+    private File filePath;
+
+    public static void showExportDialog(androidx.fragment.app.FragmentManager fragmentManager) {
+        ExportDialogFragment exportDialog = new ExportDialogFragment();
+        exportDialog.show(fragmentManager, "export_dialog");
+    }
+
+    @NonNull
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_export, container, false);
-
-        btnExportExcel = rootView.findViewById(R.id.btnExportExcel);
-
-        // File lưu ở SDK trong mục document của package dự án
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_export, null);
+        builder.setView(dialogView);
+        Button btnExport=dialogView.findViewById(R.id.btnExport);
+        Button btnCancel=dialogView.findViewById(R.id.btnCancel);
         filePath = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Data.xls");
-
-        // File lưu ở SDK của package dự án (không nằm trong mục nào cả)
-        // filePath = new File(requireActivity().getExternalFilesDir(null), "Data.xls");
-
-        btnExportExcel.setOnClickListener(new View.OnClickListener() {
+        filePath=new File(requireActivity().getExternalFilesDir(null),"Data.xls");
+        //Set click listener
+        btnExport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Kiểm tra quyền truy cập WRITE_EXTERNAL_STORAGE
@@ -60,19 +68,42 @@ public class ExportFragment extends Fragment {
                         == PackageManager.PERMISSION_GRANTED) {
                     // Quyền đã được cấp, tiến hành xử lý tạo file Excel
                     getExpenseAndIncomeDataFromFirebase();
+                    //    showExportSuccessMessage();
+
                 } else {
                     // Quyền chưa được cấp, yêu cầu người dùng cấp quyền
                     ActivityCompat.requestPermissions(requireActivity(),
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             PERMISSION_REQUEST_CODE);
                 }
+
+            }
+
+            private void showExportSuccessMessage() {
+                // Create and show an AlertDialog to display the success message
+                new AlertDialog.Builder(requireActivity())
+                        .setTitle("Export Success")
+                        .setMessage("Data has been successfully exported to Excel.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Dialog button click listener (optional, you can remove this if not needed)
+                                dialog.dismiss();
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
             }
         });
 
-        return rootView;
+        return builder.create();
     }
-
-    // Xử lý kết quả của việc yêu cầu quyền
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -191,3 +222,4 @@ public class ExportFragment extends Fragment {
         }
     }
 }
+
