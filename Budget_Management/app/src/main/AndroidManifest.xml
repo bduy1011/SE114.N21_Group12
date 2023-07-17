@@ -15,6 +15,9 @@
         android:theme="@style/Theme.Budget_Management"
         tools:targetApi="31">
         <activity
+            android:name=".IncomeCatalogActivity"
+            android:exported="false" />
+        <activity
             android:name=".ColorCatalogActivity"
             android:exported="false" />
         <activity

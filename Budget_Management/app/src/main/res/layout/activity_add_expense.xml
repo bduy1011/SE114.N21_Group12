@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".AddIncomeActivity">
+    tools:context=".AddExpenseActivity">
     <com.example.budget_management.Other.TouchableWrapper
         android:id="@+id/touchableWrapper"
         android:layout_width="match_parent"
@@ -146,7 +146,7 @@
         </LinearLayout>
     </com.example.budget_management.Other.TouchableWrapper>
     <Button
-        android:id="@+id/btnAddNoteExpense"
+        android:id="@+id/btnAddNote"
         android:layout_width="230dp"
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"

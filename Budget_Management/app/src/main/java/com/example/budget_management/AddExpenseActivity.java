@@ -86,10 +86,10 @@ public class AddExpenseActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
-            int positionFromExpenseCatalogActivity = data.getIntExtra("SelectedExtendIcon", 10000);
+            int position = data.getIntExtra("SelectedExtendIcon", 10000);
             setBackgroundPreviousSelectedIcon();
             ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
-            createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, positionFromExpenseCatalogActivity), AMOUNT_ITEM_CATALOG);
+            createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
             saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
             setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
 
@@ -143,7 +143,7 @@ public class AddExpenseActivity extends AppCompatActivity {
         mEditTextMoney = findViewById(R.id.editMoney);
         mEditTextMoney.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-        btnAdd = findViewById(R.id.btnAddNoteExpense);
+        btnAdd = findViewById(R.id.btnAddNote);
         btnAdd.setAlpha(0.5f);
         btnAdd.setEnabled(false);
 
