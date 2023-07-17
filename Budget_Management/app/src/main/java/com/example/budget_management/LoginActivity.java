@@ -9,9 +9,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.MediaCodec;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +34,8 @@ public class   LoginActivity extends AppCompatActivity {
     private EditText loginEmail, loginPassword;
     private Button loginButton;
     private TextView signupRedirectText;
+    private CheckBox checkShowPassword;
+
     TextView forgotPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +47,22 @@ public class   LoginActivity extends AppCompatActivity {
         loginPassword=findViewById(R.id.login_password);
         loginButton=findViewById(R.id.login_button);
         forgotPassword =findViewById(R.id.forgot_password);
+        checkShowPassword=findViewById(R.id.checkShowPassword);
+
         signupRedirectText=findViewById(R.id.SignupRedirectText);
+        checkShowPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                {
+                    loginPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                else
+                {
+                    loginPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,21 +102,25 @@ public class   LoginActivity extends AppCompatActivity {
                 }
                 if(TextUtils.isEmpty(pass)){
                     loginPassword.setError("Password required");
+                    return;
                 }
-                auth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                            Toast.makeText(getApplicationContext(),"Login successful",Toast.LENGTH_SHORT).show();
+                else {
+                    auth.signInWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()){
+                                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                Toast.makeText(getApplicationContext(),"Login successful",Toast.LENGTH_SHORT).show();
 
-                        }
-                        else {
-                            Toast.makeText(getApplicationContext(),"Login failed",Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(),"Login failed",Toast.LENGTH_SHORT).show();
 
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
             }
         });
         //Sign up activity

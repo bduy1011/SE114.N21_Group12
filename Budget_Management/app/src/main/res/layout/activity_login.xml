@@ -44,13 +44,6 @@
                 android:textColor="@color/black" />
 
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:id="@+id/textInputLoginLayout"
-                android:layout_height="wrap_content"
-                app:passwordToggleEnabled="true"
-                app:counterMaxLength="32"
-                app:counterEnabled="true">
                 <EditText
                     android:id="@+id/login_password"
                     android:layout_width="match_parent"
@@ -62,9 +55,16 @@
                     android:maxLength="32"
                     android:hint="Password"
                     android:padding="8dp"
+                    android:inputType="textPassword"
                     android:textColor="@color/black"/>
+            <CheckBox
+                android:id="@+id/checkShowPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Show password"
+                android:textColor="@color/lavender"/>
 
-            </com.google.android.material.textfield.TextInputLayout>
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
