@@ -35,6 +35,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
     private Catalog mCatalogFromExpenseCatalog;
     private FirebaseAuth mAuth;
     private DatabaseReference mExpenseCategoryDatabase;
+    private String key;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +85,10 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
         int widthItem = screenWidthPx / 6;
 
         for (int i = 0; i < mCatalogExpense.size() + 1; i++) {
-            // Tạo LinearLayout mới
+            if (i == mCatalogExpense.size() && key == "add") {
+                return;
+            }
+                // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setGravity(Gravity.CENTER);
@@ -157,6 +161,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
                         if (position < mCatalogExpense.size()) {
                             Intent intent = new Intent(v.getContext(), AddExpenseActivity.class);
                             intent.putExtra("SelectedExtendIcon", position);
+                            intent.putExtra("Type", "Chi phí");
                             setResult(RESULT_OK, intent);
                         }
                         finish();
@@ -285,10 +290,13 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
     }
     private Catalog receiveIntent() {
         Intent intent = getIntent();
+        String key = intent.getStringExtra("key");
+
         String name = intent.getStringExtra("name");
         String color = intent.getStringExtra("color");
         String type = intent.getStringExtra("type");
         String icon = intent.getStringExtra("icon");
+
         Catalog catalog = new Catalog(name, color, type, icon);
         return catalog;
     }

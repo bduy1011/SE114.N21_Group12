@@ -1,5 +1,6 @@
 package com.example.budget_management;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -15,14 +16,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.example.budget_management.Model.Data;
@@ -78,6 +84,15 @@ public class ExpenseFragment extends Fragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_UPDATE_RECORD) {
+            loadData();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         arg = getArguments();
@@ -89,7 +104,6 @@ public class ExpenseFragment extends Fragment {
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = mUser.getUid();
         mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
-        Query myQuery = mExpenseDatabase.orderByChild("type").equalTo(myType);
         recyclerView = myview.findViewById(R.id.recycle_id_expense);
         expenseTotalSum = myview.findViewById(R.id.expense_txt_result);
 
@@ -99,7 +113,48 @@ public class ExpenseFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
 
-        mExpenseDatabase.addValueEventListener(new ValueEventListener() {
+        loadData();
+
+        recyclerView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                MenuInflater inflater = getActivity().getMenuInflater();
+                inflater.inflate(R.menu.context_menu, menu);
+            }
+        });
+
+        // Xử lý sự kiện khi menu context được chọn
+        recyclerView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
+                popupMenu.inflate(R.menu.context_menu);
+
+                // Xử lý sự kiện khi một item trong menu context được chọn
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (item.getItemId() == R.id.menu_delete) {
+                            deleteItem();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                popupMenu.show();
+
+                return true;
+            }
+        });
+
+
+        return myview;
+    }
+
+    private void loadData() {
+        Query myQuery = mExpenseDatabase.orderByChild("type").equalTo(myType);
+        myQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int totalValue = 0;
@@ -121,7 +176,7 @@ public class ExpenseFragment extends Fragment {
                         new FirebaseRecyclerOptions.Builder<Data>()
                                 .setQuery(myQuery, Data.class)
                                 .build()
-                ){
+                ) {
             @NonNull
             @Override
             public ExpenseFragment.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -139,8 +194,8 @@ public class ExpenseFragment extends Fragment {
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int adapterPosition=holder.getAdapterPosition();
-                        if(adapterPosition!=RecyclerView.NO_POSITION)
+                        int adapterPosition = holder.getAdapterPosition();
+                        if(adapterPosition != RecyclerView.NO_POSITION)
                         {
                             post_key = getRef(adapterPosition).getKey();
 
@@ -150,6 +205,7 @@ public class ExpenseFragment extends Fragment {
                             theDay = model.getDate();
 
                             updateDataItem();
+                            adapter.notifyDataSetChanged();
                         }
                     }
                 });
@@ -157,7 +213,11 @@ public class ExpenseFragment extends Fragment {
         };
         recyclerView.setAdapter(adapter);
         adapter.startListening();
-        return myview;
+    }
+
+    private void deleteItem() {
+        mExpenseDatabase.child(post_key).removeValue();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -260,16 +320,20 @@ public class ExpenseFragment extends Fragment {
     }
 
     private void updateDataItem(){
-        Intent intent = new Intent(getContext(), UpdateRecordActivity.class);
-        intent.putExtra("amount", String.valueOf(amount));
-        intent.putExtra("catalogName", myType);
-        intent.putExtra("catalogColor", myColor);
-        intent.putExtra("catalogIcon", myIcon);
-        intent.putExtra("date", theDay);
-        intent.putExtra("description", note);
-        intent.putExtra("type", "Chi phí");
+        if (post_key != null)
+        {
+            Intent intent = new Intent(getContext(), UpdateRecordActivity.class);
+            intent.putExtra("amount", String.valueOf(amount));
+            intent.putExtra("catalogName", myType);
+            intent.putExtra("catalogColor", myColor);
+            intent.putExtra("catalogIcon", myIcon);
+            intent.putExtra("date", theDay);
+            intent.putExtra("description", note);
+            intent.putExtra("type", "Chi phí");
+            intent.putExtra("postKey", post_key);
 
-        startActivityForResult(intent, REQUEST_CODE_UPDATE_RECORD);
+            startActivityForResult(intent, REQUEST_CODE_UPDATE_RECORD);
+        }
 
 //        AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
 //        LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -336,19 +400,7 @@ public class ExpenseFragment extends Fragment {
 //        });
 //        dialog.show();
     }
-    public void setDatePicker(String thisDay){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-        try {
-            Date date = dateFormat.parse(thisDay);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            datePicker.updateDate(calendar.get(Calendar.YEAR)
-                    , calendar.get(Calendar.MONTH)
-                    , calendar.get(Calendar.DAY_OF_MONTH));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
     private int getFileFromDrawable(String fileName) {
         int drawableId = getResources().getIdentifier(fileName, "drawable", getContext().getPackageName());
         return drawableId;

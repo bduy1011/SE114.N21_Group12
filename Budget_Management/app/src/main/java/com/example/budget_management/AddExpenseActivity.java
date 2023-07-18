@@ -101,12 +101,6 @@ public class AddExpenseActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        String name = intent.getStringExtra("name");
-        String color = intent.getStringExtra("color");
-        String type = intent.getStringExtra("type");
-        String icon = intent.getStringExtra("icon");
-        Catalog catalog = new Catalog(name, color, type, icon);
-
         int position = mCatalogExpense.size() - 1;
         setBackgroundPreviousSelectedCatalog();
         ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
@@ -629,6 +623,8 @@ public class AddExpenseActivity extends AppCompatActivity {
                 intent.putExtra("color", color);
                 intent.putExtra("type", type);
                 intent.putExtra("icon", icon);
+
+                intent.putExtra("key", "add");
             }
             startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
         }

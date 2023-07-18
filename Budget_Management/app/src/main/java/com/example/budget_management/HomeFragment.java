@@ -126,7 +126,8 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myview=inflater.inflate(R.layout.fragment_home,container,false);
-
+        totalExpenseResult = myview.findViewById(R.id.expense_set_result);
+        totalIncomeResult = myview.findViewById(R.id.income_set_result);
         mAuth=FirebaseAuth.getInstance();
         FirebaseUser mUser=mAuth.getCurrentUser();
         String uid=mUser.getUid();

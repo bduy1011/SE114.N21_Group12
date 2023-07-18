@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -49,7 +50,7 @@ import java.util.Locale;
 
 public class UpdateRecordActivity extends AppCompatActivity {
     private final int AMOUNT_ITEM_CATALOG = 12;
-    private final int REQUEST_CODE_EXPENSE_CATALOG = 10;
+    private final int REQUEST_CODE_EXPENSE_CATALOG = 8;
     private FirebaseAuth mAuth;
     private DatabaseReference mExpenseDatabase;
     private DatabaseReference mCatalogExpenseDatabase;
@@ -74,6 +75,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
     private String amount;
     private String description;
     private String date;
+    private String post_key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,24 +92,29 @@ public class UpdateRecordActivity extends AppCompatActivity {
 
         handleIntent();
 
-        //createButtonAddClick();
-
-
+        createButtonAddClick();
     }
-    /*@Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_EXPENSE_CATALOG && resultCode == RESULT_OK) {
-            int position = data.getIntExtra("SelectedExtendIcon", 10000);
-            setBackgroundPreviousSelectedIcon();
-            ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogExpense);
-            createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
-            saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-            setBackgroundCurrentSelectedIcon(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
-
+            int position = data.getIntExtra("SelectedExtendIcon", -1);
+            String type = data.getStringExtra("Type");
+            getCatalogResource(type, true, position);
             checkEnableButton();
         }
-    }*/
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String type = intent.getStringExtra("Type");
+        getCatalogResource(type, true, -11);
+        checkEnableButton();
+
+        checkEnableButton();
+    }
 
     private void init() {
         mLinearLayouts = new ArrayList<>();
@@ -192,11 +199,11 @@ public class UpdateRecordActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.radioButtonExpense) {
                     //mSelectedType = "Chi phí";
-                    getCatalogResource("Chi phí", false);
+                    getCatalogResource("Chi phí", false, -1);
                 } else if (checkedId == R.id.radioButtonIncome) {
                     //mSelectedType = "Thu nhập";
                     createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
-                    getCatalogResource("Thu nhập", false);
+                    getCatalogResource("Thu nhập", false, -1);
                 }
                 checkEnableButton();
             }
@@ -522,8 +529,6 @@ public class UpdateRecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isCheckFillFullInform()) {
-                    String id = mExpenseDatabase.push().getKey();
-
                     String tmpAmmount = mEditTextMoney.getText().toString().trim();
                     int amount = Integer.parseInt(tmpAmmount);
 
@@ -538,8 +543,9 @@ public class UpdateRecordActivity extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
                     String mDate = sdf.format(mSelectedDate);
 
-                    Data data=new Data(amount,type,note,id,mDate, colorCatalog, iconCatalog);
-                    mExpenseDatabase.child(id).setValue(data);
+                    Data data=new Data(amount,type,note,post_key,mDate, colorCatalog, iconCatalog);
+                    mExpenseDatabase.child(post_key).setValue(data);
+
                     finish();
                 }
             }
@@ -622,6 +628,8 @@ public class UpdateRecordActivity extends AppCompatActivity {
                 intent.putExtra("color", color);
                 intent.putExtra("type", type);
                 intent.putExtra("icon", icon);
+
+                intent.putExtra("key", "update");
             }
             startActivityForResult(intent, REQUEST_CODE_EXPENSE_CATALOG);
         }
@@ -665,7 +673,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
         btnUpdate.setEnabled(false);
     }
 
-    private void getCatalogResource(String type, boolean flag) {
+    private void getCatalogResource(String type, boolean flag, int positionSelected) {
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = mUser.getUid();
         mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
@@ -686,7 +694,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
                         mCatalogList.add(catalog);
                     }
                     if (flag) {
-                        setCatalogOfRecord();
+                        setCatalogOfRecord(positionSelected);
                     } else {
                         createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
                     }
@@ -709,7 +717,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
                         mCatalogList.add(catalog);
                     }
                     if (flag) {
-                        setCatalogOfRecord();
+                        setCatalogOfRecord(positionSelected);
                     } else {
                         createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
                     }
@@ -739,6 +747,8 @@ public class UpdateRecordActivity extends AppCompatActivity {
         String hexColor = String.format("#%06X", (0xFFFFFF & color));
         Catalog catalog = new Catalog(name, hexColor.toLowerCase(), type, icon);
         mSelectedCatalog = catalog;
+
+        post_key = intent.getStringExtra("postKey");
     }
 
     private void handleIntent() {
@@ -747,12 +757,12 @@ public class UpdateRecordActivity extends AppCompatActivity {
         if (mSelectedCatalog.getType().equals("Chi phí")) {
             RadioButton radioButtonExpense = findViewById(R.id.radioButtonExpense);
             radioButtonExpense.setChecked(true);
-            getCatalogResource(mSelectedCatalog.getType(), true);
+            getCatalogResource(mSelectedCatalog.getType(), true, -1);
 
         } else if (mSelectedCatalog.getType().equals("Thu nhập")) {
             RadioButton radioButtonIncome = findViewById(R.id.radioButtonIncome);
             radioButtonIncome.setChecked(true);
-            getCatalogResource(mSelectedCatalog.getType(), true);
+            getCatalogResource(mSelectedCatalog.getType(), true, -1);
         }
 
         if (date.equals(textDate1.getText().toString())) {
@@ -801,22 +811,31 @@ public class UpdateRecordActivity extends AppCompatActivity {
         date = dateFormat.format(tmpDate);
     }
 
-    private void setCatalogOfRecord() {
+    private void setCatalogOfRecord(int positionSelected) {
+
         int position = -1;
-        for (int i = 0; i < mCatalogList.size(); i++) {
-            if (mCatalogList.get(i).getName().equals(mSelectedCatalog.getName())
-                    && mCatalogList.get(i).getColor().equals(mSelectedCatalog.getColor())
-                    && mCatalogList.get(i).getType().equals(mSelectedCatalog.getType())
-                    && mCatalogList.get(i).getIcon().equals(mSelectedCatalog.getIcon())) {
-                position = i;
-                break;
+        if (positionSelected >= 0) {
+            position = positionSelected;
+        } else if (positionSelected == -11) {
+           position = mCatalogList.size() - 1;
+        }
+        else {
+            for (int i = 0; i < mCatalogList.size(); i++) {
+                if (mCatalogList.get(i).getName().equals(mSelectedCatalog.getName())
+                        && mCatalogList.get(i).getColor().equals(mSelectedCatalog.getColor())
+                        && mCatalogList.get(i).getType().equals(mSelectedCatalog.getType())
+                        && mCatalogList.get(i).getIcon().equals(mSelectedCatalog.getIcon())) {
+                    position = i;
+                    break;
+                }
             }
         }
-
-        ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogList);
-        createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
-        saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
-        setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+        if (position != -1) {
+            ArrayList<Catalog> tmpCatalogExpense = new ArrayList<>(mCatalogList);
+            createGridViewCatalog(changedCatalogExpense(tmpCatalogExpense, position), AMOUNT_ITEM_CATALOG);
+            saveSelectedTopic(mLinearLayouts.get(0), (TextView) mLinearLayouts.get(0).getTag());
+            setBackgroundCurrentSelectedCatalog(mSelectedLinearLayoutCatalog, mSelectedCatalog.getColor(), mSelectedTextView);
+        }
     }
 
     private int getFileFromDrawable(String fileName) {
