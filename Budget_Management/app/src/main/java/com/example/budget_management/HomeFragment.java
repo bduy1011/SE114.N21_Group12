@@ -106,7 +106,7 @@ public class HomeFragment extends Fragment {
     private int totalIncomeSum = 0;
     private int totalExpenseSum = 0;
     //Boolean
-    private Boolean isDayClick = false, isMonthClick = false, isYearClick = false, isCustomClick = false;
+    private Boolean isDayClick = true, isMonthClick = false, isYearClick = false, isCustomClick = false;
     //Date
     private Date sDate = null;
     private Date eDate = null;
@@ -324,9 +324,6 @@ public class HomeFragment extends Fragment {
     public void onStop() {
         super.onStop();
     }
-    private int getColorForType(String color) {
-        return 0;
-    }
     private void loadIncomePieChart(@Nullable Date startDate, @Nullable Date endDate){
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -365,7 +362,7 @@ public class HomeFragment extends Fragment {
                             //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         }
-                        else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
+                        else if (isCustomClick && date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0) {
                             totalIncomeSum += data.getAmount();
                             //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
@@ -595,9 +592,12 @@ public class HomeFragment extends Fragment {
         public void onBindViewHolder(@NonNull IncomeViewHolder holder, int position) {
             String type = (String) typeIncomeAmountMap.keySet().toArray()[position];
             Float amount = typeIncomeAmountMap.get(type);
+            Integer color = typeIncomeColorMap.get(type);
+            Integer icon = typeIncomeIconMap.get(type);
             DecimalFormat df = new DecimalFormat("#");
             Float percent = Float.valueOf(df.format((amount*100)/totalIncomeSum));
 
+            holder.setIcon(icon, color);
             holder.setIncomeType(type);
             holder.setIncomeAmmount(amount);
             holder.setIncomePercent(percent.toString() + "%");
@@ -608,11 +608,13 @@ public class HomeFragment extends Fragment {
         }
 
         public ItemData getItem(int position){
-            ItemData itemData = new ItemData();
+                        ItemData itemData = new ItemData();
             String type = (String) typeIncomeAmountMap.keySet().toArray()[position];
             Float sumOfMoney = typeIncomeAmountMap.get(type);
             int iconItem = typeIncomeIconMap.get(type);
+            int color = typeIncomeColorMap.get(type);
 
+            itemData.setColor(color);
             itemData.setItemIcon(iconItem);
             itemData.setItemType(type);
             itemData.setSumOfMoney(sumOfMoney);
@@ -756,6 +758,8 @@ public class HomeFragment extends Fragment {
 
                 Bundle arg = new Bundle();
                 arg.putString("type",myItemData.getItemType());
+                arg.putString("icon", getFileNameFromResourceId(myItemData.getItemIcon()));
+                arg.putInt("color", myItemData.getColor());
 
                 incomeFragment.setArguments(arg);
                 FragmentManager fragmentManager = ((AppCompatActivity) itemView.getContext()).getSupportFragmentManager();

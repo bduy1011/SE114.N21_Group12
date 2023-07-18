@@ -296,7 +296,7 @@ public class IncomeFragment extends Fragment {
             mAmmount.setText(stammount);
         }
         private void setIcon(int image, int color) {
-            ImageView imageView = mView.findViewById(R.id.expense_icon);
+            ImageView imageView = mView.findViewById(R.id.income_icon);
             GradientDrawable background = new GradientDrawable();
             background.setShape(GradientDrawable.OVAL);
             imageView.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
