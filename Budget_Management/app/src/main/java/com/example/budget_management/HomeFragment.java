@@ -54,6 +54,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
@@ -89,7 +90,7 @@ public class HomeFragment extends Fragment {
     //Adapter
     IncomeAdapter incomeAdapter;
     ExpenseAdapter expenseAdapter;
-
+    private TextView accountBalanceText;
     //PieChart
     private PieChart mainChart;
     //Map and type list
@@ -111,7 +112,8 @@ public class HomeFragment extends Fragment {
     private Date sDate = null;
     private Date eDate = null;
     private MaterialDatePicker mtDatePicker;
-
+    private Query myIncomeQuery;
+    private Query myExpenseQuery;
     public HomeFragment() {
     }
 
@@ -122,6 +124,7 @@ public class HomeFragment extends Fragment {
         incomeRadioBtn = myview.findViewById(R.id.radio_button_income);
         expenseRadioBtn = myview.findViewById(R.id.radio_button_expense);
         radioGroup = myview.findViewById(R.id.radio_group_income_expense);
+        accountBalanceText = myview.findViewById(R.id.total_amount);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -145,10 +148,11 @@ public class HomeFragment extends Fragment {
         FirebaseUser mUser=mAuth.getCurrentUser();
         String uid=mUser.getUid();
         mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
-        mExpenseDatabase=
-                FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+        mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
         mIncomeDatabase.keepSynced(true);
         mExpenseDatabase.keepSynced(true);
+        myIncomeQuery = mIncomeDatabase;
+        myExpenseQuery = mExpenseDatabase;
         if(expenseRadioBtn.isChecked())
             loadExpensePieChart(sDate,eDate);
         if(incomeRadioBtn.isChecked())
@@ -169,7 +173,7 @@ public class HomeFragment extends Fragment {
         Button mothBtn = myview.findViewById(R.id.month_btn);
         Button yearBtn = myview.findViewById(R.id.year_btn);
         Button cusBtn = myview.findViewById(R.id.custom_btn);
-
+        loadAccountBalance();
         dayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -284,6 +288,48 @@ public class HomeFragment extends Fragment {
 
         return myview;
     }
+
+    private void loadAccountBalance() {
+        myExpenseQuery.addValueEventListener(new ValueEventListener() {
+            long sumOfAllExpense = 0;
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    Data data = dataSnapshot.getValue(Data.class);
+                    sumOfAllExpense += data.getAmount();
+                }
+                myIncomeQuery.addValueEventListener(new ValueEventListener() {
+                    long sumOfAllIncome = 0;
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                            Data data = dataSnapshot.getValue(Data.class);
+                            sumOfAllIncome += data.getAmount();
+                        }
+                        long accountBl = sumOfAllIncome - sumOfAllExpense;
+                        if(accountBl >= 0){
+                            accountBalanceText.setText(String.valueOf(accountBl));
+                            accountBalanceText.setTextColor(Color.GREEN);
+                        }else{
+                            accountBalanceText.setText(String.valueOf(accountBl));
+                            accountBalanceText.setTextColor(Color.RED);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     //Floating button animation
     private void addData() {
         if (incomeRadioBtn.isChecked()) {
@@ -328,7 +374,6 @@ public class HomeFragment extends Fragment {
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Random random = new Random();
                 totalIncomeSum = 0;
                 dataList = new ArrayList<>();
                 incomeColorList = new ArrayList<>();
@@ -441,7 +486,6 @@ public class HomeFragment extends Fragment {
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Random random = new Random();
                 dataList = new ArrayList<>();
                 typeExpenseAmountMap = new HashMap<>();
                 expenseColorList = new ArrayList<>();
