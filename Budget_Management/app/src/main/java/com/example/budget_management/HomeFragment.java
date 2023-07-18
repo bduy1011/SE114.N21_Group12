@@ -14,14 +14,15 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TintTypedArray;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 
 
 import android.view.LayoutInflater;
@@ -41,6 +42,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -114,6 +117,7 @@ public class HomeFragment extends Fragment {
     //Date
     private Date sDate = null;
     private Date eDate = null;
+    private MaterialDatePicker mtDatePicker;
 
     public HomeFragment() {
     }
@@ -146,8 +150,6 @@ public class HomeFragment extends Fragment {
         fab_income_txt=myview.findViewById(R.id.income_ft_text);
         fab_expense_txt=myview.findViewById(R.id.expense_ft_text);
         //Total value set
-        totalIncomeResult=myview.findViewById(R.id.income_set_result);
-        totalExpenseResult=myview.findViewById(R.id.expense_set_result);
         mainRecycleView = myview.findViewById(R.id.main_recycleview);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setReverseLayout(true);
@@ -217,6 +219,39 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = false;
                 isCustomClick = true;
+
+                MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker().setTitleText("Select Day Range");
+                mtDatePicker = builder.build();
+                mtDatePicker.setShowsDialog(true);
+                AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
+
+                mtDatePicker.show(getChildFragmentManager(), "DATE_PICKER");
+                mtDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
+                    @Override
+                    public void onPositiveButtonClick(Object selection) {
+                        androidx.core.util.Pair<Long, Long> dateRange = (Pair<Long, Long>) selection;
+                        Long startDateInMillis = dateRange.first;
+                        Long endDateInMillis = dateRange.second;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(new Date(startDateInMillis));
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
+                        calendar.set(Calendar.MINUTE, 0);
+                        calendar.set(Calendar.SECOND, 0);
+                        sDate = calendar.getTime();
+                        calendar.setTime(new Date(endDateInMillis));
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
+                        calendar.set(Calendar.MINUTE, 59);
+                        calendar.set(Calendar.SECOND, 59);
+                        eDate = calendar.getTime();
+
+                        if(isIncome){
+                            loadIncomePieChart(sDate,eDate);
+                        }
+                        if(isExpense){
+                            loadExpensePieChart(sDate,eDate);
+                        }
+                    }
+                });
             }
         });
 
