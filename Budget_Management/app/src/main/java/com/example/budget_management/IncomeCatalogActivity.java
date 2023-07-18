@@ -35,6 +35,7 @@ public class IncomeCatalogActivity extends AppCompatActivity {
     private Catalog mCatalogFromIncomeCatalog;
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeCategoryDatabase;
+    private String key;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +85,9 @@ public class IncomeCatalogActivity extends AppCompatActivity {
         int widthItem = screenWidthPx / 6;
 
         for (int i = 0; i < mCatalogIncome.size() + 1; i++) {
+            if (i == mCatalogIncome.size() && key == "add") {
+                return;
+            }
             // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);

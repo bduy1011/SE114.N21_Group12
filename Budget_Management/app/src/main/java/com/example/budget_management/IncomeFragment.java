@@ -1,6 +1,12 @@
 package com.example.budget_management;
 
-import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,13 +14,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.budget_management.Model.Data;
@@ -29,125 +35,229 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
 public class IncomeFragment extends Fragment {
-    //Firebase database
+    private final int REQUEST_CODE_UPDATE_RECORD = 8;
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
-    //Recyclerview
     private RecyclerView recyclerView;
     private TextView incomeTotalSum;
-    //Update Edit Text
-    private EditText edtAmmount;
-    private EditText edtType;
-    private EditText edtNote;
-    //Button update and delete
-    private Button btnUpdate;
-    private Button btnDelete;
-
-    //Data item value
     private  String type;
-    private  String note;
+    private String note;
     private  int amount;
     private String theDay;
-    private  String post_key;
-    //Recycle Adapter
+    private String post_key;
     FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder> adapter;
-    //Date Picker
-    DatePicker datePicker;
+    private Bundle arg;
+    private String myType = null;
+    private String myIcon = null;
+    private int myColor = 0;
+    Query myQuery;
     public IncomeFragment() {
         // Required empty public constructor
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_UPDATE_RECORD) {
+            loadData();
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        Bundle arg = getArguments();
-        String myType = arg.getString("type");
-
-        View myview = inflater.inflate(R.layout.fragment_income, container, false);
+        // Inflate the layout for this fragment
+        arg = getArguments();
+        View myview =  inflater.inflate(R.layout.fragment_income, container, false);
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
         String uid = mUser.getUid();
         mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
-        Query myQuery = mIncomeDatabase.orderByChild("type").equalTo(myType);
         recyclerView = myview.findViewById(R.id.recycle_id_income);
         incomeTotalSum = myview.findViewById(R.id.income_txt_result);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-
-
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
 
+        loadData();
 
-        myQuery.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int totalValue = 0;
-                for(DataSnapshot myDataSnapshot:dataSnapshot.getChildren()){
-                    Data data = myDataSnapshot.getValue(Data.class);
-                    totalValue += data.getAmount();
-                    String sTotalValue = String.valueOf(totalValue);
-                    incomeTotalSum.setText(sTotalValue);
+        registerForContextMenu(recyclerView);
+
+        return myview;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getActivity().getMenuInflater().inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_delete) {
+            deleteItem();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void loadData() {
+        if(arg != null) {
+            myType = arg.getString("type");
+            myIcon = arg.getString("icon");
+            myColor = arg.getInt("color");
+            myQuery = mIncomeDatabase.orderByChild("type").equalTo(myType);
+            myQuery.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    int totalValue = 0;
+                    for (DataSnapshot myDataSnapshot : dataSnapshot.getChildren()) {
+                        Data data = myDataSnapshot.getValue(Data.class);
+                        totalValue += data.getAmount();
+                        String sTotalValue = String.valueOf(totalValue);
+                        incomeTotalSum.setText(sTotalValue);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
                 }
-            }
+            });
+            adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
+                    (
+                            new FirebaseRecyclerOptions.Builder<Data>()
+                                    .setQuery(myQuery, Data.class)
+                                    .build()
+                    ) {
+                @NonNull
+                @Override
+                public IncomeFragment.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.income_recycler_data, parent, false);
+                    return new IncomeFragment.MyViewHolder(view);
+                }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
-                (
-                        new FirebaseRecyclerOptions.Builder<Data>()
-                                .setQuery(myQuery, Data.class)
-                                .build()
-                ){
-            @NonNull
-            @Override
-            public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.income_recycler_data, parent, false);
-                return new MyViewHolder(view);
-            }
-            @Override
-            protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Data model) {
+                @Override
+                protected void onBindViewHolder(@NonNull IncomeFragment.MyViewHolder holder, int position, @NonNull Data model) {
                     holder.setType(model.getType());
                     holder.setNote(model.getNote());
                     holder.setDate(model.getDate());
                     holder.setAmmount(model.getAmount());
-                holder.mView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int adapterPosition=holder.getAdapterPosition();
-                        if(adapterPosition!=RecyclerView.NO_POSITION)
-                        {
-                            post_key = getRef(adapterPosition).getKey();
+                    holder.setIcon(getFileFromDrawable(myIcon), myColor);
+                    holder.mView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int adapterPosition = holder.getAdapterPosition();
+                            if (adapterPosition != RecyclerView.NO_POSITION) {
+                                post_key = getRef(adapterPosition).getKey();
 
-                            type = model.getType();
-                            note = model.getNote();
-                            amount = model.getAmount();
-                            theDay = model.getDate();
+                                type = model.getType();
+                                note = model.getNote();
+                                amount = model.getAmount();
+                                theDay = model.getDate();
 
-                            updateDataItem();
+                                updateDataItem();
+                                adapter.notifyDataSetChanged();
+                            }
                         }
+                    });
 
-
+                    holder.itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                        @Override
+                        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                            int adapterPosition = holder.getAdapterPosition();
+                            if(adapterPosition != RecyclerView.NO_POSITION)
+                            {
+                                post_key = getRef(adapterPosition).getKey();
+                            }
+                        }
+                    });
+                }
+            };
+        }
+        else{
+            mIncomeDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    int totalValue = 0;
+                    for (DataSnapshot myDataSnapshot : dataSnapshot.getChildren()) {
+                        Data data = myDataSnapshot.getValue(Data.class);
+                        totalValue += data.getAmount();
+                        String sTotalValue = String.valueOf(totalValue);
+                        incomeTotalSum.setText(sTotalValue);
                     }
-                });
-            }
-        };
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+            adapter = new FirebaseRecyclerAdapter<Data, IncomeFragment.MyViewHolder>
+                    (
+                            new FirebaseRecyclerOptions.Builder<Data>()
+                                    .setQuery(mIncomeDatabase, Data.class)
+                                    .build()
+                    ) {
+                @NonNull
+                @Override
+                public IncomeFragment.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.income_recycler_data, parent, false);
+                    return new IncomeFragment.MyViewHolder(view);
+                }
+
+                @Override
+                protected void onBindViewHolder(@NonNull IncomeFragment.MyViewHolder holder, int position, @NonNull Data model) {
+                    holder.setType(model.getType());
+                    holder.setNote(model.getNote());
+                    holder.setDate(model.getDate());
+                    holder.setAmmount(model.getAmount());
+                    holder.setIcon(getFileFromDrawable(model.getIcon()),Color.parseColor(model.getColor()));
+                    holder.mView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int adapterPosition = holder.getAdapterPosition();
+                            if (adapterPosition != RecyclerView.NO_POSITION) {
+                                post_key = getRef(adapterPosition).getKey();
+
+                                type = model.getType();
+                                note = model.getNote();
+                                amount = model.getAmount();
+                                theDay = model.getDate();
+
+                                updateDataItem();
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+
+                    holder.itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                        @Override
+                        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                            int adapterPosition = holder.getAdapterPosition();
+                            if(adapterPosition != RecyclerView.NO_POSITION)
+                            {
+                                post_key = getRef(adapterPosition).getKey();
+                            }
+                        }
+                    });
+                }
+            };
+
+        }
         recyclerView.setAdapter(adapter);
         adapter.startListening();
-        return myview;
+    }
+
+    private void deleteItem() {
+        mIncomeDatabase.child(post_key).removeValue();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -162,12 +272,11 @@ public class IncomeFragment extends Fragment {
         adapter.stopListening();
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder{
+    private class MyViewHolder extends RecyclerView.ViewHolder{
         View mView;
-        public  MyViewHolder(View itemView)
-        {
+        public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            mView=itemView;
+            mView = itemView;
         }
         private void setType(String type){
             TextView mType=mView.findViewById(R.id.type_txt_income);
@@ -186,81 +295,92 @@ public class IncomeFragment extends Fragment {
             String stammount=String.valueOf(ammount);
             mAmmount.setText(stammount);
         }
-    }
-    private void updateDataItem(){
-        AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater=LayoutInflater.from(getActivity());
-
-        View myview=inflater.inflate((R.layout.update_data_item),null);
-        mydialog.setView(myview);
-        edtAmmount=myview.findViewById(R.id.ammount_edt);
-        edtType=myview.findViewById(R.id.type_edt);
-        edtNote=myview.findViewById(R.id.note_edt);
-
-        //Set data to edit text
-        edtType.setText(type);
-        edtType.setSelection(type.length());
-
-        edtNote.setText(note);
-        edtNote.setSelection(note.length());
-
-        edtAmmount.setText(String.valueOf(amount));
-        edtAmmount.setSelection(String.valueOf(amount).length());
-
-        btnUpdate=myview.findViewById(R.id.btn_upd_Update);
-        btnDelete=myview.findViewById(R.id.btn_upd_Delete);
-
-        datePicker = myview.findViewById(R.id.datePicker_update);
-        setDatePicker(theDay);
-
-        AlertDialog dialog=mydialog.create();
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type=edtType.getText().toString().trim();
-                note=edtNote.getText().toString().trim();
-
-                String mdammount=String.valueOf(amount);
-                mdammount=edtAmmount.getText().toString().trim();
-                int myAmmount=Integer.parseInt(mdammount);
-
-                Calendar calendar = Calendar.getInstance();
-                int year = datePicker.getYear();
-                int month = datePicker.getMonth();
-                int day = datePicker.getDayOfMonth();
-                calendar.set(year,month,day);
-
-                Date date = calendar.getTime();
-                SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-                String mDate = sdf.format(date);
-
-                Data data=new Data(myAmmount,type,note,post_key,mDate,"","");
-                mIncomeDatabase.child(post_key).setValue(data);
-                dialog.dismiss();
+        private void setIcon(int image, int color) {
+            ImageView imageView = mView.findViewById(R.id.expense_icon);
+            GradientDrawable background = new GradientDrawable();
+            background.setShape(GradientDrawable.OVAL);
+            imageView.setScaleType(ImageButton.ScaleType.CENTER_INSIDE);
+            if (image != 0) {
+                imageView.setImageDrawable(imageChangedSize(image));
             }
-        });
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-
-            public void onClick(View v)
-            {
-                mIncomeDatabase.child(post_key).removeValue();
-                dialog.dismiss();
+            if (color != 0) {
+                background.setColor(color);
             }
-        });
-        dialog.show();
-    }
-    public void setDatePicker(String thisDay){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-        try {
-            Date date = dateFormat.parse(thisDay);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            datePicker.updateDate(calendar.get(Calendar.YEAR)
-                    , calendar.get(Calendar.MONTH)
-                    , calendar.get(Calendar.DAY_OF_MONTH));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+            else background.setColor(Color.parseColor("#a4b7b1"));
+
+            imageView.setBackground(background);
+
         }
+        private Drawable imageChangedSize(int image) {
+            Drawable drawable = getResources().getDrawable(image);
+
+            // Kích thước gốc của ảnh
+            int originalWidth = drawable.getIntrinsicWidth();
+            int originalHeight = drawable.getIntrinsicHeight();
+
+            // Kích thước mới sau khi thay đổi
+            int newWidth, newHeight;
+
+            // Tính toán kích thước mới
+            if (originalWidth >= originalHeight) {
+                // Khi chiều rộng lớn hơn hoặc bằng chiều cao
+                newWidth = 70;
+                newHeight = (int) (originalHeight * (70.0f / originalWidth));
+            } else {
+                // Khi chiều cao lớn hơn chiều rộng
+                newWidth = (int) (originalWidth * (70.0f / originalHeight));
+                newHeight = 70;
+            }
+
+            // Thay đổi kích thước ảnh
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(
+                    drawableToBitmap(drawable),
+                    newWidth,
+                    newHeight,
+                    true
+            );
+
+            return new BitmapDrawable(getResources(), resizedBitmap);
+        }
+        private Bitmap drawableToBitmap(Drawable drawable) {
+            if (drawable instanceof BitmapDrawable) {
+                return ((BitmapDrawable) drawable).getBitmap();
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(
+                    drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(),
+                    Bitmap.Config.ARGB_8888
+            );
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        }
+    }
+
+    private void updateDataItem(){
+        if (post_key != null)
+        {
+            Intent intent = new Intent(getContext(), UpdateRecordActivity.class);
+            intent.putExtra("amount", String.valueOf(amount));
+            intent.putExtra("catalogName", myType);
+            intent.putExtra("catalogColor", myColor);
+            intent.putExtra("catalogIcon", myIcon);
+            intent.putExtra("date", theDay);
+            intent.putExtra("description", note);
+            intent.putExtra("type", "Thu nhập");
+            intent.putExtra("postKey", post_key);
+
+            startActivityForResult(intent, REQUEST_CODE_UPDATE_RECORD);
+        }
+    }
+
+    private int getFileFromDrawable(String fileName) {
+        if (getActivity() != null) {
+            int drawableId = getActivity().getResources().getIdentifier(fileName, "drawable", getActivity().getPackageName());
+            return drawableId;
+        }
+        return 0;
     }
 }

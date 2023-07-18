@@ -218,6 +218,14 @@ public class AddExpenseActivity extends AppCompatActivity {
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
 
+        int childCount = gridLayout.getChildCount();
+        if (childCount != 0) {
+            for (int i = 0; i < childCount; i++) {
+                View child = gridLayout.getChildAt(0);
+                gridLayout.removeView(child);
+            }
+        }
+
         mLinearLayouts.clear();
 
         if (amountItem > mCatalogExpense.size() + 1) amountItem = mCatalogExpense.size() + 1;
@@ -343,7 +351,7 @@ public class AddExpenseActivity extends AppCompatActivity {
                         // Lấy màu của ImageButton được click
                         String tmp = textView.getText().toString();
                         for (int i = 0; i < mCatalogExpense.size(); i++) {
-                            if (tmp == mCatalogExpense.get(i).getName()) {
+                            if (tmp.equals(mCatalogExpense.get(i).getName())) {
                                 mSelectedCatalog = mCatalogExpense.get(i);
                             }
                         }

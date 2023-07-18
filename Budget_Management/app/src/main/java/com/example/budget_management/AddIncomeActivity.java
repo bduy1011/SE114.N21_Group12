@@ -101,12 +101,6 @@ public class AddIncomeActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        String name = intent.getStringExtra("name");
-        String color = intent.getStringExtra("color");
-        String type = intent.getStringExtra("type");
-        String icon = intent.getStringExtra("icon");
-        Catalog catalog = new Catalog(name, color, type, icon);
-
         int position = mCatalogIncome.size() - 1;
         setBackgroundPreviousSelectedCatalog();
         ArrayList<Catalog> tmpCatalogIncome = new ArrayList<>(mCatalogIncome);
@@ -223,6 +217,14 @@ public class AddIncomeActivity extends AppCompatActivity {
         int screenWidthPx = getResources().getDisplayMetrics().widthPixels - 50;
         int columnWidthPx = screenWidthPx / countColumn;
         int widthItem = screenWidthPx / 6;
+
+        int childCount = gridLayout.getChildCount();
+        if (childCount != 0) {
+            for (int i = 0; i < childCount; i++) {
+                View child = gridLayout.getChildAt(0);
+                gridLayout.removeView(child);
+            }
+        }
 
         mLinearLayouts.clear();
 
@@ -629,6 +631,8 @@ public class AddIncomeActivity extends AppCompatActivity {
                 intent.putExtra("color", color);
                 intent.putExtra("type", type);
                 intent.putExtra("icon", icon);
+
+                intent.putExtra("key", "add");
             }
             startActivityForResult(intent, REQUEST_CODE_INCOME_CATALOG);
         }

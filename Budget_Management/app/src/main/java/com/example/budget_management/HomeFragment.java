@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.TintTypedArray;
 import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
@@ -33,6 +34,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.example.budget_management.Model.Data;
@@ -73,24 +76,15 @@ public class HomeFragment extends Fragment {
 
     //Floating Button
     private FloatingActionButton fab_main_btn;
-    private FloatingActionButton fab_income_btn;
-    private FloatingActionButton fab_expense_btn;
-    //Floating button TV
-    private TextView fab_income_txt;
-    private TextView fab_expense_txt;
-    private boolean isOpen=false;
-    //Animation
-    private Animation FadOpen,FadeClose;
+
     //Dashboard income and expense result
-    private TextView totalIncomeResult;
-    private TextView totalExpenseResult;
+    private RadioGroup radioGroup;
+    private AppCompatRadioButton incomeRadioBtn;
+    private AppCompatRadioButton expenseRadioBtn;
     //Firebase
     private FirebaseAuth mAuth;
     private DatabaseReference mIncomeDatabase;
     private DatabaseReference mExpenseDatabase;
-    //Recycle view
-    //private RecyclerView mRecyclerIncome;
-    //private RecyclerView mRecyclerExpense;
     private RecyclerView mainRecycleView;
     //Adapter
     IncomeAdapter incomeAdapter;
@@ -112,7 +106,6 @@ public class HomeFragment extends Fragment {
     private int totalIncomeSum = 0;
     private int totalExpenseSum = 0;
     //Boolean
-    private Boolean isIncome = false, isExpense = false;
     private Boolean isDayClick = false, isMonthClick = false, isYearClick = false, isCustomClick = false;
     //Date
     private Date sDate = null;
@@ -126,30 +119,42 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myview=inflater.inflate(R.layout.fragment_home,container,false);
-        totalExpenseResult = myview.findViewById(R.id.expense_set_result);
-        totalIncomeResult = myview.findViewById(R.id.income_set_result);
+        incomeRadioBtn = myview.findViewById(R.id.radio_button_income);
+        expenseRadioBtn = myview.findViewById(R.id.radio_button_expense);
+        radioGroup = myview.findViewById(R.id.radio_group_income_expense);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case R.id.radio_button_income:
+                        incomeRadioBtn.setTextColor(Color.WHITE);
+                        expenseRadioBtn.setTextColor(Color.GREEN);
+                        loadIncomePieChart(sDate, eDate);
+                        break;
+                    case R.id.radio_button_expense:
+                        incomeRadioBtn.setTextColor(Color.GREEN);
+                        expenseRadioBtn.setTextColor(Color.WHITE);
+                        loadExpensePieChart(sDate, eDate);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + checkedId);
+                }
+            }
+        });
         mAuth=FirebaseAuth.getInstance();
         FirebaseUser mUser=mAuth.getCurrentUser();
         String uid=mUser.getUid();
         mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
         mExpenseDatabase=
-        FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+                FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
         mIncomeDatabase.keepSynced(true);
         mExpenseDatabase.keepSynced(true);
-
-        if(isExpense == isIncome){
-            isDayClick = true;
-            isIncome = true;
-            loadIncomePieChart(sDate, eDate);
-        }
-
+        if(expenseRadioBtn.isChecked())
+            loadExpensePieChart(sDate,eDate);
+        if(incomeRadioBtn.isChecked())
+            loadIncomePieChart(sDate,eDate);
         //Connect button to layout
         fab_main_btn=myview.findViewById(R.id.fb_main_plus_btn);
-        fab_income_btn=myview.findViewById(R.id.income_Ft_btn);
-        fab_expense_btn=myview.findViewById(R.id.expense_Ft_btn);
-        //Connect floating text;
-        fab_income_txt=myview.findViewById(R.id.income_ft_text);
-        fab_expense_txt=myview.findViewById(R.id.expense_ft_text);
         //Total value set
         mainRecycleView = myview.findViewById(R.id.main_recycleview);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -159,9 +164,6 @@ public class HomeFragment extends Fragment {
         mainRecycleView.setLayoutManager(layoutManager);
         //Pie Chart
         mainChart = myview.findViewById(R.id.main_chart);
-        //Animation connect
-        FadOpen= AnimationUtils.loadAnimation(getActivity(),R.anim.fade_open);
-        FadeClose=AnimationUtils.loadAnimation(getActivity(),R.anim.fade_close);
         //Button on PieChart
         Button dayBtn = myview.findViewById(R.id.today_btn);
         Button mothBtn = myview.findViewById(R.id.month_btn);
@@ -175,10 +177,10 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = false;
                 isCustomClick = false;
-                if(isIncome){
+                if(incomeRadioBtn.isChecked()){
                     loadIncomePieChart(sDate,eDate);
                 }
-                if(isExpense){
+                if(expenseRadioBtn.isChecked()){
                     loadExpensePieChart(sDate,eDate);
                 }
             }
@@ -190,10 +192,10 @@ public class HomeFragment extends Fragment {
                 isMonthClick = true;
                 isYearClick = false;
                 isCustomClick = false;
-                if(isIncome){
+                if(incomeRadioBtn.isChecked()){
                     loadIncomePieChart(sDate,eDate);
                 }
-                if(isExpense){
+                if(expenseRadioBtn.isChecked()){
                     loadExpensePieChart(sDate,eDate);
                 }
             }
@@ -205,10 +207,10 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = true;
                 isCustomClick = false;
-                if(isIncome){
+                if(incomeRadioBtn.isChecked()){
                     loadIncomePieChart(sDate,eDate);
                 }
-                if(isExpense){
+                if(expenseRadioBtn.isChecked()){
                     loadExpensePieChart(sDate,eDate);
                 }
             }
@@ -245,10 +247,10 @@ public class HomeFragment extends Fragment {
                         calendar.set(Calendar.SECOND, 59);
                         eDate = calendar.getTime();
 
-                        if(isIncome){
+                        if(incomeRadioBtn.isChecked()){
                             loadIncomePieChart(sDate,eDate);
                         }
-                        if(isExpense){
+                        if(expenseRadioBtn.isChecked()){
                             loadExpensePieChart(sDate,eDate);
                         }
                     }
@@ -257,22 +259,22 @@ public class HomeFragment extends Fragment {
         });
 
         //Load data from begin
-        totalExpenseResult.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isExpense = true;
-                isIncome = false;
-                loadExpensePieChart(sDate,eDate);
-            }
-        });
-        totalIncomeResult.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isIncome = true;
-                isExpense = false;
-                loadIncomePieChart(sDate,eDate);
-            }
-        });
+//        totalExpenseResult.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                isExpense = true;
+//                isIncome = false;
+//                loadExpensePieChart(sDate,eDate);
+//            }
+//        });
+//        totalIncomeResult.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                isIncome = true;
+//                isExpense = false;
+//                loadIncomePieChart(sDate,eDate);
+//            }
+//        });
         fab_main_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -284,10 +286,10 @@ public class HomeFragment extends Fragment {
     }
     //Floating button animation
     private void addData() {
-        if (isIncome) {
+        if (incomeRadioBtn.isChecked()) {
             incomeDataInsert();
         }
-        if(isExpense){
+        if(expenseRadioBtn.isChecked()){
             expenseDataInsert();
         }
     }
@@ -352,20 +354,20 @@ public class HomeFragment extends Fragment {
                         int day = calendar.get(Calendar.DAY_OF_MONTH);
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                             totalIncomeSum += data.getAmount();
-                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
                             totalIncomeSum +=data.getAmount();
-                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         } else if (year == currentYear && isYearClick) {
                             totalIncomeSum += data.getAmount();
-                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         }
                         else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
                             totalIncomeSum += data.getAmount();
-                            totalIncomeResult.setText(formatCurrency(totalIncomeSum));
+                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         }
                     } catch (ParseException e) {
@@ -466,20 +468,20 @@ public class HomeFragment extends Fragment {
                         int day = calendar.get(Calendar.DAY_OF_MONTH);
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                             totalExpenseSum += data.getAmount();
-                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
                             totalExpenseSum += data.getAmount();
-                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         } else if (year == currentYear && isYearClick) {
                             totalExpenseSum += data.getAmount();
-                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         }
-                        else if (isCustomClick && date.compareTo(startDate) > 0 && date.compareTo(endDate) < 0) {
+                        else if (isCustomClick && date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0) {
                             totalExpenseSum += data.getAmount();
-                            totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         }
                     } catch (ParseException e) {
@@ -602,7 +604,7 @@ public class HomeFragment extends Fragment {
         }
         @Override
         public int getItemCount() {
-           return typeIncomeAmountMap.size();
+            return typeIncomeAmountMap.size();
         }
 
         public ItemData getItem(int position){
@@ -869,15 +871,19 @@ public class HomeFragment extends Fragment {
         }
     }
     private int getFileFromDrawable(String fileName) {
-        int drawableId = getResources().getIdentifier(fileName, "drawable", getContext().getPackageName());
-        return drawableId;
+        if (getActivity() != null) {
+            int drawableId = getActivity().getResources().getIdentifier(fileName, "drawable", getActivity().getPackageName());
+            return drawableId;
+        }
+        return 0;
     }
     private String getFileNameFromResourceId(int resourceId) {
-        String resourceTypeName = getResources().getResourceTypeName(resourceId);
-        if (!resourceTypeName.equals("drawable")) {
-            return null;
+        if (getActivity() != null && getActivity().getResources() != null) {
+            String resourceTypeName = getActivity().getResources().getResourceTypeName(resourceId);
+            if (resourceTypeName != null && resourceTypeName.equals("drawable")) {
+                return getActivity().getResources().getResourceEntryName(resourceId);
+            }
         }
-        String fileName = getResources().getResourceEntryName(resourceId);
-        return fileName;
+        return null;
     }
 }

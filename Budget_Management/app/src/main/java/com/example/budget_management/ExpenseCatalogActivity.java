@@ -88,7 +88,7 @@ public class ExpenseCatalogActivity extends AppCompatActivity {
             if (i == mCatalogExpense.size() && key == "add") {
                 return;
             }
-                // Tạo LinearLayout mới
+            // Tạo LinearLayout mới
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setGravity(Gravity.CENTER);
