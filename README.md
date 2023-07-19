@@ -29,15 +29,15 @@
 * Dịch vụ cơ sở dữ liệu: Firebase
 ### 4. Hướng dẫn cài đặt
 * Cài đặt ứng dụng
-** Tải Android Studio từ [the Android Studio website](https://developer.android.com/studio)
-** Tải BudgetManagement: https://github.com/bduy1011/SE114.N21_Group12
-** Trong dự án, chọn Sync Project with Gradle Files để khởi chạy các thư viện
-** Nhấn nút Run "app" hoặc tổ hợp phím Shifl+F10 để chạy ứng dụng. Ứng dụng sẽ chạy trên thiết bị (thật hoặc ảo) của 
+  - Tải Android Studio từ [the Android Studio website](https://developer.android.com/studio)
+  - Tải BudgetManagement: https://github.com/bduy1011/SE114.N21_Group12
+  - Trong dự án, chọn Sync Project with Gradle Files để khởi chạy các thư viện
+  - Nhấn nút Run "app" hoặc tổ hợp phím Shifl+F10 để chạy ứng dụng. Ứng dụng sẽ chạy trên thiết bị (thật hoặc ảo) của 
 * Cài đặt database
-** Liên hệ với nhà phát triển để cấp truyền truy cập vào cơ sở dữ liệu firebase
+  - Liên hệ với nhà phát triển để cấp truyền truy cập vào cơ sở dữ liệu firebase
 * Đăng nhập
-** Tên đăng nhập: duyahihi101103@gmail.com
-** Mật khẩu: 123456
+  - Tên đăng nhập: duyahihi101103@gmail.com
+  - Mật khẩu: 123456
 
 
 ### 5. Thành viên
