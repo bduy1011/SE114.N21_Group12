@@ -14,17 +14,15 @@
 * Ứng dụng đáp ứng được các tính năng yêu cầu cơ bản
 ### 3. Tổng quan ứng dụng 
 #### 3.1 Chức năng
-<details>
-  - Đăng nhập
-  - Đăng xuất
-  - Quên mật khẩu
-  - Thêm thông tin thu, chi
-  - Sửa thông tin thu, chi
-  - Xóa thông tin thu, chi
-  - Xem chi tiết thông thu, chi
-  - Thống kê thông tin thu, 
-  - Xuất dữ liệu 
-</details>
+* Đăng nhập
+* Đăng xuất
+* Quên mật khẩu
+* Thêm thông tin thu, chi
+* Sửa thông tin thu, chi
+* Xóa thông tin thu, chi
+* Xem chi tiết thông thu, chi
+* Thống kê thông tin thu,
+* Xuất dữ liệu 
 #### 3.2 Công nghệ sử dụng
 * IDE: Android Studio
 * Ngôn ngữ lập trình: Java, NoSQL
