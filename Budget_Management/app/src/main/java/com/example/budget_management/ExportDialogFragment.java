@@ -13,14 +13,11 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 
@@ -33,14 +30,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ExportDialogFragment extends DialogFragment {
 
@@ -162,12 +166,13 @@ public class ExportDialogFragment extends DialogFragment {
     private void exportToExcel(List<Data> expenseList, List<Data> incomeList) {
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet expense_sheet = workbook.createSheet("Expense Sheet");
+
         // Tạo header
         HSSFRow expenseHeaderRow = expense_sheet.createRow(0);
-        expenseHeaderRow.createCell(0).setCellValue("Loại");
-        expenseHeaderRow.createCell(1).setCellValue("Ghi chú");
-        expenseHeaderRow.createCell(2).setCellValue("Số tiền");
-        expenseHeaderRow.createCell(3).setCellValue("Ngày");
+        expenseHeaderRow.createCell(0).setCellValue("LOẠI");
+        expenseHeaderRow.createCell(1).setCellValue("GHI CHÚ");
+        expenseHeaderRow.createCell(2).setCellValue("SỐ TIỀN");
+        expenseHeaderRow.createCell(3).setCellValue("NGÀY");
 
         // Đổ dữ liệu vào sheet
         int expenseRowNum = 1;
@@ -176,17 +181,17 @@ public class ExportDialogFragment extends DialogFragment {
             row.createCell(0).setCellValue(expense.getType());
             row.createCell(1).setCellValue(expense.getNote());
             row.createCell(2).setCellValue(expense.getAmount());
-            row.createCell(3).setCellValue(expense.getDate());
+            row.createCell(3).setCellValue(changeTypeDate(expense.getDate()));
             expenseRowNum++;
         }
 
         HSSFSheet income_sheet = workbook.createSheet("Income Sheet");
         // Tạo header cho bảng thu nhập
         HSSFRow incomeHeaderRow = income_sheet.createRow(0);
-        incomeHeaderRow.createCell(0).setCellValue("Loại");
-        incomeHeaderRow.createCell(1).setCellValue("Ghi chú");
-        incomeHeaderRow.createCell(2).setCellValue("Số tiền");
-        incomeHeaderRow.createCell(3).setCellValue("Ngày");
+        incomeHeaderRow.createCell(0).setCellValue("LOẠI");
+        incomeHeaderRow.createCell(1).setCellValue("GHI CHÚ");
+        incomeHeaderRow.createCell(2).setCellValue("SÔ TIỀN");
+        incomeHeaderRow.createCell(3).setCellValue("NGÀY");
 
         // Đổ dữ liệu vào bảng thu nhập
         int incomeRowNum = 1;
@@ -195,7 +200,7 @@ public class ExportDialogFragment extends DialogFragment {
             row.createCell(0).setCellValue(income.getType());
             row.createCell(1).setCellValue(income.getNote());
             row.createCell(2).setCellValue(income.getAmount());
-            row.createCell(3).setCellValue(income.getDate());
+            row.createCell(3).setCellValue(changeTypeDate(income.getDate()));
             incomeRowNum++;
         }
 
@@ -248,5 +253,19 @@ public class ExportDialogFragment extends DialogFragment {
         } catch (ActivityNotFoundException e) {
             Toast.makeText(requireActivity(), "Không có ứng dụng để mở tập tin Excel", Toast.LENGTH_SHORT).show();
         }
+    }
+    private String changeTypeDate(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+
+        Date tmpDate = null;
+        try {
+            tmpDate = sdf.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        date = dateFormat.format(tmpDate);
+        return date;
     }
 }

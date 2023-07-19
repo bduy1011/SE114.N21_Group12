@@ -515,14 +515,6 @@ public class CreateItemCatalogsActivity extends AppCompatActivity {
                         intent = new Intent(view.getContext(), AddIncomeActivity.class);
                     }
 
-//                    String name = catalog.getName();
-//                    String color = catalog.getColor();
-//                    String type = catalog.getType();
-//                    String icon = catalog.getIcon();
-//                    intent.putExtra("name", name);
-//                    intent.putExtra("color", color);
-//                    intent.putExtra("type", type);
-//                    intent.putExtra("icon", icon);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(intent);
                 }

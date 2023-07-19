@@ -34,7 +34,8 @@
                 android:textColor="@color/black"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textStyle="bold"
-                android:id="@+id/type_txt_income" />
+                android:id="@+id/type_txt_income"
+                android:layout_marginLeft="20dp"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,7 +45,8 @@
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textStyle="bold"
                 android:layout_below="@+id/type_txt_income"
-                android:id="@+id/note_txt_income"/>
+                android:id="@+id/note_txt_income"
+                android:layout_marginLeft="20dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="0dp"
@@ -54,7 +56,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="900000"
-                android:textColor="@color/date_color"
+                android:textColor="@color/green"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textStyle="bold"
                 android:id="@+id/ammount_txt_income"
@@ -67,7 +69,6 @@
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textColor="@color/date_color"
                 android:layout_below="@+id/ammount_txt_income"
-                android:textStyle="bold"
                 android:gravity="end"/>
         </RelativeLayout>
     </LinearLayout>

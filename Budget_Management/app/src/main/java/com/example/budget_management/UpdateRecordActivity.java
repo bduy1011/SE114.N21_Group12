@@ -533,7 +533,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
                     String tmpAmmount = mEditTextMoney.getText().toString().trim();
                     int amount = Integer.parseInt(tmpAmmount);
 
-                    String type = mSelectedType;
+                    String type = mSelectedTextView.getText().toString().trim();
 
                     String note = mEditTextDescription.getText().toString().trim();
 

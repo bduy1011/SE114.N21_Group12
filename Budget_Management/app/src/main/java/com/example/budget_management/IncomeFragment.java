@@ -35,6 +35,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class IncomeFragment extends Fragment {
     private final int REQUEST_CODE_UPDATE_RECORD = 8;
     private FirebaseAuth mAuth;
@@ -161,7 +166,7 @@ public class IncomeFragment extends Fragment {
                                 amount = model.getAmount();
                                 theDay = model.getDate();
 
-                                updateDataItem();
+                                updateDataItem(-1);
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -231,7 +236,7 @@ public class IncomeFragment extends Fragment {
                                 amount = model.getAmount();
                                 theDay = model.getDate();
 
-                                updateDataItem();
+                                updateDataItem(adapterPosition);
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -283,6 +288,17 @@ public class IncomeFragment extends Fragment {
         }
         private  void setDate(String date){
             TextView mDate=mView.findViewById(R.id.date_txt_income);
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+
+            Date tmpDate = null;
+            try {
+                tmpDate = sdf.parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            date = dateFormat.format(tmpDate);
             mDate.setText(date);
         }
         private  void setAmmount(long ammount){
@@ -354,14 +370,21 @@ public class IncomeFragment extends Fragment {
         }
     }
 
-    private void updateDataItem(){
+    private void updateDataItem(int pos){
         if (getContext() != null && post_key != null)
         {
             Intent intent = new Intent(getContext(), UpdateRecordActivity.class);
             intent.putExtra("amount", String.valueOf(amount));
-            intent.putExtra("catalogName", myType);
-            intent.putExtra("catalogColor", myColor);
-            intent.putExtra("catalogIcon", myIcon);
+            if(arg != null) {
+                intent.putExtra("catalogName", myType);
+                intent.putExtra("catalogColor", myColor);
+                intent.putExtra("catalogIcon", myIcon);
+            }
+            else {
+                intent.putExtra("catalogName", adapter.getItem(pos).getType());
+                intent.putExtra("catalogColor", Color.parseColor(adapter.getItem(pos).getColor()));
+                intent.putExtra("catalogIcon", adapter.getItem(pos).getIcon());
+            }
             intent.putExtra("date", theDay);
             intent.putExtra("description", note);
             intent.putExtra("type", "Thu nhập");

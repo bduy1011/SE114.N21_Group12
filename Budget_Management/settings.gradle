@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         maven { url "https://jitpack.io" }
     }
 }
-rootProject.name = "Budget_Management"
+rootProject.name = "Quản lý thu chi"
 include ':app'

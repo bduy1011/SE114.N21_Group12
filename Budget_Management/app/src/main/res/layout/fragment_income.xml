@@ -26,7 +26,8 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/black"
-                    android:text="Income"/>
+                    android:text="Thu nhập"
+                    android:textStyle="bold" />
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
@@ -39,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/income_txt_result"
                     android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/black"
+                    android:textColor="@color/green"
                     android:text="0"/>
             </RelativeLayout>
             

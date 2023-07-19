@@ -165,12 +165,12 @@ public class HomeFragment extends Fragment {
         myExpenseQuery.keepSynced(true);
         myIncomeQuery.keepSynced(true);
         if (expenseRadioBtn.isChecked()){
-            loadExpensePieChart(sDate, eDate);
             loadIncomePieChart(sDate, eDate);
+            loadExpensePieChart(sDate, eDate);
         }
         if(incomeRadioBtn.isChecked()){
-            loadIncomePieChart(sDate, eDate);
             loadExpensePieChart(sDate, eDate);
+            loadIncomePieChart(sDate, eDate);
         }
         //Connect button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
@@ -392,9 +392,7 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-    }
+    public void onStop() { super.onStop(); }
     private void loadIncomePieChart(@Nullable Date startDate, @Nullable Date endDate){
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -602,7 +600,7 @@ public class HomeFragment extends Fragment {
                 expenseData.setValueTextSize(12f);
                 expenseData.setValueTextColor(Color.BLACK);
 
-                mainChart.setCenterText("\tExpense Money\n"+totalExpenseSum + "đ");
+                mainChart.setCenterText("\tExpense Money\n"+ totalExpenseSum + "");
                 mainChart.setCenterTextColor(Color.RED);
                 mainChart.setCenterTextSize(20f);
                 mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
@@ -625,7 +623,6 @@ public class HomeFragment extends Fragment {
 
                 expenseAdapter = new ExpenseAdapter();
                 mainRecycleView.setAdapter(expenseAdapter);
-                accountBl = sumOfAllIncome - sumOfAllExpense;
                 loadAccountBalance();
             }
             @Override
@@ -979,5 +976,19 @@ public class HomeFragment extends Fragment {
             }
         }
         return null;
+    }
+    public String formatAmount(long amount) {
+        if (amount >= 1000000000) {
+            double billions = amount / 1000000000.0;
+            DecimalFormat df = new DecimalFormat("0.##");
+            return df.format(billions) + " Tr đ";
+        } else if (amount >= 1000000) {
+            double millions = amount / 1000000.0;
+            DecimalFormat df = new DecimalFormat("0.##");
+            return df.format(millions) + " Tr đ";
+        } else {
+            DecimalFormat df = new DecimalFormat("#,###");
+            return df.format(amount) + " đ";
+        }
     }
 }

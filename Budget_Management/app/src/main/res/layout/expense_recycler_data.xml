@@ -35,6 +35,7 @@
                 android:textColor="@color/black"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textStyle="bold"
+                android:layout_marginLeft="20dp"
                 android:id="@+id/type_txt_expense" />
             <TextView
                 android:layout_width="match_parent"
@@ -46,6 +47,7 @@
                 android:singleLine="false"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:layout_below="@+id/type_txt_expense"
+                android:layout_marginLeft="20dp"
                 android:id="@+id/note_txt_expense"/>
         </RelativeLayout>
 
@@ -53,15 +55,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-            <TextView
-                android:id="@+id/date_txt_expense"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="1 June 2023"
-                android:textAppearance="?android:textAppearanceSmall"
-                android:layout_below="@+id/ammount_txt_expense"
-                android:textColor="@color/date_color"
-                android:gravity="end"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,6 +64,15 @@
                 android:textStyle="bold"
                 android:gravity="end"
                 android:id="@+id/ammount_txt_expense"/>
+            <TextView
+                android:id="@+id/date_txt_expense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1 June 2023"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:layout_below="@+id/ammount_txt_expense"
+                android:textColor="@color/date_color"
+                android:gravity="end"/>
         </RelativeLayout>
 
     </LinearLayout>
