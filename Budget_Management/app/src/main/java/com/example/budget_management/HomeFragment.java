@@ -77,6 +77,10 @@ public class HomeFragment extends Fragment {
 
     //Floating Button
     private FloatingActionButton fab_main_btn;
+    private Button dayBtn;
+    private Button mothBtn;
+    private Button yearBtn;
+    private Button cusBtn;
 
     //Dashboard income and expense result
     private RadioGroup radioGroup;
@@ -114,21 +118,26 @@ public class HomeFragment extends Fragment {
     private MaterialDatePicker mtDatePicker;
     private Query myIncomeQuery;
     private Query myExpenseQuery;
+    private long sumOfAllExpense = 0;
+    private long sumOfAllIncome = 0;
+    private long accountBl = 0;
+
     public HomeFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View myview=inflater.inflate(R.layout.fragment_home,container,false);
+        View myview = inflater.inflate(R.layout.fragment_home, container, false);
         incomeRadioBtn = myview.findViewById(R.id.radio_button_income);
         expenseRadioBtn = myview.findViewById(R.id.radio_button_expense);
         radioGroup = myview.findViewById(R.id.radio_group_income_expense);
         accountBalanceText = myview.findViewById(R.id.total_amount);
+
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
+                switch (checkedId) {
                     case R.id.radio_button_income:
                         incomeRadioBtn.setTextColor(Color.WHITE);
                         expenseRadioBtn.setTextColor(Color.parseColor("#a8abf7"));
@@ -144,21 +153,23 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        mAuth=FirebaseAuth.getInstance();
-        FirebaseUser mUser=mAuth.getCurrentUser();
-        String uid=mUser.getUid();
-        mIncomeDatabase= FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
-        mExpenseDatabase= FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser mUser = mAuth.getCurrentUser();
+        String uid = mUser.getUid();
+        mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
+        mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
         mIncomeDatabase.keepSynced(true);
         mExpenseDatabase.keepSynced(true);
         myIncomeQuery = mIncomeDatabase;
         myExpenseQuery = mExpenseDatabase;
-        if(expenseRadioBtn.isChecked())
-            loadExpensePieChart(sDate,eDate);
+        myExpenseQuery.keepSynced(true);
+        myIncomeQuery.keepSynced(true);
+        if (expenseRadioBtn.isChecked())
+            loadExpensePieChart(sDate, eDate);
         if(incomeRadioBtn.isChecked())
-            loadIncomePieChart(sDate,eDate);
+            loadIncomePieChart(sDate, eDate);
         //Connect button to layout
-        fab_main_btn=myview.findViewById(R.id.fb_main_plus_btn);
+        fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
         //Total value set
         mainRecycleView = myview.findViewById(R.id.main_recycleview);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -169,11 +180,11 @@ public class HomeFragment extends Fragment {
         //Pie Chart
         mainChart = myview.findViewById(R.id.main_chart);
         //Button on PieChart
-        Button dayBtn = myview.findViewById(R.id.today_btn);
-        Button mothBtn = myview.findViewById(R.id.month_btn);
-        Button yearBtn = myview.findViewById(R.id.year_btn);
-        Button cusBtn = myview.findViewById(R.id.custom_btn);
-        loadAccountBalance();
+        dayBtn = myview.findViewById(R.id.today_btn);
+        mothBtn = myview.findViewById(R.id.month_btn);
+        yearBtn = myview.findViewById(R.id.year_btn);
+        cusBtn = myview.findViewById(R.id.custom_btn);
+
         dayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,12 +192,13 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = false;
                 isCustomClick = false;
-                if(incomeRadioBtn.isChecked()){
-                    loadIncomePieChart(sDate,eDate);
+                if (incomeRadioBtn.isChecked()) {
+                    loadIncomePieChart(sDate, eDate);
                 }
-                if(expenseRadioBtn.isChecked()){
-                    loadExpensePieChart(sDate,eDate);
+                if (expenseRadioBtn.isChecked()) {
+                    loadExpensePieChart(sDate, eDate);
                 }
+                setColorButton();
             }
         });
         mothBtn.setOnClickListener(new View.OnClickListener() {
@@ -196,12 +208,13 @@ public class HomeFragment extends Fragment {
                 isMonthClick = true;
                 isYearClick = false;
                 isCustomClick = false;
-                if(incomeRadioBtn.isChecked()){
-                    loadIncomePieChart(sDate,eDate);
+                if (incomeRadioBtn.isChecked()) {
+                    loadIncomePieChart(sDate, eDate);
                 }
-                if(expenseRadioBtn.isChecked()){
-                    loadExpensePieChart(sDate,eDate);
+                if (expenseRadioBtn.isChecked()) {
+                    loadExpensePieChart(sDate, eDate);
                 }
+                setColorButton();
             }
         });
         yearBtn.setOnClickListener(new View.OnClickListener() {
@@ -211,12 +224,13 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = true;
                 isCustomClick = false;
-                if(incomeRadioBtn.isChecked()){
-                    loadIncomePieChart(sDate,eDate);
+                if (incomeRadioBtn.isChecked()) {
+                    loadIncomePieChart(sDate, eDate);
                 }
-                if(expenseRadioBtn.isChecked()){
-                    loadExpensePieChart(sDate,eDate);
+                if (expenseRadioBtn.isChecked()) {
+                    loadExpensePieChart(sDate, eDate);
                 }
+                setColorButton();
             }
         });
         cusBtn.setOnClickListener(new View.OnClickListener() {
@@ -226,12 +240,9 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = false;
                 isCustomClick = true;
-
                 MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker().setTitleText("Select Day Range");
                 mtDatePicker = builder.build();
                 mtDatePicker.setShowsDialog(true);
-                AlertDialog.Builder myDialog = new AlertDialog.Builder(getActivity());
-
                 mtDatePicker.show(getChildFragmentManager(), "DATE_PICKER");
                 mtDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
                     @Override
@@ -251,14 +262,15 @@ public class HomeFragment extends Fragment {
                         calendar.set(Calendar.SECOND, 59);
                         eDate = calendar.getTime();
 
-                        if(incomeRadioBtn.isChecked()){
-                            loadIncomePieChart(sDate,eDate);
+                        if (incomeRadioBtn.isChecked()) {
+                            loadIncomePieChart(sDate, eDate);
                         }
-                        if(expenseRadioBtn.isChecked()){
-                            loadExpensePieChart(sDate,eDate);
+                        if (expenseRadioBtn.isChecked()) {
+                            loadExpensePieChart(sDate, eDate);
                         }
                     }
                 });
+                setColorButton();
             }
         });
 
@@ -287,47 +299,6 @@ public class HomeFragment extends Fragment {
         });
 
         return myview;
-    }
-
-    private void loadAccountBalance() {
-        myExpenseQuery.addValueEventListener(new ValueEventListener() {
-            long sumOfAllExpense = 0;
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                    Data data = dataSnapshot.getValue(Data.class);
-                    sumOfAllExpense += data.getAmount();
-                }
-                myIncomeQuery.addValueEventListener(new ValueEventListener() {
-                    long sumOfAllIncome = 0;
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for(DataSnapshot dataSnapshot: snapshot.getChildren()){
-                            Data data = dataSnapshot.getValue(Data.class);
-                            sumOfAllIncome += data.getAmount();
-                        }
-                        long accountBl = sumOfAllIncome - sumOfAllExpense;
-                        if(accountBl >= 0){
-                            accountBalanceText.setText(String.valueOf(accountBl));
-                            accountBalanceText.setTextColor(Color.GREEN);
-                        }else{
-                            accountBalanceText.setText(String.valueOf(accountBl));
-                            accountBalanceText.setTextColor(Color.RED);
-                        }
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     //Floating button animation
@@ -361,6 +332,48 @@ public class HomeFragment extends Fragment {
         }
         return currency;
     }
+    public void setColorButton(){
+        if(isDayClick){
+            dayBtn.setTextColor(Color.GREEN);
+            mothBtn.setTextColor(Color.GRAY);
+            yearBtn.setTextColor(Color.GRAY);
+            cusBtn.setTextColor(Color.GRAY);
+            dayBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            mothBtn.setTypeface(Typeface.DEFAULT);
+            yearBtn.setTypeface(Typeface.DEFAULT);
+            cusBtn.setTypeface(Typeface.DEFAULT);
+        }
+        if(isMonthClick){
+            dayBtn.setTextColor(Color.GRAY);
+            mothBtn.setTextColor(Color.GREEN);
+            yearBtn.setTextColor(Color.GRAY);
+            cusBtn.setTextColor(Color.GRAY);
+            dayBtn.setTypeface(Typeface.DEFAULT);
+            mothBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            yearBtn.setTypeface(Typeface.DEFAULT);
+            cusBtn.setTypeface(Typeface.DEFAULT);
+        }
+        if(isYearClick){
+            dayBtn.setTextColor(Color.GRAY);
+            mothBtn.setTextColor(Color.GRAY);
+            yearBtn.setTextColor(Color.GREEN);
+            cusBtn.setTextColor(Color.GRAY);
+            dayBtn.setTypeface(Typeface.DEFAULT);
+            mothBtn.setTypeface(Typeface.DEFAULT);
+            yearBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            cusBtn.setTypeface(Typeface.DEFAULT);
+        }
+        if(isCustomClick){
+            dayBtn.setTextColor(Color.GRAY);
+            mothBtn.setTextColor(Color.GRAY);
+            yearBtn.setTextColor(Color.GRAY);
+            cusBtn.setTextColor(Color.GREEN);
+            dayBtn.setTypeface(Typeface.DEFAULT);
+            mothBtn.setTypeface(Typeface.DEFAULT);
+            yearBtn.setTypeface(Typeface.DEFAULT);
+            cusBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        }
+    }
     @Override
     public  void onStart(){
         super.onStart();
@@ -375,6 +388,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 totalIncomeSum = 0;
+                sumOfAllIncome = 0;
                 dataList = new ArrayList<>();
                 incomeColorList = new ArrayList<>();
                 typeIncomeIconMap = new HashMap<>();
@@ -407,11 +421,14 @@ public class HomeFragment extends Fragment {
                             //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         }
-                        else if (isCustomClick && date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0) {
-                            totalIncomeSum += data.getAmount();
-                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
-                            dataList.add(data);
+                        else if (isCustomClick && startDate != null && endDate != null) {
+                            if(date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0){
+                                totalIncomeSum += data.getAmount();
+                                //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                                dataList.add(data);
+                            }
                         }
+                        sumOfAllIncome += data.getAmount();
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
@@ -492,6 +509,7 @@ public class HomeFragment extends Fragment {
                 typeExpenseColorMap = new HashMap<>();
                 typeExpenseIconMap = new HashMap<>();
                 totalExpenseSum = 0;
+                sumOfAllExpense = 0;
                 List<PieEntry> entries = new ArrayList<>();
                 PieDataSet dataSet = new PieDataSet(null, "");
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
@@ -520,11 +538,14 @@ public class HomeFragment extends Fragment {
                             //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         }
-                        else if (isCustomClick && date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0) {
-                            totalExpenseSum += data.getAmount();
-                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
-                            dataList.add(data);
+                        else if (isCustomClick && startDate != null && endDate != null) {
+                            if(date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0){
+                                totalExpenseSum += data.getAmount();
+                                //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
+                                dataList.add(data);
+                            }
                         }
+                        sumOfAllExpense += data.getAmount();
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }

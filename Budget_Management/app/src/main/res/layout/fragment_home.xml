@@ -119,7 +119,6 @@
                         android:layout_width="73dp"
                         android:layout_height="wrap_content"
                         android:text="Ngày"
-                        android:textStyle="bold"
                         android:background="@android:color/transparent"
                         android:textColor="@color/green"/>
                     <Button

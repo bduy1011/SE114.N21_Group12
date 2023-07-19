@@ -92,8 +92,6 @@ public class ExportDialogFragment extends DialogFragment {
                 dismiss();
             }
         });
-
-
         return builder.create();
     }
 
