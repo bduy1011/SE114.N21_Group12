@@ -164,10 +164,14 @@ public class HomeFragment extends Fragment {
         myExpenseQuery = mExpenseDatabase;
         myExpenseQuery.keepSynced(true);
         myIncomeQuery.keepSynced(true);
-        if (expenseRadioBtn.isChecked())
+        if (expenseRadioBtn.isChecked()){
             loadExpensePieChart(sDate, eDate);
-        if(incomeRadioBtn.isChecked())
             loadIncomePieChart(sDate, eDate);
+        }
+        if(incomeRadioBtn.isChecked()){
+            loadIncomePieChart(sDate, eDate);
+            loadExpensePieChart(sDate, eDate);
+        }
         //Connect button to layout
         fab_main_btn = myview.findViewById(R.id.fb_main_plus_btn);
         //Total value set
@@ -193,9 +197,11 @@ public class HomeFragment extends Fragment {
                 isYearClick = false;
                 isCustomClick = false;
                 if (incomeRadioBtn.isChecked()) {
+                    loadExpensePieChart(sDate, eDate);
                     loadIncomePieChart(sDate, eDate);
                 }
                 if (expenseRadioBtn.isChecked()) {
+                    loadIncomePieChart(sDate, eDate);
                     loadExpensePieChart(sDate, eDate);
                 }
                 setColorButton();
@@ -209,9 +215,11 @@ public class HomeFragment extends Fragment {
                 isYearClick = false;
                 isCustomClick = false;
                 if (incomeRadioBtn.isChecked()) {
+                    loadExpensePieChart(sDate, eDate);
                     loadIncomePieChart(sDate, eDate);
                 }
                 if (expenseRadioBtn.isChecked()) {
+                    loadIncomePieChart(sDate, eDate);
                     loadExpensePieChart(sDate, eDate);
                 }
                 setColorButton();
@@ -225,9 +233,11 @@ public class HomeFragment extends Fragment {
                 isYearClick = true;
                 isCustomClick = false;
                 if (incomeRadioBtn.isChecked()) {
+                    loadExpensePieChart(sDate, eDate);
                     loadIncomePieChart(sDate, eDate);
                 }
                 if (expenseRadioBtn.isChecked()) {
+                    loadIncomePieChart(sDate, eDate);
                     loadExpensePieChart(sDate, eDate);
                 }
                 setColorButton();
@@ -240,7 +250,7 @@ public class HomeFragment extends Fragment {
                 isMonthClick = false;
                 isYearClick = false;
                 isCustomClick = true;
-                MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker().setTitleText("Select Day Range");
+                MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker().setTitleText("Chọn Khoản Thời Gian");
                 mtDatePicker = builder.build();
                 mtDatePicker.setShowsDialog(true);
                 mtDatePicker.show(getChildFragmentManager(), "DATE_PICKER");
@@ -263,9 +273,11 @@ public class HomeFragment extends Fragment {
                         eDate = calendar.getTime();
 
                         if (incomeRadioBtn.isChecked()) {
+                            loadExpensePieChart(sDate, eDate);
                             loadIncomePieChart(sDate, eDate);
                         }
                         if (expenseRadioBtn.isChecked()) {
+                            loadIncomePieChart(sDate, eDate);
                             loadExpensePieChart(sDate, eDate);
                         }
                     }
@@ -334,7 +346,7 @@ public class HomeFragment extends Fragment {
     }
     public void setColorButton(){
         if(isDayClick){
-            dayBtn.setTextColor(Color.GREEN);
+            dayBtn.setTextColor(Color.parseColor("#a8abf7"));
             mothBtn.setTextColor(Color.GRAY);
             yearBtn.setTextColor(Color.GRAY);
             cusBtn.setTextColor(Color.GRAY);
@@ -345,7 +357,7 @@ public class HomeFragment extends Fragment {
         }
         if(isMonthClick){
             dayBtn.setTextColor(Color.GRAY);
-            mothBtn.setTextColor(Color.GREEN);
+            mothBtn.setTextColor(Color.parseColor("#a8abf7"));
             yearBtn.setTextColor(Color.GRAY);
             cusBtn.setTextColor(Color.GRAY);
             dayBtn.setTypeface(Typeface.DEFAULT);
@@ -356,7 +368,7 @@ public class HomeFragment extends Fragment {
         if(isYearClick){
             dayBtn.setTextColor(Color.GRAY);
             mothBtn.setTextColor(Color.GRAY);
-            yearBtn.setTextColor(Color.GREEN);
+            yearBtn.setTextColor(Color.parseColor("#a8abf7"));
             cusBtn.setTextColor(Color.GRAY);
             dayBtn.setTypeface(Typeface.DEFAULT);
             mothBtn.setTypeface(Typeface.DEFAULT);
@@ -367,7 +379,7 @@ public class HomeFragment extends Fragment {
             dayBtn.setTextColor(Color.GRAY);
             mothBtn.setTextColor(Color.GRAY);
             yearBtn.setTextColor(Color.GRAY);
-            cusBtn.setTextColor(Color.GREEN);
+            cusBtn.setTextColor(Color.parseColor("#a8abf7"));
             dayBtn.setTypeface(Typeface.DEFAULT);
             mothBtn.setTypeface(Typeface.DEFAULT);
             yearBtn.setTypeface(Typeface.DEFAULT);
@@ -469,7 +481,7 @@ public class HomeFragment extends Fragment {
 
 
                 mainChart.setCenterText("\tIncome Money\n"+totalIncomeSum + "đ");
-                mainChart.setCenterTextColor(Color.GREEN);
+                mainChart.setCenterTextColor(Color.parseColor("#00A86B"));
                 mainChart.setCenterTextSize(20f);
                 mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
 
@@ -492,6 +504,7 @@ public class HomeFragment extends Fragment {
 
                 incomeAdapter = new IncomeAdapter();
                 mainRecycleView.setAdapter(incomeAdapter);
+                loadAccountBalance();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -499,6 +512,17 @@ public class HomeFragment extends Fragment {
         });
 
     }
+
+    private void loadAccountBalance() {
+        accountBl = sumOfAllIncome - sumOfAllExpense;
+        accountBalanceText.setText(String.valueOf(accountBl)+" VND");
+        if(accountBl >= 0){
+            accountBalanceText.setTextColor(Color.parseColor("#00A86B"));
+        }else{
+            accountBalanceText.setTextColor(Color.RED);
+        }
+    }
+
     private void loadExpensePieChart(@Nullable Date startDate, @Nullable Date endDate){
         mExpenseDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -601,7 +625,8 @@ public class HomeFragment extends Fragment {
 
                 expenseAdapter = new ExpenseAdapter();
                 mainRecycleView.setAdapter(expenseAdapter);
-
+                accountBl = sumOfAllIncome - sumOfAllExpense;
+                loadAccountBalance();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
