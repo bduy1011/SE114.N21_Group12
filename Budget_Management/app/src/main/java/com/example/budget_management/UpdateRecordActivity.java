@@ -71,6 +71,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
     private Date date3;
     private EditText mEditTextDescription;
     private EditText mEditTextMoney;
+    private String mSelectedType;
     private Button btnUpdate;
     private String amount;
     private String description;
@@ -198,10 +199,10 @@ public class UpdateRecordActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.radioButtonExpense) {
-                    //mSelectedType = "Chi phí";
+                    mSelectedType = "Chi phí";
                     getCatalogResource("Chi phí", false, -1);
                 } else if (checkedId == R.id.radioButtonIncome) {
-                    //mSelectedType = "Thu nhập";
+                    mSelectedType = "Thu nhập";
                     createGridViewCatalog(mCatalogList, AMOUNT_ITEM_CATALOG);
                     getCatalogResource("Thu nhập", false, -1);
                 }
@@ -532,7 +533,7 @@ public class UpdateRecordActivity extends AppCompatActivity {
                     String tmpAmmount = mEditTextMoney.getText().toString().trim();
                     int amount = Integer.parseInt(tmpAmmount);
 
-                    String type = mSelectedTextView.getText().toString().trim();
+                    String type = mSelectedType;
 
                     String note = mEditTextDescription.getText().toString().trim();
 

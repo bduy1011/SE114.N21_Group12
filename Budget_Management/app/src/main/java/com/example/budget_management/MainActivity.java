@@ -98,17 +98,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment fragment = null;
         switch (itemId){
             case R.id.nav_home:
+                fragment=new HomeFragment();
                 break;
 
-            case R.id.nav_about:
+            case R.id.nav_income:
                 fragment=new IncomeFragment();
                 break;
 
-            case R.id.nav_share:
+            case R.id.nav_expense:
                 fragment = new ExpenseFragment();
                 break;
 
-            case R.id.nav_settings:
+            case R.id.nav_graph:
                 fragment=new GraphFragment();
                 break;
             case R.id.nav_export:

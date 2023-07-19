@@ -60,26 +60,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="10dp"
+                    android:padding="0dp"
                     android:weightSum="2">
 
                     <RadioGroup
                         android:id="@+id/radio_group_income_expense"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="10dp">
 
                         <androidx.appcompat.widget.AppCompatRadioButton
                             android:id="@+id/radio_button_income"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="20dp"
+                            android:layout_marginHorizontal="10dp"
                             android:layout_weight="1"
                             android:background="@drawable/radio_button_income_selector"
                             android:button="@android:color/transparent"
                             android:checked="true"
                             android:gravity="center"
-                            android:text="Income"
+                            android:textStyle="bold"
+                            android:text="Thu nhập"
                             android:textColor="@android:color/white"
                             android:textSize="20dp" />
 
@@ -87,13 +89,14 @@
                             android:id="@+id/radio_button_expense"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
+                            android:layout_marginHorizontal="10dp"
                             android:layout_weight="1"
                             android:background="@drawable/radio_button_expense_selector"
                             android:button="@android:color/transparent"
                             android:gravity="center"
-                            android:text="Expense"
-                            android:textColor="@android:color/holo_green_light"
+                            android:textStyle="bold"
+                            android:text="Chi phí"
+                            android:textColor="@color/lavender"
                             android:textSize="20dp" />
 
                     </RadioGroup>
@@ -109,73 +112,51 @@
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <androidx.cardview.widget.CardView
-                        android:layout_weight="1"
-                        android:id="@+id/today_cardView"
-                        app:cardCornerRadius="0dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <Button
-                            android:textAllCaps="false"
-                            android:id="@+id/today_btn"
-                            android:textSize="10dp"
-                            android:backgroundTint="@color/green"
-                            android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:text="Today"/>
-                    </androidx.cardview.widget.CardView>
-                    <androidx.cardview.widget.CardView
-                        android:layout_weight="1"
-                        android:id="@+id/month_cardView"
-                        app:cardCornerRadius="0dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <Button
-                            android:id="@+id/month_btn"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:backgroundTint="@color/green"
-                            android:text="Month"
-                            android:textAllCaps="false"
-                            android:textSize="10dp" />
-                    </androidx.cardview.widget.CardView>
-                    <androidx.cardview.widget.CardView
-                        android:layout_weight="1"
-                        android:id="@+id/year_cardView"
-                        app:cardCornerRadius="0dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-                        <Button
-                            android:id="@+id/year_btn"
-                            android:textAllCaps="false"
-                            android:textSize="10dp"
-                            android:backgroundTint="@color/green"
-                            android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:text="Year" />
-                    </androidx.cardview.widget.CardView>
-                    <androidx.cardview.widget.CardView
-                        android:layout_weight="1"
-                        android:id="@+id/custom_cardView"
-                        app:cardCornerRadius="0dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-                        <Button
-                            android:id="@+id/custom_btn"
-                            android:textAllCaps="false"
-                            android:textSize="10dp"
-                            android:backgroundTint="@color/green"
-                            android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:text="Custom" />
-                    </androidx.cardview.widget.CardView>
+                    <Button
+                        android:textAllCaps="false"
+                        android:id="@+id/today_btn"
+                        android:textSize="13sp"
+                        android:layout_width="73dp"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày"
+                        android:textStyle="bold"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/green"/>
+                    <Button
+                        android:id="@+id/month_btn"
+                        android:textSize="13sp"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"
+                        android:text="Tháng"
+                        android:textAllCaps="false" />
+                    <Button
+                        android:id="@+id/year_btn"
+                        android:textAllCaps="false"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"
+                        android:textSize="13sp"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="Năm" />
+                    <Button
+                        android:id="@+id/custom_btn"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Khoảng thời gian" />
                 </LinearLayout>
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/chart_cardview"
                     android:layout_gravity="center"
-                    android:layout_margin="20dp"
-                    app:cardCornerRadius="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginHorizontal="10dp"
+                    app:cardCornerRadius="15dp"
                     app:cardElevation="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
@@ -184,101 +165,32 @@
                         android:layout_height="wrap_content">
                         <com.github.mikephil.charting.charts.PieChart
                             android:id="@+id/main_chart"
-                            android:layout_width="300dp"
-                            android:layout_height="250dp">
+                            android:layout_width="380dp"
+                            android:layout_height="300dp">
                         </com.github.mikephil.charting.charts.PieChart>
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/fb_main_plus_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|end"
+                            android:layout_marginRight="20dp"
+                            android:layout_marginBottom="16dp"
+                            android:paddingHorizontal="10dp"
+                            android:backgroundTint="@color/lavender"
+                            android:src="@drawable/ic_add"
+                            app:fabSize="normal" />
                     </FrameLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/main_recycleview"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
-                    android:id="@+id/main_recycleview"
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
                     android:scrollbars="vertical"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="0dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginRight="15dp"
-            android:layout_marginBottom="160dp">
-
-            <TextView
-                android:id="@+id/expense_ft_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@color/lavender"
-                android:padding="5dp"
-                android:text="Expense"
-                android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="@color/white"
-                android:visibility="invisible" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/expense_Ft_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:backgroundTint="#07bca4"
-                android:elevation="6dp"
-                android:src="@drawable/ic_add"
-                android:visibility="invisible"
-                app:fabSize="mini"
-                app:pressedTranslationZ="12dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginRight="15dp"
-            android:layout_marginBottom="90dp">
-
-            <TextView
-                android:id="@+id/income_ft_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@color/lavender"
-                android:padding="5dp"
-                android:text="Income"
-                android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="@color/white"
-                android:visibility="invisible" />
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/income_Ft_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:backgroundTint="#1ce10a"
-                android:elevation="6dp"
-                android:src="@drawable/ic_add"
-                android:visibility="invisible"
-                app:fabSize="mini"
-                app:pressedTranslationZ="12dp" />
-        </LinearLayout>
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fb_main_plus_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/lavender"
-            android:src="@drawable/ic_add"
-            app:fabSize="normal" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </RelativeLayout>

@@ -131,12 +131,12 @@ public class HomeFragment extends Fragment {
                 switch (checkedId){
                     case R.id.radio_button_income:
                         incomeRadioBtn.setTextColor(Color.WHITE);
-                        expenseRadioBtn.setTextColor(Color.GREEN);
+                        expenseRadioBtn.setTextColor(Color.parseColor("#a8abf7"));
                         loadIncomePieChart(sDate, eDate);
                         break;
                     case R.id.radio_button_expense:
-                        incomeRadioBtn.setTextColor(Color.GREEN);
                         expenseRadioBtn.setTextColor(Color.WHITE);
+                        incomeRadioBtn.setTextColor(Color.parseColor("#a8abf7"));
                         loadExpensePieChart(sDate, eDate);
                         break;
                     default:
@@ -425,7 +425,7 @@ public class HomeFragment extends Fragment {
                     int icon = getFileFromDrawable(data.getIcon());
                     float amount = data.getAmount();
                     if (typeIncomeAmountMap.containsKey(type)) {
-                        amount += typeExpenseAmountMap.get(type);
+                        amount += typeIncomeAmountMap.get(type);
                     }
                     typeIncomeColorMap.put(type, color);
                     typeIncomeAmountMap.put(type, amount);

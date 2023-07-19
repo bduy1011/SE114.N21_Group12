@@ -99,7 +99,7 @@ public class ExpenseFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_delete) {
-            deleteItem();
+            mExpenseDatabase.child(post_key).removeValue();
             return true;
         }
         return super.onContextItemSelected(item);
@@ -255,11 +255,6 @@ public class ExpenseFragment extends Fragment {
         adapter.startListening();
     }
 
-    private void deleteItem() {
-        mExpenseDatabase.child(post_key).removeValue();
-        adapter.notifyDataSetChanged();
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -360,7 +355,7 @@ public class ExpenseFragment extends Fragment {
     }
 
     private void updateDataItem(){
-        if (post_key != null)
+        if (getContext() != null && post_key != null)
         {
             Intent intent = new Intent(getContext(), UpdateRecordActivity.class);
             intent.putExtra("amount", String.valueOf(amount));

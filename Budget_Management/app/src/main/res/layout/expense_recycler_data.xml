@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     android:elevation="5dp"
-    app:cardElevation="5dp">
+    app:cardElevation="5dp"
+    app:cardCornerRadius="10dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,23 +28,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
             <TextView
-                android:id="@+id/date_txt_expense"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginBottom="5dp"
-                android:text="1 June 2023"
-                android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="@color/date_color"
-                android:textStyle="bold" />
-        </RelativeLayout>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Type"
@@ -56,17 +40,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Note"
-                android:maxLines="1"
                 android:textColor="@color/black"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:singleLine="false"
                 android:textAppearance="?android:textAppearanceSmall"
-                android:textStyle="bold"
                 android:layout_below="@+id/type_txt_expense"
                 android:id="@+id/note_txt_expense"/>
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
+            <TextView
+                android:id="@+id/date_txt_expense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1 June 2023"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:layout_below="@+id/ammount_txt_expense"
+                android:textColor="@color/date_color"
+                android:gravity="end"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -74,9 +69,9 @@
                 android:textColor="@color/expense_ammount"
                 android:textAppearance="?android:textAppearanceSmall"
                 android:textStyle="bold"
+                android:gravity="end"
                 android:id="@+id/ammount_txt_expense"/>
         </RelativeLayout>
-
 
     </LinearLayout>
 
