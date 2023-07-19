@@ -2,6 +2,7 @@ package com.example.budget_management;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 
 import com.example.budget_management.Model.Data;
@@ -22,6 +24,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -46,11 +50,13 @@ public class GraphFragment extends Fragment {
     private Button customBtn;
     private Button thisMonthBtn;
     private Button thisYearBtn;
-    private Boolean isDayClick = false;
+    private Boolean isDayClick = true;
 
     private Boolean isCustomClick = false;
     private Boolean isMonthClick = false;
     private Boolean isYearClick = false;
+    private Date sDate = null;
+    private Date eDate = null;
 
     GraphFragment() {
 
@@ -60,7 +66,6 @@ public class GraphFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View myview = inflater.inflate(R.layout.fragment_graph, container, false);
-
 
         pieChart = myview.findViewById(R.id.pieChart);
         toDayBtn = myview.findViewById(R.id.today_btn);
@@ -79,80 +84,73 @@ public class GraphFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 isDayClick = true;
+                isMonthClick = false;
+                isYearClick = false;
+                isCustomClick = false;
                 LoadPieChart(null,null);
+                setColorButton();
             }
         });
         thisMonthBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isMonthClick = true;
+                isDayClick = false;
+                isYearClick = false;
+                isCustomClick = false;
                 LoadPieChart(null, null);
+                setColorButton();
             }
         });
         thisYearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isYearClick = true;
+                isDayClick = false;
+                isMonthClick = false;
+                isCustomClick = false;
                 LoadPieChart(null,null);
+                setColorButton();
             }
         });
         customBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isCustomClick = true;
-                AlertDialog.Builder mydialog=new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater=LayoutInflater.from(getActivity());
-                View myview=inflater.inflate(R.layout.day_range,null);
-                mydialog.setView(myview);
-
-                final AlertDialog dialog=mydialog.create();
-                dialog.setCancelable(false);
-
-                Button applyBtn = myview.findViewById(R.id.btn_apply);
-                Button cancelBtn = myview.findViewById(R.id.btn_cancel);
-
-                final EditText sDay = myview.findViewById(R.id.start_day_edt);
-                final EditText sMonth = myview.findViewById(R.id.start_moth_edt);
-                final EditText sYear = myview.findViewById(R.id.start_year_edt);
-                final EditText eDay = myview.findViewById(R.id.end_day_edt);
-                final EditText eMonth = myview.findViewById(R.id.end_month_edt);
-                final EditText eYear = myview.findViewById(R.id.end_year_edt);
-                applyBtn.setOnClickListener(new View.OnClickListener() {
+                isDayClick = false;
+                isMonthClick = false;
+                isYearClick = false;
+                MaterialDatePicker.Builder<androidx.core.util.Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker().setTitleText("Chọn Khoản Thời Gian");
+                MaterialDatePicker<Pair<Long, Long>> mtDatePicker = builder.build();
+                mtDatePicker.setShowsDialog(true);
+                mtDatePicker.show(getChildFragmentManager(), "DATE_PICKER");
+                mtDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        Date startDate, endDate;
-                        String sDayString = sDay.getText().toString();
-                        String sMonthString = sMonth.getText().toString();
-                        String sYearString = sYear.getText().toString();
-                        String eDayString = eDay.getText().toString();
-                        String eMonthString = eMonth.getText().toString();
-                        String eYearString = eYear.getText().toString();
-                        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                        try {
-                            startDate = format.parse(sDayString + "/" + sMonthString + "/" + sYearString);
-                            endDate = format.parse(eDayString + "/" + eMonthString + "/" + eYearString);
-                            LoadPieChart(startDate, endDate);
-                            dialog.dismiss();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                    public void onPositiveButtonClick(Object selection) {
+                        androidx.core.util.Pair<Long, Long> dateRange = (Pair<Long, Long>) selection;
+                        Long startDateInMillis = dateRange.first;
+                        Long endDateInMillis = dateRange.second;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(new Date(startDateInMillis));
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
+                        calendar.set(Calendar.MINUTE, 0);
+                        calendar.set(Calendar.SECOND, 0);
+                        sDate = calendar.getTime();
+                        calendar.setTime(new Date(endDateInMillis));
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
+                        calendar.set(Calendar.MINUTE, 59);
+                        calendar.set(Calendar.SECOND, 59);
+                        eDate = calendar.getTime();
+                        LoadPieChart(sDate, eDate);
                     }
                 });
-                cancelBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                        isCustomClick = false;
-                    }
-                });
-                dialog.show();
             }
         });
         return myview;
     }
 
 
-    private void LoadPieChart(@Nullable Date sDate, @Nullable Date eDate){
+    private void LoadPieChart(@Nullable Date startDate, @Nullable Date endDate){
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
             int expense = 0;
             int income = 0;
@@ -182,7 +180,7 @@ public class GraphFragment extends Fragment {
                         } else if (year == currentYear && isYearClick) {
                             income += data.getAmount();
                         }
-                        else if (isCustomClick && date.compareTo(sDate) > 0 && date.compareTo(eDate) < 0) {
+                        else if (isCustomClick && date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0) {
                             income += data.getAmount();
                         }
                     } catch (ParseException e) {
@@ -213,8 +211,10 @@ public class GraphFragment extends Fragment {
                                 } else if (year == currentYear && isYearClick) {
                                     expense += data.getAmount();
                                 }
-                                else if (isCustomClick && date.compareTo(sDate) > 0 && date.compareTo(eDate) < 0) {
-                                    expense += data.getAmount();
+                                else if(startDate != null && endDate != null){
+                                    if (isCustomClick && date.compareTo(sDate) >= 0 && date.compareTo(eDate) <= 0) {
+                                        expense += data.getAmount();
+                                    }
                                 }
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
@@ -237,9 +237,10 @@ public class GraphFragment extends Fragment {
                         colors.add(expenseColor);
                         colors.add(incomeColor);
                         dataSet.setColors(colors);
+                        dataSet.setDrawValues(false);
 
                         PieData pieData = new PieData(dataSet);
-
+                        pieChart.setDrawEntryLabels(false);
                         pieChart.setData(pieData);
                         pieChart.getDescription().setEnabled(false);
                         pieChart.setUsePercentValues(true);
@@ -250,12 +251,6 @@ public class GraphFragment extends Fragment {
                         pieChart.setEntryLabelTextSize(14f);
                         pieChart.animateY(1000, Easing.EaseInOutQuad);
                         pieChart.invalidate();
-
-                        //Set false
-                        isDayClick = false;
-                        isMonthClick = false;
-                        isYearClick = false;
-                        isCustomClick = false;
                     }
 
                     @Override
@@ -269,5 +264,47 @@ public class GraphFragment extends Fragment {
 
             }
         });
+    }
+    public void setColorButton(){
+        if(isDayClick){
+            toDayBtn.setTextColor(Color.parseColor("#a8abf7"));
+            thisMonthBtn.setTextColor(Color.GRAY);
+            thisYearBtn.setTextColor(Color.GRAY);
+            customBtn.setTextColor(Color.GRAY);
+            toDayBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            thisMonthBtn.setTypeface(Typeface.DEFAULT);
+            thisYearBtn.setTypeface(Typeface.DEFAULT);
+            customBtn.setTypeface(Typeface.DEFAULT);
+        }
+        if(isMonthClick){
+            toDayBtn.setTextColor(Color.GRAY);
+            thisMonthBtn.setTextColor(Color.parseColor("#a8abf7"));
+            thisYearBtn.setTextColor(Color.GRAY);
+            customBtn.setTextColor(Color.GRAY);
+            toDayBtn.setTypeface(Typeface.DEFAULT);
+            thisMonthBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            thisYearBtn.setTypeface(Typeface.DEFAULT);
+            customBtn.setTypeface(Typeface.DEFAULT);
+        }
+        if(isYearClick){
+            toDayBtn.setTextColor(Color.GRAY);
+            thisMonthBtn.setTextColor(Color.GRAY);
+            thisYearBtn.setTextColor(Color.parseColor("#a8abf7"));
+            customBtn.setTextColor(Color.GRAY);
+            toDayBtn.setTypeface(Typeface.DEFAULT);
+            thisMonthBtn.setTypeface(Typeface.DEFAULT);
+            thisYearBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            customBtn.setTypeface(Typeface.DEFAULT);
+        }
+        if(isCustomClick){
+            toDayBtn.setTextColor(Color.GRAY);
+            thisMonthBtn.setTextColor(Color.GRAY);
+            thisYearBtn.setTextColor(Color.GRAY);
+            customBtn.setTextColor(Color.parseColor("#a8abf7"));
+            toDayBtn.setTypeface(Typeface.DEFAULT);
+            thisMonthBtn.setTypeface(Typeface.DEFAULT);
+            thisYearBtn.setTypeface(Typeface.DEFAULT);
+            customBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        }
     }
 }
