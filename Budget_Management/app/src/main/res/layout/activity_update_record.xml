@@ -49,20 +49,23 @@
                         android:id="@+id/radioUpdateGroupType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:enabled="false">
                         <RadioButton
                             android:id="@+id/radioButtonExpense"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Chi phí"
                             android:textSize="16sp"
-                            android:layout_marginRight="40dp"/>
+                            android:layout_marginRight="40dp"
+                            android:enabled="false"/>
                         <RadioButton
                             android:id="@+id/radioButtonIncome"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Thu nhập"
-                            android:textSize="16sp"/>
+                            android:textSize="16sp"
+                            android:enabled="false"/>
                     </RadioGroup>
                 </LinearLayout>
 

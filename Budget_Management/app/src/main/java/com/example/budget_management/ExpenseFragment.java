@@ -36,6 +36,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -125,7 +126,7 @@ public class ExpenseFragment extends Fragment {
                         Data data = myDataSnapshot.getValue(Data.class);
                         totalValue += data.getAmount();
                         String sTotalValue = String.valueOf(totalValue);
-                        expenseTotalSum.setText(sTotalValue);
+                        expenseTotalSum.setText(formatAmountWithSeparators(sTotalValue) + " VND");
                     }
                 }
 
@@ -195,7 +196,7 @@ public class ExpenseFragment extends Fragment {
                         Data data = myDataSnapshot.getValue(Data.class);
                         totalValue += data.getAmount();
                         String sTotalValue = String.valueOf(totalValue);
-                        expenseTotalSum.setText(sTotalValue);
+                        expenseTotalSum.setText(formatAmountWithSeparators(sTotalValue) + " VND");
                     }
                 }
 
@@ -303,8 +304,7 @@ public class ExpenseFragment extends Fragment {
         }
         private  void setAmmount(long ammount){
             TextView mAmmount=mView.findViewById(R.id.ammount_txt_expense);
-            String stammount=String.valueOf(ammount);
-            mAmmount.setText(stammount);
+            mAmmount.setText(formatAmount(ammount));
         }
         private void setIcon(int image, int color) {
             ImageView imageView = mView.findViewById(R.id.expense_icon);
@@ -400,5 +400,36 @@ public class ExpenseFragment extends Fragment {
             return drawableId;
         }
         return 0;
+    }
+
+    public String formatAmount(long amount) {
+        if (amount >= 1000000000) {
+            double billions = amount / 1000000000.0;
+            DecimalFormat df = new DecimalFormat("0.##");
+            return df.format(billions) + " T đ";
+        } else if (amount >= 1000000) {
+            double millions = amount / 1000000.0;
+            DecimalFormat df = new DecimalFormat("0.##");
+            return df.format(millions) + " Tr đ";
+        } else {
+            DecimalFormat df = new DecimalFormat("#,###");
+            return df.format(amount) + " đ";
+        }
+    }
+
+    public String formatAmountWithSeparators(String amountString) {
+        try {
+            long amount = Long.parseLong(amountString);
+            if (amount >= 1000) {
+                DecimalFormat df = new DecimalFormat("#,###");
+                return df.format(amount);
+            } else {
+                return amountString;
+            }
+        } catch (NumberFormatException e) {
+            // Xử lý lỗi nếu chuỗi không phải là số hợp lệ
+            e.printStackTrace();
+            return amountString;
+        }
     }
 }

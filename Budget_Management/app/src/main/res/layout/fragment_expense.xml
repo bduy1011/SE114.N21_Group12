@@ -20,27 +20,32 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:layout_margin="10dp">
+                android:layout_marginVertical="10dp"
+                android:layout_marginHorizontal="2dp">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/black"
-                    android:text="Chi phí"
+                    android:text="Chi phí:"
+                    android:gravity="end"
                     android:textStyle="bold"/>
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:layout_margin="10dp">
+                android:layout_marginVertical="10dp"
+                android:layout_marginHorizontal="5dp">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/expense_txt_result"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textColor="@color/expense_ammount"
+                    android:gravity="start"
+                    android:textStyle="bold"
                     android:text="0"/>
             </RelativeLayout>
 

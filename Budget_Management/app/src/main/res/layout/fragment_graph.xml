@@ -2,73 +2,134 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/graph_name"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Expense and Income Graph"
-        android:textSize="24dp"
-        android:textStyle="bold"></TextView>
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_gravity="top">
 
-    <androidx.cardview.widget.CardView
-        android:layout_margin="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="400dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Tổng thu chi"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:id="@+id/total_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="0 VND"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <LinearLayout
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="0dp"
+            android:weightSum="2">
+
+            <RadioGroup
+                android:id="@+id/radio_group_income_expense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-                <Button
-                    android:textAllCaps="false"
-                    android:id="@+id/today_btn"
-                    android:textSize="13sp"
-                    android:layout_width="73dp"
-                    android:layout_height="wrap_content"
-                    android:text="Ngày"
-                    android:background="@android:color/transparent"
-                    android:textColor="@color/grey"/>
-                <Button
-                    android:id="@+id/month_btn"
-                    android:textSize="13sp"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:textColor="@color/grey"
-                    android:text="Tháng"
-                    android:textAllCaps="false" />
-                <Button
-                    android:id="@+id/year_btn"
-                    android:textAllCaps="false"
-                    android:background="@android:color/transparent"
-                    android:textColor="@color/grey"
-                    android:textSize="13sp"
-                    android:layout_width="70dp"
-                    android:layout_height="wrap_content"
-                    android:text="Năm" />
-                <Button
-                    android:id="@+id/custom_btn"
-                    android:textAllCaps="false"
-                    android:textSize="13sp"
-                    android:background="@android:color/transparent"
-                    android:textColor="@color/grey"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Khoảng thời gian" />
-            </LinearLayout>
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pieChart"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="10dp">
+
+
+            </RadioGroup>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@color/lavender">
+
+        <TextView
+            android:id="@+id/graph_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Đồ Thị Thống Kê"
+            android:textSize="24dp"
+            android:layout_marginBottom="20dp"
+            android:background="@color/lavender"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            app:cardCornerRadius="15dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <Button
+                        android:textAllCaps="false"
+                        android:id="@+id/today_btn"
+                        android:textSize="13sp"
+                        android:layout_width="73dp"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"/>
+                    <Button
+                        android:id="@+id/month_btn"
+                        android:textSize="13sp"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"
+                        android:text="Tháng"
+                        android:textAllCaps="false" />
+                    <Button
+                        android:id="@+id/year_btn"
+                        android:textAllCaps="false"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"
+                        android:textSize="13sp"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="Năm" />
+                    <Button
+                        android:id="@+id/custom_btn"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:background="@android:color/transparent"
+                        android:textColor="@color/grey"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Khoảng thời gian" />
+                </LinearLayout>
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 </LinearLayout>

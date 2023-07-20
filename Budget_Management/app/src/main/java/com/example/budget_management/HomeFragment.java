@@ -285,30 +285,14 @@ public class HomeFragment extends Fragment {
                 setColorButton();
             }
         });
-
-        //Load data from begin
-//        totalExpenseResult.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                isExpense = true;
-//                isIncome = false;
-//                loadExpensePieChart(sDate,eDate);
-//            }
-//        });
-//        totalIncomeResult.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                isIncome = true;
-//                isExpense = false;
-//                loadIncomePieChart(sDate,eDate);
-//            }
-//        });
         fab_main_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addData();
             }
         });
+
+        setColorButton();
 
         return myview;
     }
@@ -420,21 +404,17 @@ public class HomeFragment extends Fragment {
                         int day = calendar.get(Calendar.DAY_OF_MONTH);
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                             totalIncomeSum += data.getAmount();
-                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
                             totalIncomeSum +=data.getAmount();
-                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         } else if (year == currentYear && isYearClick) {
                             totalIncomeSum += data.getAmount();
-                            //totalIncomeResult.setText(formatCurrency(totalIncomeSum));
                             dataList.add(data);
                         }
                         else if (isCustomClick && startDate != null && endDate != null) {
                             if(date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0){
                                 totalIncomeSum += data.getAmount();
-                                //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                                 dataList.add(data);
                             }
                         }
@@ -478,9 +458,9 @@ public class HomeFragment extends Fragment {
                 dataSet.setDrawValues(false);
 
 
-                mainChart.setCenterText("\tIncome Money\n"+totalIncomeSum + "đ");
+                mainChart.setCenterText(formatAmount(totalIncomeSum));
                 mainChart.setCenterTextColor(Color.parseColor("#00A86B"));
-                mainChart.setCenterTextSize(20f);
+                mainChart.setCenterTextSize(30f);
                 mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
 
 
@@ -513,7 +493,7 @@ public class HomeFragment extends Fragment {
 
     private void loadAccountBalance() {
         accountBl = sumOfAllIncome - sumOfAllExpense;
-        accountBalanceText.setText(String.valueOf(accountBl)+" VND");
+        accountBalanceText.setText(formatAmountWithSeparators(String.valueOf(accountBl)) + " VND");
         if(accountBl >= 0){
             accountBalanceText.setTextColor(Color.parseColor("#00A86B"));
         }else{
@@ -549,21 +529,17 @@ public class HomeFragment extends Fragment {
                         int day = calendar.get(Calendar.DAY_OF_MONTH);
                         if(day == currentDay && month == currentMonth && year == currentYear && isDayClick) {
                             totalExpenseSum += data.getAmount();
-                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         } else if (month == currentMonth && year == currentYear && isMonthClick) {
                             totalExpenseSum += data.getAmount();
-                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         } else if (year == currentYear && isYearClick) {
                             totalExpenseSum += data.getAmount();
-                            //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                             dataList.add(data);
                         }
                         else if (isCustomClick && startDate != null && endDate != null) {
                             if(date.compareTo(startDate) >= 0 && date.compareTo(endDate) <= 0){
                                 totalExpenseSum += data.getAmount();
-                                //totalExpenseResult.setText(formatCurrency(totalExpenseSum));
                                 dataList.add(data);
                             }
                         }
@@ -600,9 +576,9 @@ public class HomeFragment extends Fragment {
                 expenseData.setValueTextSize(12f);
                 expenseData.setValueTextColor(Color.BLACK);
 
-                mainChart.setCenterText("\tExpense Money\n"+ totalExpenseSum + "");
+                mainChart.setCenterText(formatAmount(totalExpenseSum));
                 mainChart.setCenterTextColor(Color.RED);
-                mainChart.setCenterTextSize(20f);
+                mainChart.setCenterTextSize(30f);
                 mainChart.setCenterTextTypeface(Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD));
 
 
@@ -770,9 +746,7 @@ public class HomeFragment extends Fragment {
         }
         private  void setIncomeAmmount(float ammount){
             TextView mAmmount=mView.findViewById(R.id.amount_text);
-            DecimalFormat decimalFormat = new DecimalFormat("#");
-            String stammount= decimalFormat.format(ammount);
-            mAmmount.setText(stammount);
+            mAmmount.setText(formatAmount((int)ammount));
         }
         private void setIcon(int image, int color) {
             ImageView imageView = mView.findViewById(R.id.icon_imageview);
@@ -875,9 +849,7 @@ public class HomeFragment extends Fragment {
         }
         private  void setExpenseAmmount(float ammount){
             TextView mAmmount=mView.findViewById(R.id.amount_text);
-            DecimalFormat decimalFormat = new DecimalFormat("#");
-            String stammount= decimalFormat.format(ammount);
-            mAmmount.setText(stammount);
+            mAmmount.setText(formatAmount((int) ammount));
         }
         private void setIcon(int image, int color) {
             ImageView imageView = mView.findViewById(R.id.icon_imageview);
@@ -981,7 +953,7 @@ public class HomeFragment extends Fragment {
         if (amount >= 1000000000) {
             double billions = amount / 1000000000.0;
             DecimalFormat df = new DecimalFormat("0.##");
-            return df.format(billions) + " Tr đ";
+            return df.format(billions) + " T đ";
         } else if (amount >= 1000000) {
             double millions = amount / 1000000.0;
             DecimalFormat df = new DecimalFormat("0.##");
@@ -989,6 +961,22 @@ public class HomeFragment extends Fragment {
         } else {
             DecimalFormat df = new DecimalFormat("#,###");
             return df.format(amount) + " đ";
+        }
+    }
+
+    public String formatAmountWithSeparators(String amountString) {
+        try {
+            long amount = Long.parseLong(amountString);
+            if (amount >= 1000) {
+                DecimalFormat df = new DecimalFormat("#,###");
+                return df.format(amount);
+            } else {
+                return amountString;
+            }
+        } catch (NumberFormatException e) {
+            // Xử lý lỗi nếu chuỗi không phải là số hợp lệ
+            e.printStackTrace();
+            return amountString;
         }
     }
 }

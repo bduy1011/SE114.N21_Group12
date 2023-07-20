@@ -1,6 +1,5 @@
 package com.example.budget_management;
 
-import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -8,9 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextClock;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +32,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,6 +57,10 @@ public class GraphFragment extends Fragment {
     private Date sDate = null;
     private Date eDate = null;
 
+    private TextView accountBalanceText;
+
+    int expense, income;
+
     GraphFragment() {
 
     }
@@ -72,6 +75,7 @@ public class GraphFragment extends Fragment {
         customBtn=myview.findViewById(R.id.custom_btn);
         thisMonthBtn = myview.findViewById(R.id.month_btn);
         thisYearBtn = myview.findViewById(R.id.year_btn);
+        accountBalanceText = myview.findViewById(R.id.total_amount);
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser mUser = mAuth.getCurrentUser();
@@ -79,6 +83,9 @@ public class GraphFragment extends Fragment {
 
         mIncomeDatabase = FirebaseDatabase.getInstance().getReference().child("IncomeData").child(uid);
         mExpenseDatabase = FirebaseDatabase.getInstance().getReference().child("ExpenseData").child(uid);
+
+        LoadPieChart(null, null);
+        setColorButton();
 
         toDayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +116,7 @@ public class GraphFragment extends Fragment {
                 isDayClick = false;
                 isMonthClick = false;
                 isCustomClick = false;
+
                 LoadPieChart(null,null);
                 setColorButton();
             }
@@ -146,14 +154,15 @@ public class GraphFragment extends Fragment {
                 });
             }
         });
+
         return myview;
     }
 
 
     private void LoadPieChart(@Nullable Date startDate, @Nullable Date endDate){
+        expense = 0;
+        income = 0;
         mIncomeDatabase.addValueEventListener(new ValueEventListener() {
-            int expense = 0;
-            int income = 0;
             String typeOfPieChart = "";
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -222,35 +231,38 @@ public class GraphFragment extends Fragment {
                         }
 
                         ArrayList<PieEntry> entries = new ArrayList<>();
-                        entries.add(new PieEntry((float) expense, "Doanh thu"));
-                        entries.add(new PieEntry((float) income, "Chi phí"));
+                        entries.add(new PieEntry((float) expense, "Chi phí"));
+                        entries.add(new PieEntry((float) income, "Doanh thu"));
 
                         PieDataSet dataSet = new PieDataSet(entries, typeOfPieChart);
 
                         dataSet.setValueFormatter(new PercentFormatter(pieChart));
                         dataSet.setValueTextSize(16f);
+                        dataSet.setValueTextColor(Color.WHITE);
 
                         ArrayList<Integer> colors = new ArrayList<>();
 
-                        int incomeColor = Color.parseColor("#F91115"); //Green but lighter
-                        int expenseColor = Color.parseColor("#00CC66");//Red but lighter
+                        int incomeColor = Color.parseColor("#00CC66"); //Green but lighter
+                        int expenseColor = Color.parseColor("#F91115"); //Red but lighter
                         colors.add(expenseColor);
                         colors.add(incomeColor);
                         dataSet.setColors(colors);
-                        dataSet.setDrawValues(false);
+                        dataSet.setValueTextSize(14f);
 
                         PieData pieData = new PieData(dataSet);
-                        pieChart.setDrawEntryLabels(false);
+
                         pieChart.setData(pieData);
                         pieChart.getDescription().setEnabled(false);
                         pieChart.setUsePercentValues(true);
                         pieChart.setDrawHoleEnabled(true);
                         pieChart.setHoleColor(Color.TRANSPARENT);
                         pieChart.setTransparentCircleRadius(40f);
-                        pieChart.setEntryLabelColor(Color.BLACK);
+                        pieChart.setEntryLabelColor(Color.WHITE);
                         pieChart.setEntryLabelTextSize(14f);
                         pieChart.animateY(1000, Easing.EaseInOutQuad);
                         pieChart.invalidate();
+
+                        loadAccountBalance(income, expense);
                     }
 
                     @Override
@@ -305,6 +317,32 @@ public class GraphFragment extends Fragment {
             thisMonthBtn.setTypeface(Typeface.DEFAULT);
             thisYearBtn.setTypeface(Typeface.DEFAULT);
             customBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        }
+    }
+
+    private void loadAccountBalance(int sumOfAllIncome, int sumOfAllExpense) {
+        int accountBl = sumOfAllIncome - sumOfAllExpense;
+        accountBalanceText.setText(formatAmountWithSeparators(String.valueOf(accountBl)) + " VND");
+        if(accountBl >= 0){
+            accountBalanceText.setTextColor(Color.parseColor("#00A86B"));
+        }else{
+            accountBalanceText.setTextColor(Color.RED);
+        }
+    }
+
+    public String formatAmountWithSeparators(String amountString) {
+        try {
+            long amount = Long.parseLong(amountString);
+            if (amount >= 1000) {
+                DecimalFormat df = new DecimalFormat("#,###");
+                return df.format(amount);
+            } else {
+                return amountString;
+            }
+        } catch (NumberFormatException e) {
+            // Xử lý lỗi nếu chuỗi không phải là số hợp lệ
+            e.printStackTrace();
+            return amountString;
         }
     }
 }

@@ -545,8 +545,11 @@ public class UpdateRecordActivity extends AppCompatActivity {
                     String mDate = sdf.format(mSelectedDate);
 
                     Data data=new Data(amount,type,note,post_key,mDate, colorCatalog, iconCatalog);
-                    mExpenseDatabase.child(post_key).setValue(data);
-
+                    if (mSelectedType.equals("Chi phí"))
+                        mExpenseDatabase.child(post_key).setValue(data);
+                    else if (mSelectedType.equals("Thu nhập")) {
+                        mIncomeDatabase.child(post_key).setValue(data);
+                    }
                     finish();
                 }
             }
