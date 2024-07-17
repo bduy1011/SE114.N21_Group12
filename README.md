@@ -1,3 +1,5 @@
+![MoneyManagement](https://github.com/user-attachments/assets/43e53557-37c8-4093-97b5-f8d86dd76ddb)
+
 # SE114.N23 - NHẬP MÔN ỨNG DỤNG DI ĐỘNG
 
 ## Đề tài: ỨNG DỤNG QUẢN LÝ CHI TIÊU
